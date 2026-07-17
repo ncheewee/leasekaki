@@ -25,6 +25,8 @@
 
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+    html.modal-open,
+    body.modal-open { overflow: hidden; }
     body {
       margin: 0;
       background: var(--cream);
@@ -719,6 +721,8 @@
     .detail-sheet {
       max-height: min(88vh, 760px);
       overflow: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       border-radius: 24px 24px 0 0;
       background: var(--paper);
       box-shadow: 0 -18px 50px rgba(16, 43, 54, .18);
@@ -730,14 +734,22 @@
       position: relative;
       min-height: 235px;
       background: var(--cream);
+      overflow: hidden;
+      touch-action: pan-y;
+      user-select: none;
+    }
+    .detail-photo .photo-track {
+      min-height: 235px;
     }
     .detail-photo img {
+      flex: 0 0 100%;
       width: 100%;
       height: 100%;
       min-height: 235px;
       object-fit: cover;
       display: block;
     }
+    .detail-photo .photo-dots { bottom: 14px; }
     .detail-close {
       position: absolute;
       top: 12px;
@@ -790,28 +802,63 @@
     .insight-head { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
     .insight-head strong { font-size: 16px; letter-spacing: -.03em; }
     .insight-head small { color: var(--muted); font-size: 11px; font-weight: 800; text-align: right; }
-    .trend-bars {
-      height: 82px;
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 5px;
-      align-items: end;
-    }
-    .trend-bars i {
-      min-height: 16px;
-      border-radius: 999px 999px 4px 4px;
-      background: linear-gradient(180deg, var(--mint), #73c9a7);
-    }
-    .scatter-plot {
+    .chart-box {
       position: relative;
-      height: 138px;
+      height: 156px;
+      padding: 18px 18px 24px 34px;
       border: 1px solid rgba(16, 43, 54, .08);
       border-radius: 15px;
       background:
-        linear-gradient(90deg, rgba(16, 43, 54, .06) 1px, transparent 1px) 0 0 / 25% 100%,
-        linear-gradient(0deg, rgba(16, 43, 54, .06) 1px, transparent 1px) 0 0 / 100% 33.3%,
+        linear-gradient(90deg, rgba(16, 43, 54, .07) 1px, transparent 1px) 34px 18px / calc((100% - 52px) / 4) calc(100% - 42px),
+        linear-gradient(0deg, rgba(16, 43, 54, .07) 1px, transparent 1px) 34px 18px / calc(100% - 52px) calc((100% - 42px) / 3),
         rgba(255, 253, 248, .72);
       overflow: hidden;
+    }
+    .chart-title {
+      margin: 2px 0 -4px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .axis-label {
+      position: absolute;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+    .axis-label.y { left: 8px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center; }
+    .axis-label.x { left: 50%; bottom: 6px; transform: translateX(-50%); }
+    .axis-tick {
+      position: absolute;
+      color: rgba(49, 80, 91, .72);
+      font-size: 9px;
+      font-weight: 850;
+      pointer-events: none;
+    }
+    .axis-tick.y-max { left: 7px; top: 14px; }
+    .axis-tick.y-min { left: 7px; bottom: 22px; }
+    .axis-tick.x-start { left: 34px; bottom: 6px; }
+    .axis-tick.x-end { right: 12px; bottom: 6px; }
+    .trend-segment {
+      position: absolute;
+      height: 3px;
+      border-radius: 999px;
+      background: var(--mint-deep);
+      transform-origin: left center;
+      box-shadow: 0 0 0 1px rgba(255, 253, 248, .6);
+    }
+    .trend-point {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border: 2px solid var(--paper);
+      border-radius: 999px;
+      background: var(--mint-deep);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 4px 10px rgba(16, 43, 54, .15);
     }
     .scatter-plot i {
       position: absolute;
@@ -819,7 +866,7 @@
       height: 10px;
       border-radius: 999px;
       background: rgba(49, 80, 91, .35);
-      transform: translate(-50%, 50%);
+      transform: translate(-50%, -50%);
     }
     .scatter-plot i.current {
       width: 15px;
@@ -1133,8 +1180,9 @@
 
   <section id="detailBackdrop" class="detail-backdrop" aria-hidden="true">
     <article class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
-      <div class="detail-photo">
-        <img id="detailImage" src="./assets/listings/01-bishan-hdb-living.jpg" alt="">
+      <div id="detailPhoto" class="detail-photo">
+        <div id="detailCarousel"></div>
+        <div id="detailPhotoDots"></div>
         <button id="detailClose" class="detail-close" type="button" aria-label="Close listing details">×</button>
       </div>
       <div class="detail-body">
@@ -1147,14 +1195,16 @@
         </div>
         <div id="detailFacts" class="detail-facts"></div>
         <p id="detailCopy" style="margin:0;color:var(--ink-soft);line-height:1.55"></p>
-        <section class="insight-card" aria-label="Price insights">
+        <section class="insight-card" aria-label="AI insights">
           <div class="insight-head">
-            <strong>Price insights</strong>
+            <strong>AI insights</strong>
             <small id="insightLabel">12-month trend</small>
           </div>
           <p id="insightCopy" class="insight-note"></p>
-          <div id="trendBars" class="trend-bars" aria-label="Transaction price trend over 12 months"></div>
-          <div id="scatterPlot" class="scatter-plot" aria-label="Comparable offering prices in neighbourhood"></div>
+          <div class="chart-title">Transaction rent trend, last 12 months</div>
+          <div id="trendBars" class="chart-box trend-line" aria-label="Transaction price trend over 12 months"></div>
+          <div class="chart-title">Comparable asking rents nearby</div>
+          <div id="scatterPlot" class="chart-box scatter-plot" aria-label="Comparable offering prices in neighbourhood"></div>
         </section>
         <div class="detail-actions">
           <button id="detailChat" class="button secondary" type="button">Chat</button>
@@ -1435,9 +1485,9 @@
 
     function openListingDetail(item) {
       selectedListing = item;
-      const image = (item.images && item.images[photoIndexes[item.title] || 0]) || item.image;
-      document.getElementById("detailImage").src = image;
-      document.getElementById("detailImage").alt = item.title;
+      document.getElementById("detailCarousel").innerHTML = renderPhotoTrack(item);
+      document.getElementById("detailPhotoDots").innerHTML = renderPhotoDots(item);
+      wireDetailCarousel(item);
       document.getElementById("detailPrice").innerHTML = `$${Number(item.price).toLocaleString()}<small>/mo</small>`;
       document.getElementById("detailTitle").textContent = item.title;
       document.getElementById("detailLister").textContent = `${item.lister} · ${item.mode}`;
@@ -1453,12 +1503,33 @@
       renderPriceInsights(item);
       detailBackdrop.classList.add("open");
       detailBackdrop.setAttribute("aria-hidden", "false");
+      setBodyLock();
       detailClose.focus();
+    }
+
+    function wireDetailCarousel(item) {
+      const photo = document.getElementById("detailPhoto");
+      photo.ontouchstart = (event) => { touchStartX = event.touches[0].clientX; };
+      photo.ontouchend = (event) => {
+        const delta = event.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
+      };
+      photo.onpointerdown = (event) => { pointerStartX = event.clientX; };
+      photo.onpointerup = (event) => {
+        const delta = event.clientX - pointerStartX;
+        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
+      };
+      photo.onmousedown = (event) => { mouseStartX = event.clientX; };
+      photo.onmouseup = (event) => {
+        const delta = event.clientX - mouseStartX;
+        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
+      };
     }
 
     function closeListingDetail() {
       detailBackdrop.classList.remove("open");
       detailBackdrop.setAttribute("aria-hidden", "true");
+      setBodyLock();
     }
 
     function kindToType(kind) {
@@ -1637,7 +1708,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta < 0 ? 1 : -1);
+            movePhoto(item, delta > 0 ? 1 : -1);
           }
         });
         photo.addEventListener("pointerdown", (event) => { pointerStartX = event.clientX; });
@@ -1648,7 +1719,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta < 0 ? 1 : -1);
+            movePhoto(item, delta > 0 ? 1 : -1);
           }
         });
         photo.addEventListener("mousedown", (event) => { mouseStartX = event.clientX; });
@@ -1659,7 +1730,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta < 0 ? 1 : -1);
+            movePhoto(item, delta > 0 ? 1 : -1);
           }
         });
       });
@@ -1768,10 +1839,10 @@
       const average = Math.round((item.price * (item.mode === "Room only" ? 1.04 : .97)) / 50) * 50;
       const delta = item.price - average;
       const label = Math.abs(delta) < average * .04 ? "near average" : delta < 0 ? "below average" : "above average";
-      const trend = Array.from({ length: 12 }, (_, index) => Math.round(average * (.92 + index * .009 + Math.sin(seed + index) * .035)));
+      const trend = Array.from({ length: 12 }, (_, index) => Math.round(average * (.93 + index * .008 + Math.sin(seed + index) * .028)));
       const comps = Array.from({ length: 13 }, (_, index) => ({
-        x: 10 + ((index * 7 + seed) % 78),
-        y: 18 + ((index * 11 + seed * 2) % 64)
+        size: 30 + ((index * 17 + seed) % 58),
+        rent: Math.round((average * (.82 + ((index * 11 + seed) % 38) / 100)) / 50) * 50
       }));
       return { average, delta, label, trend, comps };
     }
@@ -1779,14 +1850,71 @@
     function renderPriceInsights(item) {
       const insight = priceInsights(item);
       const comparison = insight.delta === 0 ? "right at" : `$${Math.abs(insight.delta).toLocaleString()} ${insight.delta < 0 ? "below" : "above"}`;
-      document.getElementById("insightLabel").textContent = `${item.district} comparable rents`;
-      document.getElementById("insightCopy").textContent = `Mock insight: asking rent is ${insight.label} — about ${comparison} the neighbourhood average of $${insight.average.toLocaleString()}/mo for similar ${item.mode.toLowerCase()} listings.`;
-      const maxTrend = Math.max(...insight.trend);
-      document.getElementById("trendBars").innerHTML = insight.trend.map((value) => `<i style="height:${Math.max(18, Math.round(value / maxTrend * 78))}px" title="$${value.toLocaleString()}"></i>`).join("");
-      document.getElementById("scatterPlot").innerHTML = [
-        ...insight.comps.map((point) => `<i style="left:${point.x}%;bottom:${point.y}%"></i>`),
-        `<i class="current" style="left:74%;bottom:${Math.max(16, Math.min(86, 50 + (item.price - insight.average) / insight.average * 90))}%"></i>`
-      ].join("");
+      document.getElementById("insightLabel").textContent = `${item.district} · URA-ready model`;
+      document.getElementById("insightCopy").textContent = `AI estimate: asking rent is ${insight.label} — about ${comparison} the neighbourhood average of $${insight.average.toLocaleString()}/mo for similar ${item.mode.toLowerCase()} listings. Swap-in source: URA private residential rental contracts/median rents when API credentials are connected.`;
+      renderTrendLine(insight);
+      renderScatterPlot(item, insight);
+    }
+
+    function moneyCompact(value) {
+      return `$${Number(value).toLocaleString()}`;
+    }
+
+    function renderTrendLine(insight) {
+      const values = insight.trend;
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const span = Math.max(1, max - min);
+      const points = values.map((value, index) => ({
+        x: 13 + (index / (values.length - 1)) * 78,
+        y: 80 - ((value - min) / span) * 54,
+        value
+      }));
+      const segments = points.slice(1).map((point, index) => {
+        const prev = points[index];
+        const dx = point.x - prev.x;
+        const dy = point.y - prev.y;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        return `<i class="trend-segment" style="left:${prev.x}%;top:${prev.y}%;width:${length}%;transform:rotate(${angle}deg)"></i>`;
+      }).join("");
+      document.getElementById("trendBars").innerHTML = `
+        <span class="axis-label y">Rent / mo</span>
+        <span class="axis-label x">Month</span>
+        <span class="axis-tick y-max">${moneyCompact(max)}</span>
+        <span class="axis-tick y-min">${moneyCompact(min)}</span>
+        <span class="axis-tick x-start">12m ago</span>
+        <span class="axis-tick x-end">Now</span>
+        ${segments}
+        ${points.map((point) => `<i class="trend-point" style="left:${point.x}%;top:${point.y}%" title="${moneyCompact(point.value)}"></i>`).join("")}
+      `;
+    }
+
+    function renderScatterPlot(item, insight) {
+      const comps = insight.comps;
+      const rents = comps.map((point) => point.rent).concat(item.price);
+      const sizes = comps.map((point) => point.size).concat(72);
+      const minRent = Math.min(...rents);
+      const maxRent = Math.max(...rents);
+      const minSize = Math.min(...sizes);
+      const maxSize = Math.max(...sizes);
+      const rentSpan = Math.max(1, maxRent - minRent);
+      const sizeSpan = Math.max(1, maxSize - minSize);
+      const dot = (size, rent, current = false) => {
+        const x = 15 + ((size - minSize) / sizeSpan) * 74;
+        const y = 78 - ((rent - minRent) / rentSpan) * 56;
+        return `<i class="${current ? "current" : ""}" style="left:${x}%;top:${y}%" title="${moneyCompact(rent)} · ${Math.round(size)} sqm"></i>`;
+      };
+      document.getElementById("scatterPlot").innerHTML = `
+        <span class="axis-label y">Rent / mo</span>
+        <span class="axis-label x">Comparable size / area band</span>
+        <span class="axis-tick y-max">${moneyCompact(maxRent)}</span>
+        <span class="axis-tick y-min">${moneyCompact(minRent)}</span>
+        <span class="axis-tick x-start">${Math.round(minSize)}sqm</span>
+        <span class="axis-tick x-end">${Math.round(maxSize)}sqm</span>
+        ${comps.map((point) => dot(point.size, point.rent)).join("")}
+        ${dot(72, item.price, true)}
+      `;
     }
 
     function openChat(item) {
@@ -1804,6 +1932,7 @@
       renderChatList();
       chatWindow.classList.add("open");
       chatWindow.setAttribute("aria-hidden", "false");
+      setBodyLock();
       window.setTimeout(() => document.getElementById("chatInput").focus(), 80);
     }
 
@@ -1816,6 +1945,7 @@
     function closeChat() {
       chatWindow.classList.remove("open");
       chatWindow.setAttribute("aria-hidden", "true");
+      setBodyLock();
     }
 
     function nextDates() {
@@ -1844,6 +1974,7 @@
       renderViewing();
       viewWindow.classList.add("open");
       viewWindow.setAttribute("aria-hidden", "false");
+      setBodyLock();
     }
 
     function renderViewing() {
@@ -1861,6 +1992,13 @@
     function closeViewing() {
       viewWindow.classList.remove("open");
       viewWindow.setAttribute("aria-hidden", "true");
+      setBodyLock();
+    }
+
+    function setBodyLock() {
+      const locked = detailBackdrop.classList.contains("open") || chatWindow.classList.contains("open") || viewWindow.classList.contains("open");
+      document.documentElement.classList.toggle("modal-open", locked);
+      document.body.classList.toggle("modal-open", locked);
     }
 
     chips.forEach((chip) => {
