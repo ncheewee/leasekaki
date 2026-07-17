@@ -179,6 +179,8 @@
 
     .listings { display: grid; gap: 14px; padding: 0 16px 28px; }
     .listing {
+      display: grid;
+      grid-template-rows: auto 1fr;
       overflow: hidden;
       border: 0;
       border-radius: 20px;
@@ -187,7 +189,8 @@
       box-shadow: 0 9px 28px rgba(16, 43, 54, .07);
     }
     .photo {
-      min-height: 158px;
+      min-height: 0;
+      aspect-ratio: 16 / 10;
       position: relative;
       display: grid;
       place-items: center;
@@ -236,22 +239,48 @@
     }
     .badge { left: 12px; padding: 6px 9px; font-size: 10px; font-weight: 800; }
     .save { right: 12px; width: 34px; height: 34px; display: grid; place-items: center; }
-    .listing-body { padding: 15px; }
+    .listing-body {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto auto auto auto 1fr;
+      padding: 15px;
+    }
     .price-row { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
     .price-row strong { font-size: 23px; letter-spacing: -.04em; }
     .price-row small, .meta { color: var(--muted); font-size: 12px; }
-    .title { display: block; margin-top: 8px; font-size: 16px; }
-    .meta { display: block; margin-top: 5px; line-height: 1.45; }
-    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+    .title {
+      display: -webkit-box;
+      min-height: 40px;
+      margin-top: 8px;
+      overflow: hidden;
+      font-size: 16px;
+      line-height: 1.25;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+    .meta {
+      display: -webkit-box;
+      min-height: 17px;
+      margin-top: 5px;
+      overflow: hidden;
+      line-height: 1.45;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+    }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-self: end; margin-top: 14px; }
 
     .button {
       border: 0;
       border-radius: 13px;
       min-height: 42px;
       padding: 0 14px;
+      display: grid;
+      place-items: center;
       background: var(--ink);
       color: var(--paper);
       font-weight: 800;
+      text-align: center;
+      text-decoration: none;
     }
     .button.coral { background: var(--coral); }
     .button.secondary { border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
@@ -271,6 +300,7 @@
     }
     .mock-strip {
       width: min(100%, 360px);
+      max-width: 360px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 7px;
@@ -294,6 +324,7 @@
     }
     .capture input { position: absolute; opacity: 0; pointer-events: none; }
     .capture span { max-width: 230px; color: var(--muted); font-size: 12px; }
+    .capture .mock-strip { max-width: 360px; }
     .steps { display: grid; gap: 9px; margin-top: 14px; }
     .step {
       display: flex;
@@ -421,6 +452,89 @@
       text-align: left;
     }
     .hidden { display: none; }
+    .detail-backdrop {
+      position: fixed;
+      z-index: 40;
+      inset: 0;
+      display: grid;
+      align-items: end;
+      background: rgba(16, 43, 54, .46);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease;
+    }
+    .detail-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .detail-sheet {
+      max-height: min(88vh, 760px);
+      overflow: auto;
+      border-radius: 24px 24px 0 0;
+      background: var(--paper);
+      box-shadow: 0 -18px 50px rgba(16, 43, 54, .18);
+      transform: translateY(18px);
+      transition: transform .18s ease;
+    }
+    .detail-backdrop.open .detail-sheet { transform: translateY(0); }
+    .detail-photo {
+      position: relative;
+      min-height: 235px;
+      background: var(--cream);
+    }
+    .detail-photo img {
+      width: 100%;
+      height: 100%;
+      min-height: 235px;
+      object-fit: cover;
+      display: block;
+    }
+    .detail-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 1;
+      width: 38px;
+      height: 38px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, .92);
+      color: var(--ink);
+      font-size: 20px;
+      line-height: 1;
+    }
+    .detail-body { display: grid; gap: 14px; padding: 18px 16px 22px; }
+    .detail-topline { display: flex; align-items: start; justify-content: space-between; gap: 14px; }
+    .detail-price { font-size: 28px; font-weight: 900; letter-spacing: -.05em; }
+    .detail-price small { color: var(--muted); font-size: 13px; font-weight: 800; letter-spacing: 0; }
+    .detail-title { margin: 0; font-size: 24px; line-height: 1.08; letter-spacing: -.04em; }
+    .detail-pill {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: var(--mint);
+      color: var(--mint-deep);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .detail-facts {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+    .detail-facts span {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      color: var(--ink-soft);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .detail-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
 
     @media (min-width: 780px) {
       .app { display: grid; grid-template-columns: 238px 1fr; padding-bottom: 0; }
@@ -430,15 +544,25 @@
       .snap-card { max-width: 380px; margin: -56px clamp(18px, 4vw, 62px) 0 auto; }
       .browse-content { margin: -56px clamp(18px, 4vw, 62px) 60px; padding: 24px; border-radius: 28px 28px 0 0; background: var(--cream); }
       .search, .section-heading, .listings, .chips { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
-      .listings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .listing { display: grid; grid-template-columns: 42% 1fr; min-height: 210px; }
-      .photo { min-height: 210px; }
+      .listings { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+      .listing { grid-template-columns: 42% minmax(0, 1fr); grid-template-rows: 1fr; min-height: 244px; height: 100%; }
+      .photo { aspect-ratio: auto; min-height: 100%; }
       .panel { max-width: 1020px; margin: 38px auto; }
       .desktop-grid { display: grid; grid-template-columns: .92fr 1.08fr; gap: 28px; align-items: start; }
       .form.two { grid-template-columns: repeat(2, 1fr); }
       .deal-card, .timeline { max-width: 1040px; margin-left: auto; margin-right: auto; }
       .nav { display: none; }
       .toast { left: auto; right: 24px; bottom: 24px; width: 320px; }
+      .detail-backdrop { align-items: center; padding: 28px; }
+      .detail-sheet {
+        width: min(880px, 100%);
+        margin: auto;
+        display: grid;
+        grid-template-columns: minmax(0, .94fr) minmax(0, 1fr);
+        border-radius: 24px;
+      }
+      .detail-photo, .detail-photo img { min-height: 100%; }
+      .detail-body { padding: 28px; }
     }
   </style>
 </head>
@@ -554,6 +678,30 @@
     </section>
   </main>
 
+  <section id="detailBackdrop" class="detail-backdrop" aria-hidden="true">
+    <article class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <div class="detail-photo">
+        <img id="detailImage" src="./assets/listings/01-bishan-hdb-living.jpg" alt="">
+        <button id="detailClose" class="detail-close" type="button" aria-label="Close listing details">×</button>
+      </div>
+      <div class="detail-body">
+        <div class="detail-topline">
+          <div>
+            <div id="detailPrice" class="detail-price">$3,750<small>/mo</small></div>
+            <h2 id="detailTitle" class="detail-title">Sunny 4-room near Bishan MRT</h2>
+          </div>
+          <span id="detailLister" class="detail-pill">Owner</span>
+        </div>
+        <div id="detailFacts" class="detail-facts"></div>
+        <p id="detailCopy" style="margin:0;color:var(--ink-soft);line-height:1.55"></p>
+        <div class="detail-actions">
+          <button id="detailChat" class="button secondary" type="button">Chat</button>
+          <button id="detailView" class="button coral" type="button">Arrange viewing</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
   <nav class="nav" aria-label="Primary navigation">
     <button class="active" type="button" data-view="browse"><span>⌂</span>Explore</button>
     <button type="button" data-view="list"><span>◎</span>List</button>
@@ -597,6 +745,9 @@
     const search = document.getElementById("search");
     const toast = document.getElementById("toast");
     const dataStatus = document.getElementById("dataStatus");
+    const detailBackdrop = document.getElementById("detailBackdrop");
+    const detailClose = document.getElementById("detailClose");
+    let selectedListing = null;
 
     function showToast(message) {
       toast.textContent = "✓ " + message;
@@ -653,8 +804,40 @@
         available: formatAvailability(item.availableFrom),
         lister: titleCase(item.listerKind),
         image: listingPhotos[item.title] || item.photoUrls?.[0] || listingPhotoPool[index % listingPhotoPool.length],
+        description: item.description,
+        rentRange: item.suggestedRentMin && item.suggestedRentMax ? `$${Number(item.suggestedRentMin).toLocaleString()}-$${Number(item.suggestedRentMax).toLocaleString()}` : "Guide pending",
         tone: toneForIndex(index)
       };
+    }
+
+    function detailCopy(item) {
+      return item.description || `${item.title} is available from ${item.available.toLowerCase()} at ${item.area}. The mock transaction lane would next help confirm viewing, offer terms and paperwork.`;
+    }
+
+    function openListingDetail(item) {
+      selectedListing = item;
+      document.getElementById("detailImage").src = item.image;
+      document.getElementById("detailImage").alt = item.title;
+      document.getElementById("detailPrice").innerHTML = `$${Number(item.price).toLocaleString()}<small>/mo</small>`;
+      document.getElementById("detailTitle").textContent = item.title;
+      document.getElementById("detailLister").textContent = item.lister;
+      document.getElementById("detailCopy").textContent = detailCopy(item);
+      document.getElementById("detailFacts").innerHTML = [
+        ["Type", item.type],
+        ["Location", item.area],
+        ["Home", item.beds],
+        ["Timing", item.available],
+        ["Rent guide", item.rentRange || "Guide pending"],
+        ["Next step", "Chat or arrange viewing"]
+      ].map(([label, value]) => `<span><strong>${escapeHtml(label)}</strong><br>${escapeHtml(value)}</span>`).join("");
+      detailBackdrop.classList.add("open");
+      detailBackdrop.setAttribute("aria-hidden", "false");
+      detailClose.focus();
+    }
+
+    function closeListingDetail() {
+      detailBackdrop.classList.remove("open");
+      detailBackdrop.setAttribute("aria-hidden", "true");
     }
 
     async function loadListings() {
@@ -681,8 +864,8 @@
       });
 
       document.getElementById("count").textContent = `${visible.length} found`;
-      document.getElementById("listings").innerHTML = visible.map((item) => `
-        <button class="listing" type="button" data-title="${escapeHtml(item.title)}">
+      document.getElementById("listings").innerHTML = visible.map((item, index) => `
+        <button class="listing" type="button" data-index="${index}" data-title="${escapeHtml(item.title)}">
           <span class="photo ${escapeHtml(item.tone)}">
             ${item.image ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}">` : ""}
             <span class="badge">${escapeHtml(item.lister)}</span>
@@ -694,13 +877,23 @@
             <strong class="title">${escapeHtml(item.title)}</strong>
             <span class="meta">${escapeHtml(item.area)}</span>
             <span class="meta">${escapeHtml(item.beds)} · ${escapeHtml(item.available)}</span>
-            <span class="actions"><span class="button secondary">Chat</span><span class="button coral">View</span></span>
+            <span class="actions"><span class="button secondary" data-action="chat">Chat</span><span class="button coral" data-action="view">View</span></span>
           </span>
         </button>
       `).join("");
 
       document.querySelectorAll(".listing").forEach((button) => {
-        button.addEventListener("click", () => showToast(`${button.dataset.title} opened in prototype mode`));
+        const item = visible[Number(button.dataset.index)];
+        button.addEventListener("click", (event) => {
+          const action = event.target.closest("[data-action]")?.dataset.action;
+          if (action === "chat") {
+            event.stopPropagation();
+            showToast(`Chat request started for ${item.title}`);
+            return;
+          }
+          openListingDetail(item);
+        });
+        button.addEventListener("dblclick", () => openListingDetail(item));
       });
     }
 
@@ -734,6 +927,22 @@
     document.querySelector("[data-publish]").addEventListener("click", () => {
       showToast("Listing published in prototype mode");
       setView("browse");
+    });
+
+    detailClose.addEventListener("click", closeListingDetail);
+    detailBackdrop.addEventListener("click", (event) => {
+      if (event.target === detailBackdrop) closeListingDetail();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && detailBackdrop.classList.contains("open")) closeListingDetail();
+    });
+    document.getElementById("detailChat").addEventListener("click", () => {
+      if (selectedListing) showToast(`Chat request started for ${selectedListing.title}`);
+      closeListingDetail();
+    });
+    document.getElementById("detailView").addEventListener("click", () => {
+      if (selectedListing) showToast(`Viewing request sent for ${selectedListing.title}`);
+      closeListingDetail();
     });
 
     renderListings();
