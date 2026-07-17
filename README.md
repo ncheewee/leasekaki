@@ -7,7 +7,9 @@ Mobile-first Singapore rental marketplace prototype: snap a property, generate a
 - Next/Vinext app for Cloudflare Workers-compatible deployment
 - Drizzle ORM
 - Neon Postgres via `@neondatabase/serverless`
-- Sites hosting
+- GitHub Pages frontend
+- Cloudflare Worker API
+- ImageKit image upload auth endpoint
 
 ## Local Development
 
@@ -45,13 +47,42 @@ Apply migrations to Neon:
 npm run db:migrate
 ```
 
-For hosted Sites deployments, add `DATABASE_URL` as a production runtime environment variable in Sites before deploying the version that should use Neon.
+For Cloudflare Worker API deployments, store `DATABASE_URL` as a Worker secret.
+
+```bash
+npx wrangler secret put DATABASE_URL --config wrangler.api.toml
+```
+
+## Cloudflare API Setup
+
+Deploy the standalone API Worker:
+
+```bash
+npx wrangler deploy --config wrangler.api.toml
+```
+
+Then update `docs/index.html` so `API_BASE` points at the deployed Worker URL.
+
+## ImageKit Setup
+
+ImageKit is a good fit for the MVP because browser uploads can go directly to ImageKit while LeaseKaki only returns one-time upload credentials from the Worker.
+
+Add these Worker secrets:
+
+```bash
+npx wrangler secret put IMAGEKIT_PRIVATE_KEY --config wrangler.api.toml
+npx wrangler secret put IMAGEKIT_PUBLIC_KEY --config wrangler.api.toml
+npx wrangler secret put IMAGEKIT_URL_ENDPOINT --config wrangler.api.toml
+```
+
+The frontend should call `GET /api/imagekit-auth` before uploading. The private key must never be placed in `docs/index.html`.
 
 ## Backend Routes
 
 - `GET /api/health`: confirms app status and Neon connectivity when configured.
 - `GET /api/listings`: returns the latest 50 persisted listings from Neon.
 - `POST /api/listings`: creates a listing draft or published listing.
+- `GET /api/imagekit-auth`: returns one-time ImageKit upload parameters for browser uploads.
 
 Minimal `POST /api/listings` payload:
 
