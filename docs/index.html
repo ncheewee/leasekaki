@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LeaseKaki - Snap. List. Lease.</title>
+  <meta name="description" content="Mobile-first Singapore rental prototype for snap-to-list property rentals and transaction follow-through.">
+  <meta property="og:title" content="LeaseKaki - Snap. List. Lease.">
+  <meta property="og:description" content="The fastest way to list and complete a Singapore lease.">
+  <meta property="og:image" content="./og.png">
+  <meta name="theme-color" content="#102b36">
+  <style>
+    :root {
+      --ink: #102b36;
+      --ink-soft: #31505b;
+      --cream: #f7f3eb;
+      --paper: #fffdf8;
+      --mint: #bbf1d1;
+      --mint-deep: #1c6b57;
+      --coral: #ff735f;
+      --line: #dcd8cf;
+      --muted: #687a80;
+      --shadow: 0 18px 50px rgba(16, 43, 54, .12);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select { font: inherit; }
+    button { color: inherit; cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid rgba(255, 115, 95, .35);
+      outline-offset: 2px;
+    }
+
+    .app { min-height: 100vh; padding-bottom: 86px; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.03em; }
+    .mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px 11px 11px 4px;
+      background: var(--mint);
+      color: var(--ink);
+      font-size: 11px;
+    }
+    .brand span:last-child span { color: var(--coral); }
+    .pilot {
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: var(--mint);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+    .hero {
+      padding: 20px 16px 46px;
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .eyebrow {
+      color: var(--mint);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      margin-bottom: 12px;
+      max-width: 760px;
+      font-size: clamp(36px, 13vw, 74px);
+      line-height: .94;
+      letter-spacing: -.06em;
+    }
+    .hero p {
+      margin-bottom: 0;
+      color: rgba(255, 255, 255, .68);
+      line-height: 1.55;
+    }
+
+    .snap-card {
+      width: calc(100% - 32px);
+      margin: -28px 16px 0;
+      border: 0;
+      border-radius: 20px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      background: var(--mint);
+      color: var(--ink);
+      text-align: left;
+      box-shadow: var(--shadow);
+    }
+    .snap-icon {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--mint);
+      font-size: 24px;
+    }
+    .snap-card small { display: block; opacity: .62; }
+    .snap-card strong { display: block; }
+
+    .search {
+      margin: 16px;
+      height: 52px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: 0 10px 26px rgba(16, 43, 54, .07);
+    }
+    .search input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); }
+
+    .chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 6px; scrollbar-width: none; }
+    .chip {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 13px;
+      background: transparent;
+      color: var(--ink-soft);
+      font-size: 12px;
+    }
+    .chip.active { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      padding: 22px 16px 12px;
+    }
+    .section-heading h2 { margin: 5px 0 0; font-size: 26px; letter-spacing: -.04em; }
+    .count { color: var(--muted); font-size: 12px; }
+
+    .listings { display: grid; gap: 14px; padding: 0 16px 28px; }
+    .listing {
+      overflow: hidden;
+      border: 0;
+      border-radius: 20px;
+      background: var(--paper);
+      text-align: left;
+      box-shadow: 0 9px 28px rgba(16, 43, 54, .07);
+    }
+    .photo {
+      min-height: 158px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, #f9c8a7, #e97866);
+    }
+    .photo.mint { background: linear-gradient(145deg, #c9efcf, #6ec3a7); }
+    .photo.sky { background: linear-gradient(145deg, #c8e5f0, #70a6c5); }
+    .photo.lilac { background: linear-gradient(145deg, #ded4ef, #9f85c3); }
+    .building {
+      width: 56%;
+      height: 84px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      padding: 16px 10px 9px;
+      border-radius: 14px 14px 4px 4px;
+      background: rgba(255, 253, 248, .72);
+      box-shadow: 0 15px 32px rgba(16, 43, 54, .16);
+      transform: perspective(480px) rotateY(-5deg);
+    }
+    .building i {
+      border-radius: 5px 5px 2px 2px;
+      background: rgba(16, 43, 54, .18);
+      border-bottom: 10px solid rgba(16, 43, 54, .12);
+    }
+    .badge, .save {
+      position: absolute;
+      top: 12px;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, .9);
+    }
+    .badge { left: 12px; padding: 6px 9px; font-size: 10px; font-weight: 800; }
+    .save { right: 12px; width: 34px; height: 34px; display: grid; place-items: center; }
+    .listing-body { padding: 15px; }
+    .price-row { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
+    .price-row strong { font-size: 23px; letter-spacing: -.04em; }
+    .price-row small, .meta { color: var(--muted); font-size: 12px; }
+    .title { display: block; margin-top: 8px; font-size: 16px; }
+    .meta { display: block; margin-top: 5px; line-height: 1.45; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+
+    .button {
+      border: 0;
+      border-radius: 13px;
+      min-height: 42px;
+      padding: 0 14px;
+      background: var(--ink);
+      color: var(--paper);
+      font-weight: 800;
+    }
+    .button.coral { background: var(--coral); }
+    .button.secondary { border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+    .button.full { width: 100%; }
+
+    .panel { margin: 16px; padding: 20px; border-radius: 22px; background: var(--paper); box-shadow: var(--shadow); }
+    .capture {
+      min-height: 300px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 12px;
+      border: 2px dashed #a8aaa5;
+      border-radius: 22px;
+      background: var(--cream);
+      text-align: center;
+    }
+    .camera {
+      width: 86px;
+      height: 86px;
+      display: grid;
+      place-items: center;
+      border-radius: 22px;
+      background: var(--ink);
+      color: var(--mint);
+      font-size: 36px;
+    }
+    .capture input { position: absolute; opacity: 0; pointer-events: none; }
+    .capture span { max-width: 230px; color: var(--muted); font-size: 12px; }
+    .steps { display: grid; gap: 9px; margin-top: 14px; }
+    .step {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 15px;
+      background: var(--cream);
+      color: var(--ink-soft);
+      font-size: 13px;
+    }
+    .step b {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--mint);
+      color: var(--mint-deep);
+    }
+    .form { display: grid; gap: 12px; }
+    label { display: grid; gap: 7px; color: var(--ink-soft); font-size: 11px; font-weight: 800; }
+    input, select {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 0 12px;
+      background: var(--paper);
+      color: var(--ink);
+    }
+    .rent-card {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 17px;
+      border-radius: 18px;
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .rent-card strong { font-size: 25px; letter-spacing: -.04em; }
+    .confidence {
+      width: max-content;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(187, 241, 209, .18);
+      color: var(--mint);
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .range { height: 8px; border-radius: 999px; background: rgba(255, 255, 255, .14); overflow: hidden; }
+    .range span { display: block; width: 44%; height: 100%; margin-left: 30%; border-radius: inherit; background: var(--coral); }
+    .deal-card { margin: -28px 16px 16px; padding: 16px; border-radius: 20px; background: var(--mint); box-shadow: var(--shadow); }
+    .deal-title { display: grid; grid-template-columns: 66px 1fr; gap: 12px; align-items: center; }
+    .mini { width: 66px; height: 52px; border-radius: 14px; background: linear-gradient(145deg, #f9c8a7, #e97866); }
+    .progress-label { display: flex; justify-content: space-between; margin-top: 16px; color: var(--ink-soft); font-size: 11px; }
+    .progress { height: 8px; margin-top: 8px; border-radius: 999px; background: rgba(16, 43, 54, .12); overflow: hidden; }
+    .progress span { display: block; width: 64%; height: 100%; background: var(--coral); }
+    .timeline { display: grid; margin: 0 16px 28px; border-radius: 20px; background: var(--paper); overflow: hidden; box-shadow: 0 9px 28px rgba(16, 43, 54, .06); }
+    .timeline-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      padding: 15px;
+      border-bottom: 1px solid var(--line);
+    }
+    .timeline-row:last-child { border-bottom: 0; }
+    .dot {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .done .dot { border-color: var(--mint); background: var(--mint); color: var(--mint-deep); }
+    .active-row .dot { border-color: var(--coral); background: var(--coral); color: var(--paper); }
+    .timeline-row strong { display: block; font-size: 13px; }
+    .timeline-row small { display: block; margin-top: 3px; color: var(--muted); }
+    .tail { color: var(--muted); font-size: 10px; }
+
+    .nav {
+      position: fixed;
+      z-index: 20;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 253, 248, .94);
+      box-shadow: 0 14px 32px rgba(16, 43, 54, .14);
+      backdrop-filter: blur(14px);
+    }
+    .nav button {
+      min-height: 48px;
+      border: 0;
+      border-radius: 15px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .nav button.active { background: var(--mint); color: var(--ink); }
+    .nav span { display: block; font-size: 18px; line-height: 1; }
+    .toast {
+      position: fixed;
+      z-index: 30;
+      left: 16px;
+      right: 16px;
+      bottom: 82px;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: 15px;
+      background: var(--ink);
+      color: var(--paper);
+      box-shadow: var(--shadow);
+      text-align: left;
+    }
+    .hidden { display: none; }
+
+    @media (min-width: 780px) {
+      .app { display: grid; grid-template-columns: 238px 1fr; padding-bottom: 0; }
+      .topbar { position: sticky; height: 100vh; align-items: start; flex-direction: column; justify-content: start; padding: 28px 20px; }
+      .pilot { margin-top: auto; border-radius: 18px; padding: 16px; line-height: 1.5; }
+      .hero { padding: 52px clamp(28px, 5vw, 76px) 110px; }
+      .snap-card { max-width: 380px; margin: -56px clamp(18px, 4vw, 62px) 0 auto; }
+      .browse-content { margin: -56px clamp(18px, 4vw, 62px) 60px; padding: 24px; border-radius: 28px 28px 0 0; background: var(--cream); }
+      .search, .section-heading, .listings, .chips { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
+      .listings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .listing { display: grid; grid-template-columns: 42% 1fr; min-height: 210px; }
+      .photo { min-height: 210px; }
+      .panel { max-width: 1020px; margin: 38px auto; }
+      .desktop-grid { display: grid; grid-template-columns: .92fr 1.08fr; gap: 28px; align-items: start; }
+      .form.two { grid-template-columns: repeat(2, 1fr); }
+      .deal-card, .timeline { max-width: 1040px; margin-left: auto; margin-right: auto; }
+      .nav { display: none; }
+      .toast { left: auto; right: 24px; bottom: 24px; width: 320px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand"><span class="mark">LK</span><span>Lease<span>Kaki</span></span></div>
+      <div class="pilot">Free pilot<br>List and transact free for 6 months.</div>
+    </header>
+
+    <section>
+      <div id="browse" class="view active">
+        <section class="hero">
+          <span class="eyebrow">Singapore rentals, simplified</span>
+          <h1>Find a place.<br>Skip the runaround.</h1>
+          <p>Fresh owner and authorised-agent listings, with every next step handled in one place.</p>
+        </section>
+        <button class="snap-card" type="button" data-view="list">
+          <span class="snap-icon">◎</span>
+          <span><small>Have a property?</small><strong>Snap to list in 60 sec</strong></span>
+          <span>→</span>
+        </button>
+        <div class="browse-content">
+          <label class="search">
+            <span>⌕</span>
+            <input id="search" placeholder="MRT, estate or project" aria-label="Search rentals">
+            <span>≡</span>
+          </label>
+          <div class="chips" aria-label="Property type">
+            <button class="chip active" type="button" data-filter="All">All</button>
+            <button class="chip" type="button" data-filter="Rooms">Rooms</button>
+            <button class="chip" type="button" data-filter="HDB">HDB</button>
+            <button class="chip" type="button" data-filter="Condo">Condo</button>
+          </div>
+          <div class="section-heading">
+            <div><span class="eyebrow" style="color:var(--mint-deep)">Fresh listings</span><h2>Homes worth a look</h2></div>
+            <span id="count" class="count">4 found</span>
+          </div>
+          <div id="listings" class="listings"></div>
+        </div>
+      </div>
+
+      <div id="list" class="view">
+        <section class="hero">
+          <span class="eyebrow">Owner / authorised agent</span>
+          <h1>Photos first.<br>Details after.</h1>
+          <p>Upload a few honest photos. LeaseKaki drafts the listing and suggests a defensible rent range.</p>
+        </section>
+        <section id="captureStep" class="panel">
+          <div class="desktop-grid">
+            <label class="capture">
+              <input id="photos" type="file" accept="image/*" multiple>
+              <span class="camera">◎</span>
+              <strong id="photoLabel">Tap to add property photos</strong>
+              <span id="photoHint">Living, bedroom, kitchen, toilet and view.</span>
+              <button class="button coral" type="button">Choose photos</button>
+            </label>
+            <div>
+              <div class="steps">
+                <div class="step"><b>1</b><span>AI reads room type, layout and condition</span></div>
+                <div class="step"><b>2</b><span>You confirm address level and availability</span></div>
+                <div class="step"><b>3</b><span>Listing draft and rent guide appear together</span></div>
+              </div>
+              <button id="generate" class="button coral full" type="button" style="margin-top:14px">Generate AI draft →</button>
+            </div>
+          </div>
+        </section>
+        <section id="draftStep" class="panel hidden">
+          <span class="eyebrow" style="color:var(--mint-deep)">AI draft ready</span>
+          <h2>We found the essentials.</h2>
+          <div class="desktop-grid">
+            <div class="form two">
+              <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT"></label>
+              <label>Property type<select><option>Whole HDB unit</option><option>HDB room</option><option>Private whole unit</option><option>Private room</option></select></label>
+              <label>Estate<input value="Bishan Street 13"></label>
+              <label>Available from<input type="date" value="2026-09-01"></label>
+            </div>
+            <aside class="rent-card">
+              <span class="eyebrow">Suggested asking rent</span>
+              <strong>$3,650-$3,900</strong>
+              <span class="confidence">Medium confidence</span>
+              <div class="range"><span></span></div>
+              <small>Based on recent HDB/URA rental data, adjusted for location, furnishing and availability.</small>
+            </aside>
+          </div>
+          <div class="actions"><button class="button secondary" type="button" data-reset-listing>Edit</button><button class="button coral" type="button" data-publish>Publish listing →</button></div>
+        </section>
+      </div>
+
+      <div id="deals" class="view">
+        <section class="hero">
+          <span class="eyebrow">Follow through</span>
+          <h1>Everything after yes.</h1>
+          <p>Both parties see the same agreed terms, next action and deadline.</p>
+        </section>
+        <section class="deal-card">
+          <div class="deal-title"><div class="mini"></div><div><strong>Sunny 4-room near Bishan MRT</strong><br><small>Tenant: Priya S.</small></div></div>
+          <div class="progress-label"><span>Paperwork</span><b>64%</b></div>
+          <div class="progress"><span></span></div>
+        </section>
+        <section class="timeline">
+          <div class="timeline-row done"><span class="dot">✓</span><div><strong>Viewing accepted</strong><small>Saturday, 11:00 AM</small></div><span class="tail">Done</span></div>
+          <div class="timeline-row done"><span class="dot">✓</span><div><strong>Offer terms agreed</strong><small>$3,700 · 24 months · 1 Sep</small></div><span class="tail">Done</span></div>
+          <div class="timeline-row active-row"><span class="dot">3</span><div><strong>Generate tenancy agreement</strong><small>CEA template plus confirmed terms</small></div><span class="tail">Now</span></div>
+          <div class="timeline-row"><span class="dot">4</span><div><strong>Sign and handover</strong><small>Typed or drawn signature</small></div><span class="tail">Next</span></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav" aria-label="Primary navigation">
+    <button class="active" type="button" data-view="browse"><span>⌂</span>Explore</button>
+    <button type="button" data-view="list"><span>◎</span>List</button>
+    <button type="button" data-view="deals"><span>✓</span>Deals</button>
+  </nav>
+  <button id="toast" class="toast hidden" type="button" aria-label="Dismiss message"></button>
+
+  <script>
+    const listings = [
+      { title: "Sunny 4-room near Bishan MRT", area: "Bishan Street 13", type: "HDB", price: 3750, beds: "3 bed · Furnished", available: "Available 1 Sep", lister: "Owner", tone: "sunset" },
+      { title: "Calm common room in Tiong Bahru", area: "Tiong Bahru Road", type: "Rooms", price: 1350, beds: "Common room · Owner staying", available: "Available now", lister: "Owner", tone: "mint" },
+      { title: "City-view 2-bed at Paya Lebar", area: "Paya Lebar Quarter", type: "Condo", price: 4300, beds: "2 bed · 2 bath", available: "Available 15 Aug", lister: "Agent", tone: "sky" },
+      { title: "Family 5-room beside Clementi Mall", area: "Clementi Avenue 3", type: "HDB", price: 4050, beds: "3 bed · Part-furnished", available: "Available 1 Oct", lister: "Agent", tone: "lilac" }
+    ];
+
+    let activeFilter = "All";
+    const views = document.querySelectorAll(".view");
+    const navButtons = document.querySelectorAll("[data-view]");
+    const chips = document.querySelectorAll(".chip");
+    const search = document.getElementById("search");
+    const toast = document.getElementById("toast");
+
+    function showToast(message) {
+      toast.textContent = "✓ " + message;
+      toast.classList.remove("hidden");
+      window.setTimeout(() => toast.classList.add("hidden"), 2600);
+    }
+
+    function setView(name) {
+      views.forEach((view) => view.classList.toggle("active", view.id === name));
+      document.querySelectorAll(".nav button").forEach((button) => button.classList.toggle("active", button.dataset.view === name));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    navButtons.forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
+
+    function renderListings() {
+      const query = search.value.trim().toLowerCase();
+      const visible = listings.filter((item) => {
+        const matchesFilter = activeFilter === "All" || item.type === activeFilter;
+        const matchesSearch = !query || `${item.title} ${item.area} ${item.type}`.toLowerCase().includes(query);
+        return matchesFilter && matchesSearch;
+      });
+
+      document.getElementById("count").textContent = `${visible.length} found`;
+      document.getElementById("listings").innerHTML = visible.map((item) => `
+        <button class="listing" type="button" data-title="${item.title}">
+          <span class="photo ${item.tone}">
+            <span class="badge">${item.lister}</span>
+            <span class="save">♡</span>
+            <span class="building"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          </span>
+          <span class="listing-body">
+            <span class="price-row"><strong>$${item.price.toLocaleString()}<small>/mo</small></strong><small>${item.type}</small></span>
+            <strong class="title">${item.title}</strong>
+            <span class="meta">${item.area}</span>
+            <span class="meta">${item.beds} · ${item.available}</span>
+            <span class="actions"><span class="button secondary">Chat</span><span class="button coral">View</span></span>
+          </span>
+        </button>
+      `).join("");
+
+      document.querySelectorAll(".listing").forEach((button) => {
+        button.addEventListener("click", () => showToast(`${button.dataset.title} opened in prototype mode`));
+      });
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        activeFilter = chip.dataset.filter;
+        chips.forEach((item) => item.classList.toggle("active", item === chip));
+        renderListings();
+      });
+    });
+    search.addEventListener("input", renderListings);
+
+    document.getElementById("photos").addEventListener("change", (event) => {
+      const count = event.target.files.length;
+      document.getElementById("photoLabel").textContent = count ? `${count} photos selected` : "Tap to add property photos";
+      document.getElementById("photoHint").textContent = count ? Array.from(event.target.files).slice(0, 3).map((file) => file.name).join(" · ") : "Living, bedroom, kitchen, toilet and view.";
+      if (count) showToast(`${count} photo${count > 1 ? "s" : ""} ready for AI`);
+    });
+
+    document.getElementById("generate").addEventListener("click", () => {
+      document.getElementById("captureStep").classList.add("hidden");
+      document.getElementById("draftStep").classList.remove("hidden");
+      showToast("AI draft created from your property photos");
+    });
+
+    document.querySelector("[data-reset-listing]").addEventListener("click", () => {
+      document.getElementById("captureStep").classList.remove("hidden");
+      document.getElementById("draftStep").classList.add("hidden");
+    });
+
+    document.querySelector("[data-publish]").addEventListener("click", () => {
+      showToast("Listing published in prototype mode");
+      setView("browse");
+    });
+
+    renderListings();
+  </script>
+</body>
+</html>
