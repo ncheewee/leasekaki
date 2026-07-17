@@ -133,7 +133,7 @@ export default function Home() {
 
   return (
     <main className="app-shell">
-      <aside className="desktop-rail" aria-label="RentalGuru navigation">
+      <aside className="desktop-rail" aria-label="LeaseKaki navigation">
         <Brand />
         <nav className="rail-nav">
           <NavButton active={mode === "browse"} icon="⌂" label="Explore" onClick={() => switchMode("browse")} />
@@ -143,7 +143,7 @@ export default function Home() {
         <div className="rail-note">
           <span className="eyebrow">FREE PILOT</span>
           <strong>List and transact free for 6 months.</strong>
-          <p>No deposit or rent is collected by RentalGuru.</p>
+          <p>No deposit or rent is collected by LeaseKaki.</p>
         </div>
         <button className="profile-button" type="button">
           <span className="avatar">CW</span>
@@ -231,9 +231,9 @@ export default function Home() {
 
 function Brand() {
   return (
-    <div className="brand" aria-label="RentalGuru">
-      <span className="brand-mark">R</span>
-      <span>Rental<span>Guru</span></span>
+    <div className="brand" aria-label="LeaseKaki">
+      <span className="brand-mark">LK</span>
+      <span>Lease<span>Kaki</span></span>
     </div>
   );
 }
@@ -420,7 +420,7 @@ function ListingFlow({
       <header className="flow-header"><div><span className="eyebrow">OWNER / AUTHORISED AGENT</span><h1>List a home</h1></div><div className="flow-steps"><span className={step !== "capture" ? "done" : "active"}>1</span><i /><span className={step === "draft" ? "active" : step === "preview" || step === "published" ? "done" : ""}>2</span><i /><span className={step === "preview" || step === "published" ? "active" : ""}>3</span></div></header>
       {step === "capture" && (
         <section className="capture-layout">
-          <div className="capture-copy"><span className="pill">AI-ASSISTED</span><h2>Start with the space.<br />We’ll build the listing.</h2><p>Upload a few honest photos. RentalGuru identifies the property details, drafts the copy and estimates a defensible rent range.</p><ul><li><span>1</span>Take or choose 6–10 photos</li><li><span>2</span>Confirm essential property details</li><li><span>3</span>Review before anything goes live</li></ul></div>
+          <div className="capture-copy"><span className="pill">AI-ASSISTED</span><h2>Start with the space.<br />We’ll build the listing.</h2><p>Upload a few honest photos. LeaseKaki identifies the property details, drafts the copy and estimates a defensible rent range.</p><ul><li><span>1</span>Take or choose 6–10 photos</li><li><span>2</span>Confirm essential property details</li><li><span>3</span>Review before anything goes live</li></ul></div>
           <label className="camera-drop">
             <input type="file" accept="image/*" multiple onChange={onPhotos} />
             <span className="camera-target">◎</span>
@@ -462,8 +462,8 @@ function DealsView({ agreementOpen, onAgreement }: { agreementOpen: boolean; onA
       <header className="deal-hero"><span className="eyebrow light">ACTIVE RENTAL</span><h1>Everything after “yes”.</h1><p>Both parties see the same agreed terms, next action and deadline.</p></header>
       <div className="deal-layout">
         <section className="deal-summary"><div className="deal-property"><div className="mini-property sunset"><span className="property-shape"><i /><i /><i /></span></div><div><span className="status-pill">Offer accepted</span><h2>Bishan Street 13</h2><p>$3,700/month · 24 months · starts 1 Sep 2026</p></div></div><div className="progress-label"><span>Transaction progress</span><strong>64%</strong></div><div className="deal-progress"><span /></div><p>Three steps remain before the tenancy is ready for handover.</p></section>
-        <section className="deal-timeline"><DealStep status="done" number="1" title="Viewing completed" meta="17 Jul · 7:00 PM" /><DealStep status="done" number="2" title="Offer accepted" meta="$3,700 · 24 months · 2 occupants" /><div className="deal-step active"><span className="step-number">3</span><div><span className="eyebrow">YOUR ACTION</span><h3>Review tenancy agreement</h3><p>RentalGuru populated the CEA template from both parties’ confirmed answers.</p><button className="button coral" type="button" onClick={onAgreement}>{agreementOpen ? "Close preview" : "Review agreement →"}</button>{agreementOpen && <div className="agreement-preview"><div><strong>Tenancy Agreement</strong><span>Private draft · Version 1</span></div><p><b>Landlord:</b> Alex Tan</p><p><b>Tenant:</b> Jamie Lim</p><p><b>Premises:</b> Bishan Street 13, exact unit protected</p><p><b>Term:</b> 1 Sep 2026 to 31 Aug 2028</p><p><b>Rent:</b> $3,700 per calendar month</p><label><input type="checkbox" /> I have reviewed the confirmed commercial terms.</label><button className="button dark wide" type="button">Proceed to sign</button></div>}</div></div><DealStep status="locked" number="4" title="Sign agreement" meta="Draw or type signature with audit trail" /><DealStep status="locked" number="5" title="Stamp with IRAS" meta="Guided checklist after signing" /></section>
-        <aside className="deal-side"><span className="eyebrow">SHARED DEAL ROOM</span><h3>Alex ↔ Jamie</h3><div className="deal-message"><span className="avatar small">AL</span><p>I've confirmed the agreed repair clause. Ready for your review.</p></div><div className="deal-message mine"><span className="avatar small">JL</span><p>Thanks—I'll review the agreement tonight.</p></div><div className="message-input"><input placeholder="Message both parties" /><button type="button">Send</button></div><p className="safe-note">Payments go directly to the property owner, never through RentalGuru.</p></aside>
+        <section className="deal-timeline"><DealStep status="done" number="1" title="Viewing completed" meta="17 Jul · 7:00 PM" /><DealStep status="done" number="2" title="Offer accepted" meta="$3,700 · 24 months · 2 occupants" /><div className="deal-step active"><span className="step-number">3</span><div><span className="eyebrow">YOUR ACTION</span><h3>Review tenancy agreement</h3><p>LeaseKaki populated the CEA template from both parties’ confirmed answers.</p><button className="button coral" type="button" onClick={onAgreement}>{agreementOpen ? "Close preview" : "Review agreement →"}</button>{agreementOpen && <div className="agreement-preview"><div><strong>Tenancy Agreement</strong><span>Private draft · Version 1</span></div><p><b>Landlord:</b> Alex Tan</p><p><b>Tenant:</b> Jamie Lim</p><p><b>Premises:</b> Bishan Street 13, exact unit protected</p><p><b>Term:</b> 1 Sep 2026 to 31 Aug 2028</p><p><b>Rent:</b> $3,700 per calendar month</p><label><input type="checkbox" /> I have reviewed the confirmed commercial terms.</label><button className="button dark wide" type="button">Proceed to sign</button></div>}</div></div><DealStep status="locked" number="4" title="Sign agreement" meta="Draw or type signature with audit trail" /><DealStep status="locked" number="5" title="Stamp with IRAS" meta="Guided checklist after signing" /></section>
+        <aside className="deal-side"><span className="eyebrow">SHARED DEAL ROOM</span><h3>Alex ↔ Jamie</h3><div className="deal-message"><span className="avatar small">AL</span><p>I've confirmed the agreed repair clause. Ready for your review.</p></div><div className="deal-message mine"><span className="avatar small">JL</span><p>Thanks—I'll review the agreement tonight.</p></div><div className="message-input"><input placeholder="Message both parties" /><button type="button">Send</button></div><p className="safe-note">Payments go directly to the property owner, never through LeaseKaki.</p></aside>
       </div>
     </div>
   );

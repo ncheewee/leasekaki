@@ -16,18 +16,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(origin),
-    title: "RentalGuru — Singapore rentals, simplified",
-    description: "Snap, list and complete a Singapore rental with every next step handled in one place.",
+    title: "LeaseKaki — Singapore rentals, simplified",
+    description: "Snap, list and complete a Singapore lease with every next step handled in one place.",
     openGraph: {
-      title: "RentalGuru — Snap. List. Done.",
-      description: "The fastest way to list and complete a Singapore rental.",
+      title: "LeaseKaki — Snap. List. Lease.",
+      description: "The fastest way to list and complete a Singapore lease.",
       type: "website",
-      images: [{ url: `${origin}/og.png`, width: 1732, height: 908, alt: "RentalGuru — Snap. List. Done." }],
+      images: [{ url: `${origin}/og.png`, width: 1672, height: 941, alt: "LeaseKaki — Snap. List. Lease." }],
     },
     twitter: {
       card: "summary_large_image",
-      title: "RentalGuru — Snap. List. Done.",
-      description: "The fastest way to list and complete a Singapore rental.",
+      title: "LeaseKaki — Snap. List. Lease.",
+      description: "The fastest way to list and complete a Singapore lease.",
       images: [`${origin}/og.png`],
     },
   };
