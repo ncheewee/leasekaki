@@ -1,14 +1,15 @@
-# vinext-starter
+# LeaseKaki
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+Mobile-first Singapore rental marketplace prototype: snap a property, generate a listing draft, support tenant follow-through, and prepare the transaction lane for paperwork.
 
-## Prerequisites
+## Stack
 
-- Node.js `>=22.13.0`
+- Next/Vinext app for Cloudflare Workers-compatible deployment
+- Drizzle ORM
+- Neon Postgres via `@neondatabase/serverless`
+- Sites hosting
 
-## Quick Start
+## Local Development
 
 ```bash
 npm install
@@ -16,83 +17,62 @@ npm run dev
 npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+The UI prototype runs without a database. Backend routes return a clear configuration message until `DATABASE_URL` is set.
 
-## Included Shape
+## Neon Setup
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+Create a Neon project, copy the pooled or direct Postgres connection string, then set:
 
-## Workspace Auth Headers
+```bash
+cp .env.example .env
+```
 
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
+Add your real value:
 
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+```bash
+DATABASE_URL="postgresql://USER:PASSWORD@HOST/neondb?sslmode=require"
+```
 
-Treat the full name as optional and fall back to email when it is absent:
+Generate migrations after schema edits:
 
-```tsx
-import { headers } from "next/headers";
+```bash
+npm run db:generate
+```
 
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
+Apply migrations to Neon:
 
-  const displayName = fullName ?? email;
-  // ...
+```bash
+npm run db:migrate
+```
+
+For hosted Sites deployments, add `DATABASE_URL` as a production runtime environment variable in Sites before deploying the version that should use Neon.
+
+## Backend Routes
+
+- `GET /api/health`: confirms app status and Neon connectivity when configured.
+- `GET /api/listings`: returns the latest 50 persisted listings from Neon.
+- `POST /api/listings`: creates a listing draft or published listing.
+
+Minimal `POST /api/listings` payload:
+
+```json
+{
+  "title": "Bright 4-room near Bishan MRT",
+  "description": "Bright, breezy home with an efficient layout.",
+  "kind": "hdb_whole_unit",
+  "listerKind": "owner",
+  "status": "draft",
+  "estate": "Bishan",
+  "addressHint": "Bishan Street 13",
+  "bedrooms": "3 bed",
+  "furnishing": "Furnished",
+  "availableFrom": "2026-09-01",
+  "askingRent": 3750
 }
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+Valid listing kinds: `hdb_whole_unit`, `hdb_room`, `private_whole_unit`, `private_room`.
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+Valid lister kinds: `owner`, `agent`.
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+Valid statuses: `draft`, `published`, `archived`.
