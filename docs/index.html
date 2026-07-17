@@ -65,16 +65,6 @@
       font-size: 11px;
     }
     .brand span:last-child span { color: var(--coral); }
-    .pilot {
-      border: 1px solid rgba(255, 255, 255, .16);
-      border-radius: 999px;
-      padding: 7px 10px;
-      color: var(--mint);
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: .08em;
-    }
-
     .view { display: none; }
     .view.active { display: block; }
     .hero {
@@ -133,18 +123,33 @@
 
     .search {
       margin: 16px;
-      height: 52px;
+      min-height: 58px;
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 10px;
-      padding: 0 14px;
+      padding: 0 16px;
       border: 1px solid var(--line);
       border-radius: 16px;
       background: var(--paper);
       box-shadow: 0 10px 26px rgba(16, 43, 54, .07);
     }
-    .search input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); }
+    .search span {
+      color: var(--ink-soft);
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .search input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .search input::placeholder { color: rgba(49, 80, 91, .66); }
 
     .chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 6px; scrollbar-width: none; }
     .chip {
@@ -154,7 +159,8 @@
       padding: 8px 13px;
       background: transparent;
       color: var(--ink-soft);
-      font-size: 12px;
+      font-size: 14px;
+      font-weight: 800;
     }
     .chip.active { border-color: var(--ink); background: var(--ink); color: var(--paper); }
 
@@ -166,7 +172,7 @@
       padding: 22px 16px 12px;
     }
     .section-heading h2 { margin: 5px 0 0; font-size: 26px; letter-spacing: -.04em; }
-    .count { color: var(--muted); font-size: 12px; }
+    .count { color: var(--muted); font-size: 13px; font-weight: 800; }
     .data-status {
       display: block;
       margin-top: 5px;
@@ -347,8 +353,8 @@
       color: var(--mint-deep);
     }
     .form { display: grid; gap: 12px; }
-    label { display: grid; gap: 7px; color: var(--ink-soft); font-size: 11px; font-weight: 800; }
-    input, select {
+    label { display: grid; gap: 7px; color: var(--ink-soft); font-size: 12px; font-weight: 800; }
+    input, select, textarea {
       width: 100%;
       min-height: 44px;
       border: 1px solid var(--line);
@@ -356,7 +362,9 @@
       padding: 0 12px;
       background: var(--paper);
       color: var(--ink);
+      font-size: 15px;
     }
+    textarea { min-height: 92px; padding-top: 12px; resize: vertical; line-height: 1.45; }
     .rent-card {
       display: grid;
       gap: 12px;
@@ -432,11 +440,11 @@
       border-radius: 15px;
       background: transparent;
       color: var(--muted);
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 800;
     }
     .nav button.active { background: var(--mint); color: var(--ink); }
-    .nav span { display: block; font-size: 18px; line-height: 1; }
+    .nav span { display: block; font-size: 21px; line-height: 1; }
     .toast {
       position: fixed;
       z-index: 30;
@@ -535,11 +543,23 @@
       grid-template-columns: 1fr 1fr;
       gap: 9px;
     }
+    .enquiry-form {
+      display: none;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+    .enquiry-form.open { display: grid; }
+    .enquiry-form h3 { margin: 0; font-size: 18px; letter-spacing: -.03em; }
+    .enquiry-form .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
 
     @media (min-width: 780px) {
       .app { display: grid; grid-template-columns: 238px 1fr; padding-bottom: 0; }
       .topbar { position: sticky; height: 100vh; align-items: start; flex-direction: column; justify-content: start; padding: 28px 20px; }
-      .pilot { margin-top: auto; border-radius: 18px; padding: 16px; line-height: 1.5; }
       .hero { padding: 52px clamp(28px, 5vw, 76px) 110px; }
       .snap-card { max-width: 380px; margin: -56px clamp(18px, 4vw, 62px) 0 auto; }
       .browse-content { margin: -56px clamp(18px, 4vw, 62px) 60px; padding: 24px; border-radius: 28px 28px 0 0; background: var(--cream); }
@@ -570,7 +590,6 @@
   <main class="app">
     <header class="topbar">
       <div class="brand"><span class="mark">LK</span><span>Lease<span>Kaki</span></span></div>
-      <div class="pilot">Free pilot<br>List and transact free for 6 months.</div>
     </header>
 
     <section>
@@ -641,9 +660,14 @@
           <div class="desktop-grid">
             <div class="form two">
               <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT"></label>
-              <label>Property type<select><option>Whole HDB unit</option><option>HDB room</option><option>Private whole unit</option><option>Private room</option></select></label>
-              <label>Estate<input value="Bishan Street 13"></label>
-              <label>Available from<input type="date" value="2026-09-01"></label>
+              <label>Property type<select id="kindInput"><option value="hdb_whole_unit">Whole HDB unit</option><option value="hdb_room">HDB room</option><option value="private_whole_unit">Private whole unit</option><option value="private_room">Private room</option></select></label>
+              <label>Estate<input id="estateInput" value="Bishan"></label>
+              <label>Street / project<input id="addressInput" value="Bishan Street 13"></label>
+              <label>Available from<input id="availableInput" type="date" value="2026-09-01"></label>
+              <label>Asking rent<input id="rentInput" type="number" value="3750" min="500" step="50"></label>
+              <label>Bedrooms / room<input id="bedroomsInput" value="3 bed"></label>
+              <label>Furnishing<input id="furnishingInput" value="Furnished"></label>
+              <label>Lister<select id="listerInput"><option value="owner">Owner</option><option value="agent">Agent</option></select></label>
             </div>
             <aside class="rent-card">
               <span class="eyebrow">Suggested asking rent</span>
@@ -653,6 +677,7 @@
               <small>Based on recent HDB/URA rental data, adjusted for location, furnishing and availability.</small>
             </aside>
           </div>
+          <label style="margin-top:14px">Description<textarea id="descriptionInput">Bright, breezy home with an efficient layout, updated kitchen and a sheltered walk to Bishan MRT.</textarea></label>
           <div class="actions"><button class="button secondary" type="button" data-reset-listing>Edit</button><button class="button coral" type="button" data-publish>Publish listing →</button></div>
         </section>
       </div>
@@ -698,6 +723,16 @@
           <button id="detailChat" class="button secondary" type="button">Chat</button>
           <button id="detailView" class="button coral" type="button">Arrange viewing</button>
         </div>
+        <form id="enquiryForm" class="enquiry-form">
+          <h3 id="enquiryTitle">Start enquiry</h3>
+          <div class="form-row">
+            <label>Your name<input id="enquiryName" required value="Priya S."></label>
+            <label>Mobile / email<input id="enquiryContact" required placeholder="+65 or email"></label>
+          </div>
+          <label>Preferred viewing time<input id="enquiryTime" value="Saturday, 11:00 AM"></label>
+          <label>Message<textarea id="enquiryMessage">Hi, I am interested. Is this still available?</textarea></label>
+          <button class="button coral" type="submit">Send enquiry</button>
+        </form>
       </div>
     </article>
   </section>
@@ -747,6 +782,9 @@
     const dataStatus = document.getElementById("dataStatus");
     const detailBackdrop = document.getElementById("detailBackdrop");
     const detailClose = document.getElementById("detailClose");
+    const enquiryForm = document.getElementById("enquiryForm");
+    const enquiryTitle = document.getElementById("enquiryTitle");
+    const publishButton = document.querySelector("[data-publish]");
     let selectedListing = null;
 
     function showToast(message) {
@@ -816,6 +854,7 @@
 
     function openListingDetail(item) {
       selectedListing = item;
+      enquiryForm.classList.remove("open");
       document.getElementById("detailImage").src = item.image;
       document.getElementById("detailImage").alt = item.title;
       document.getElementById("detailPrice").innerHTML = `$${Number(item.price).toLocaleString()}<small>/mo</small>`;
@@ -838,6 +877,77 @@
     function closeListingDetail() {
       detailBackdrop.classList.remove("open");
       detailBackdrop.setAttribute("aria-hidden", "true");
+      enquiryForm.classList.remove("open");
+    }
+
+    function openEnquiry(item, mode) {
+      openListingDetail(item);
+      const isViewing = mode === "viewing";
+      enquiryTitle.textContent = isViewing ? "Arrange viewing" : "Start chat";
+      document.getElementById("enquiryMessage").value = isViewing
+        ? `Hi, I would like to view ${item.title}. Is my preferred timing possible?`
+        : `Hi, I am interested in ${item.title}. Is this still available?`;
+      enquiryForm.classList.add("open");
+      window.setTimeout(() => document.getElementById("enquiryContact").focus(), 80);
+    }
+
+    function kindToType(kind) {
+      if (kind === "hdb_room" || kind === "private_room") return "Rooms";
+      if (kind === "private_whole_unit") return "Condo";
+      return "HDB";
+    }
+
+    function bedroomsForKind(kind) {
+      if (kind === "hdb_room") return "Common room";
+      if (kind === "private_room") return "Master room";
+      return document.getElementById("bedroomsInput").value.trim() || "3 bed";
+    }
+
+    function buildListingPayload() {
+      const kind = document.getElementById("kindInput").value;
+      const title = document.getElementById("titleInput").value.trim();
+      const estate = document.getElementById("estateInput").value.trim();
+      const addressHint = document.getElementById("addressInput").value.trim();
+      const availableFrom = document.getElementById("availableInput").value;
+      const askingRent = Number(document.getElementById("rentInput").value);
+      const description = document.getElementById("descriptionInput").value.trim();
+
+      if (!title || !estate || !addressHint || !availableFrom || !description || !Number.isFinite(askingRent)) {
+        throw new Error("Please complete title, location, availability, rent and description.");
+      }
+
+      return {
+        title,
+        description,
+        kind,
+        listerKind: document.getElementById("listerInput").value,
+        status: "published",
+        estate,
+        addressHint,
+        bedrooms: bedroomsForKind(kind),
+        furnishing: document.getElementById("furnishingInput").value.trim() || "Furnished",
+        availableFrom,
+        askingRent,
+        suggestedRentMin: Math.max(500, Math.round((askingRent * 0.94) / 50) * 50),
+        suggestedRentMax: Math.round((askingRent * 1.04) / 50) * 50,
+        photoUrls: ["./assets/listings/01-bishan-hdb-living.jpg"]
+      };
+    }
+
+    function localListingFromPayload(payload) {
+      return {
+        title: payload.title,
+        area: payload.addressHint,
+        type: kindToType(payload.kind),
+        price: payload.askingRent,
+        beds: `${payload.bedrooms} · ${payload.furnishing}`,
+        available: formatAvailability(payload.availableFrom),
+        lister: titleCase(payload.listerKind),
+        image: payload.photoUrls[0],
+        description: payload.description,
+        rentRange: `$${Number(payload.suggestedRentMin).toLocaleString()}-$${Number(payload.suggestedRentMax).toLocaleString()}`,
+        tone: "sunset"
+      };
     }
 
     async function loadListings() {
@@ -888,7 +998,7 @@
           const action = event.target.closest("[data-action]")?.dataset.action;
           if (action === "chat") {
             event.stopPropagation();
-            showToast(`Chat request started for ${item.title}`);
+            openEnquiry(item, "chat");
             return;
           }
           openListingDetail(item);
@@ -924,9 +1034,36 @@
       document.getElementById("draftStep").classList.add("hidden");
     });
 
-    document.querySelector("[data-publish]").addEventListener("click", () => {
-      showToast("Listing published in prototype mode");
-      setView("browse");
+    publishButton.addEventListener("click", async () => {
+      try {
+        const payload = buildListingPayload();
+        publishButton.disabled = true;
+        publishButton.textContent = "Publishing...";
+        let newListing = localListingFromPayload(payload);
+
+        try {
+          const response = await fetch(`${API_BASE}/api/listings`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (!response.ok) throw new Error(`API returned ${response.status}`);
+          const body = await response.json();
+          if (body.listing) newListing = mapApiListing(body.listing, 0);
+          showToast("Listing published to Neon");
+        } catch (apiError) {
+          showToast("Listing added locally; API save needs a retry");
+        }
+
+        listings = [newListing, ...listings.filter((item) => item.title !== newListing.title)];
+        renderListings();
+        setView("browse");
+      } catch (error) {
+        showToast(error instanceof Error ? error.message : "Unable to publish listing");
+      } finally {
+        publishButton.disabled = false;
+        publishButton.textContent = "Publish listing →";
+      }
     });
 
     detailClose.addEventListener("click", closeListingDetail);
@@ -937,12 +1074,28 @@
       if (event.key === "Escape" && detailBackdrop.classList.contains("open")) closeListingDetail();
     });
     document.getElementById("detailChat").addEventListener("click", () => {
-      if (selectedListing) showToast(`Chat request started for ${selectedListing.title}`);
-      closeListingDetail();
+      if (selectedListing) openEnquiry(selectedListing, "chat");
     });
     document.getElementById("detailView").addEventListener("click", () => {
-      if (selectedListing) showToast(`Viewing request sent for ${selectedListing.title}`);
+      if (selectedListing) openEnquiry(selectedListing, "viewing");
+    });
+    enquiryForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!selectedListing) return;
+      const enquiry = {
+        listing: selectedListing.title,
+        name: document.getElementById("enquiryName").value.trim(),
+        contact: document.getElementById("enquiryContact").value.trim(),
+        time: document.getElementById("enquiryTime").value.trim(),
+        message: document.getElementById("enquiryMessage").value.trim(),
+        createdAt: new Date().toISOString()
+      };
+      const enquiries = JSON.parse(localStorage.getItem("leasekaki-enquiries") || "[]");
+      enquiries.unshift(enquiry);
+      localStorage.setItem("leasekaki-enquiries", JSON.stringify(enquiries.slice(0, 20)));
+      showToast(`Enquiry saved for ${selectedListing.title}`);
       closeListingDetail();
+      setView("deals");
     });
 
     renderListings();
