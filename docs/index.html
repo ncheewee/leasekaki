@@ -1320,6 +1320,7 @@
     const photoIndexes = {};
     const viewingRequests = readStorage("leasekaki-viewings", {});
     const chatThreads = readStorage("leasekaki-chats", {});
+    let uraRentalSummary = null;
     const postalDistricts = [
       ["01 02 03 04 05 06", "D01"], ["07 08", "D02"], ["14 15 16", "D03"], ["09 10", "D04"],
       ["11 12 13", "D05"], ["17", "D06"], ["18 19", "D07"], ["20 21", "D08"], ["22 23", "D09"],
@@ -1617,6 +1618,17 @@
       renderListings();
     }
 
+    async function loadUraInsights() {
+      try {
+        const response = await fetch("./assets/ura-rentals-summary.json", { cache: "no-store" });
+        if (!response.ok) throw new Error(`URA summary returned ${response.status}`);
+        uraRentalSummary = await response.json();
+        if (selectedListing && detailBackdrop.classList.contains("open")) renderPriceInsights(selectedListing);
+      } catch (error) {
+        uraRentalSummary = null;
+      }
+    }
+
     function renderListings() {
       const query = search.value.trim().toLowerCase();
       const visible = getVisibleListings(query);
@@ -1835,6 +1847,37 @@
     }
 
     function priceInsights(item) {
+      const uraDistrict = uraRentalSummary?.byDistrict?.[item.district];
+      if (uraDistrict?.median && uraDistrict.trend?.length) {
+        const adjustment = item.mode === "Room only" ? 0.38 : item.type === "HDB" ? 0.88 : 1;
+        const average = Math.round((uraDistrict.median * adjustment) / 50) * 50;
+        const delta = item.price - average;
+        const label = Math.abs(delta) < average * .04 ? "near average" : delta < 0 ? "below average" : "above average";
+        const trend = uraDistrict.trend.map((point) => ({
+          month: point.month,
+          value: Math.round((point.median * adjustment) / 50) * 50,
+          count: point.count
+        }));
+        const scatter = (uraDistrict.scatter || []).slice(0, 80).map((point) => ({
+          size: point.size,
+          rent: Math.round((point.rent * adjustment) / 50) * 50,
+          project: point.project,
+          bedrooms: point.bedrooms
+        }));
+        return {
+          average,
+          delta,
+          label,
+          trend,
+          comps: scatter,
+          source: "URA private residential rental contracts",
+          refPeriods: uraRentalSummary.refPeriods || uraDistrict.refPeriods || [],
+          sampleCount: uraDistrict.sampleCount,
+          benchmarkNote: item.type === "Condo" && item.mode === "Whole unit"
+            ? "direct private-residential district benchmark"
+            : "private-residential benchmark adjusted for this listing type"
+        };
+      }
       const seed = Math.max(1, item.title.length + item.price / 100);
       const average = Math.round((item.price * (item.mode === "Room only" ? 1.04 : .97)) / 50) * 50;
       const delta = item.price - average;
@@ -1844,14 +1887,15 @@
         size: 30 + ((index * 17 + seed) % 58),
         rent: Math.round((average * (.82 + ((index * 11 + seed) % 38) / 100)) / 50) * 50
       }));
-      return { average, delta, label, trend, comps };
+      return { average, delta, label, trend, comps, source: "Mock model pending URA match", refPeriods: [], sampleCount: 0, benchmarkNote: "mock fallback" };
     }
 
     function renderPriceInsights(item) {
       const insight = priceInsights(item);
       const comparison = insight.delta === 0 ? "right at" : `$${Math.abs(insight.delta).toLocaleString()} ${insight.delta < 0 ? "below" : "above"}`;
-      document.getElementById("insightLabel").textContent = `${item.district} · URA-ready model`;
-      document.getElementById("insightCopy").textContent = `AI estimate: asking rent is ${insight.label} — about ${comparison} the neighbourhood average of $${insight.average.toLocaleString()}/mo for similar ${item.mode.toLowerCase()} listings. Swap-in source: URA private residential rental contracts/median rents when API credentials are connected.`;
+      const periodText = insight.refPeriods?.length ? ` · ${insight.refPeriods.join(", ")}` : "";
+      document.getElementById("insightLabel").textContent = `${item.district} · ${insight.source}${periodText}`;
+      document.getElementById("insightCopy").textContent = `AI estimate: asking rent is ${insight.label} — about ${comparison} the benchmark average of $${insight.average.toLocaleString()}/mo. Source basis: ${insight.benchmarkNote}${insight.sampleCount ? ` from ${insight.sampleCount.toLocaleString()} URA rental records` : ""}.`;
       renderTrendLine(insight);
       renderScatterPlot(item, insight);
     }
@@ -1861,7 +1905,7 @@
     }
 
     function renderTrendLine(insight) {
-      const values = insight.trend;
+      const values = insight.trend.map((point) => typeof point === "number" ? point : point.value);
       const min = Math.min(...values);
       const max = Math.max(...values);
       const span = Math.max(1, max - min);
@@ -2150,6 +2194,7 @@
     });
 
     renderListings();
+    loadUraInsights();
     loadListings();
   </script>
 </body>

@@ -1,15 +1,29 @@
 #!/usr/bin/env node
 
-const accessKey = process.env.URA_ACCESS_KEY;
-const token = process.env.URA_TOKEN;
-const service = process.env.URA_SERVICE || "PMI_Resi_Rental_Median";
-const refPeriod = process.env.URA_REF_PERIOD;
+import { writeFile } from "node:fs/promises";
 
-if (!accessKey || !token) {
-  console.error("Missing URA_ACCESS_KEY or URA_TOKEN.");
-  console.error("Get an URA data service access key, request the daily token, then run:");
-  console.error("URA_ACCESS_KEY=... URA_TOKEN=... node scripts/fetch-ura-rentals.mjs");
+const accessKey = process.env.URA_ACCESS_KEY;
+let token = process.env.URA_TOKEN;
+const service = process.env.URA_SERVICE || "PMI_Resi_Rental";
+const refPeriod = process.env.URA_REF_PERIOD;
+const outputPath = process.env.URA_OUTPUT_PATH;
+
+if (!accessKey) {
+  console.error("Missing URA_ACCESS_KEY.");
+  console.error("Run: URA_ACCESS_KEY=... URA_REF_PERIOD=26q2 npm run ura:rentals");
   process.exit(1);
+}
+
+if (!token) {
+  const tokenResponse = await fetch("https://eservice.ura.gov.sg/uraDataService/insertNewToken/v1", {
+    headers: { AccessKey: accessKey, accept: "application/json" }
+  });
+  if (!tokenResponse.ok) throw new Error(`URA token endpoint returned HTTP ${tokenResponse.status}`);
+  const tokenBody = await tokenResponse.json();
+  if (tokenBody.Status !== "Success" || !tokenBody.Result) {
+    throw new Error(`URA token status: ${tokenBody.Status || "Unknown"} ${tokenBody.Message || ""}`.trim());
+  }
+  token = tokenBody.Result;
 }
 
 const url = new URL("https://eservice.ura.gov.sg/uraDataService/invokeUraDS/v1");
@@ -41,10 +55,17 @@ const summary = rows.slice(0, 5).map((project) => ({
   sampleCount: project.rentalMedian?.length || project.rental?.length || 0
 }));
 
-console.log(JSON.stringify({
+const output = {
   service,
   refPeriod: refPeriod || null,
   count: rows.length,
   summary,
   result: rows
-}, null, 2));
+};
+
+if (outputPath) {
+  await writeFile(outputPath, JSON.stringify(output, null, 2));
+  console.log(JSON.stringify({ service, refPeriod: refPeriod || null, count: rows.length, summary, outputPath }, null, 2));
+} else {
+  console.log(JSON.stringify(output, null, 2));
+}

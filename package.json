@@ -14,7 +14,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "node scripts/seed-listings.mjs",
-    "ura:rentals": "node scripts/fetch-ura-rentals.mjs"
+    "ura:rentals": "node scripts/fetch-ura-rentals.mjs",
+    "ura:summary": "node scripts/build-ura-insights.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
