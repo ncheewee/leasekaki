@@ -150,6 +150,23 @@
       font-weight: 700;
     }
     .search input::placeholder { color: rgba(49, 80, 91, .66); }
+    .explore-tools {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 0 16px 10px;
+    }
+    .tool-select {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 0 12px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 8px 18px rgba(16, 43, 54, .05);
+    }
 
     .chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 6px; scrollbar-width: none; }
     .chip {
@@ -202,13 +219,22 @@
       place-items: center;
       background: linear-gradient(145deg, #f9c8a7, #e97866);
     }
+    .photo-track {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      transition: transform .2s ease;
+      will-change: transform;
+    }
     .photo img {
+      flex: 0 0 100%;
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+    .photo-track img { position: relative; inset: auto; }
     .photo::after {
       content: "";
       position: absolute;
@@ -236,6 +262,39 @@
       background: rgba(16, 43, 54, .18);
       border-bottom: 10px solid rgba(16, 43, 54, .12);
     }
+    .photo-dots {
+      position: absolute;
+      z-index: 1;
+      left: 50%;
+      bottom: 10px;
+      display: flex;
+      gap: 5px;
+      transform: translateX(-50%);
+    }
+    .photo-dots i {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, .58);
+    }
+    .photo-dots i.active { width: 15px; background: var(--paper); }
+    .photo-nav {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      width: 30px;
+      height: 30px;
+      border: 0;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 253, 248, .82);
+      color: var(--ink);
+      font-weight: 900;
+      transform: translateY(-50%);
+    }
+    .photo-nav.prev { left: 10px; }
+    .photo-nav.next { right: 10px; }
     .badge, .save {
       position: absolute;
       z-index: 1;
@@ -244,7 +303,17 @@
       background: rgba(255, 253, 248, .9);
     }
     .badge { left: 12px; padding: 6px 9px; font-size: 10px; font-weight: 800; }
-    .save { right: 12px; width: 34px; height: 34px; display: grid; place-items: center; }
+    .save {
+      right: 12px;
+      width: 34px;
+      height: 34px;
+      border: 0;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      font-size: 18px;
+    }
+    .save.liked { background: var(--coral); color: var(--paper); }
     .listing-body {
       min-height: 0;
       display: grid;
@@ -254,6 +323,26 @@
     .price-row { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
     .price-row strong { font-size: 23px; letter-spacing: -.04em; }
     .price-row small, .meta { color: var(--muted); font-size: 12px; }
+    .mode-pill {
+      width: max-content;
+      margin-top: 7px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(187, 241, 209, .55);
+      color: var(--mint-deep);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .status-pill {
+      width: max-content;
+      margin-top: 7px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(233, 120, 102, .13);
+      color: #9d4639;
+      font-size: 11px;
+      font-weight: 900;
+    }
     .title {
       display: -webkit-box;
       min-height: 40px;
@@ -538,20 +627,161 @@
       font-size: 12px;
       line-height: 1.35;
     }
+    .insight-card {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--cream);
+    }
+    .insight-head { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
+    .insight-head strong { font-size: 16px; letter-spacing: -.03em; }
+    .insight-head small { color: var(--muted); font-size: 11px; font-weight: 800; text-align: right; }
+    .trend-bars {
+      height: 82px;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 5px;
+      align-items: end;
+    }
+    .trend-bars i {
+      min-height: 16px;
+      border-radius: 999px 999px 4px 4px;
+      background: linear-gradient(180deg, var(--mint), #73c9a7);
+    }
+    .scatter-plot {
+      position: relative;
+      height: 138px;
+      border: 1px solid rgba(16, 43, 54, .08);
+      border-radius: 15px;
+      background:
+        linear-gradient(90deg, rgba(16, 43, 54, .06) 1px, transparent 1px) 0 0 / 25% 100%,
+        linear-gradient(0deg, rgba(16, 43, 54, .06) 1px, transparent 1px) 0 0 / 100% 33.3%,
+        rgba(255, 253, 248, .72);
+      overflow: hidden;
+    }
+    .scatter-plot i {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(49, 80, 91, .35);
+      transform: translate(-50%, 50%);
+    }
+    .scatter-plot i.current {
+      width: 15px;
+      height: 15px;
+      background: var(--coral);
+      box-shadow: 0 0 0 5px rgba(233, 120, 102, .18);
+    }
+    .insight-note { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.45; }
     .detail-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 9px;
     }
-    .enquiry-form {
-      display: none;
+    .window-backdrop {
+      position: fixed;
+      z-index: 50;
+      inset: 0;
+      display: grid;
+      place-items: end center;
+      padding: 16px;
+      background: rgba(16, 43, 54, .46);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease;
+    }
+    .window-backdrop.open { opacity: 1; pointer-events: auto; }
+    .task-window {
+      width: min(520px, 100%);
+      max-height: min(82vh, 720px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+      border-radius: 24px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      transform: translateY(14px);
+      transition: transform .18s ease;
+    }
+    .window-backdrop.open .task-window { transform: translateY(0); }
+    .window-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .window-head h3 { margin: 0; font-size: 20px; letter-spacing: -.04em; }
+    .window-head small { color: var(--muted); font-weight: 800; }
+    .window-close {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--cream);
+      color: var(--ink);
+      font-size: 20px;
+    }
+    .messages {
+      display: grid;
+      align-content: end;
       gap: 10px;
-      padding-top: 12px;
+      min-height: 280px;
+      overflow: auto;
+      padding: 16px;
+      background: linear-gradient(180deg, var(--paper), var(--cream));
+    }
+    .bubble {
+      max-width: 82%;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: var(--paper);
+      color: var(--ink-soft);
+      box-shadow: 0 6px 15px rgba(16, 43, 54, .06);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .bubble.me { justify-self: end; background: var(--ink); color: var(--paper); border-bottom-right-radius: 5px; }
+    .bubble.them { justify-self: start; border-bottom-left-radius: 5px; }
+    .chat-compose {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 12px;
       border-top: 1px solid var(--line);
     }
-    .enquiry-form.open { display: grid; }
-    .enquiry-form h3 { margin: 0; font-size: 18px; letter-spacing: -.03em; }
-    .enquiry-form .form-row {
+    .viewing-body {
+      display: grid;
+      gap: 14px;
+      overflow: auto;
+      padding: 16px;
+    }
+    .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .slot {
+      min-height: 50px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--paper);
+      color: var(--ink-soft);
+      font-weight: 900;
+    }
+    .slot small { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .slot.selected { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+    .slot.selected small { color: rgba(255, 253, 248, .72); }
+    .owner-note, .request-status {
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--cream);
+      color: var(--ink-soft);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .request-status strong { display: block; color: var(--ink); margin-bottom: 3px; }
+    .inline-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 9px;
@@ -563,7 +793,7 @@
       .hero { padding: 52px clamp(28px, 5vw, 76px) 110px; }
       .snap-card { max-width: 380px; margin: -56px clamp(18px, 4vw, 62px) 0 auto; }
       .browse-content { margin: -56px clamp(18px, 4vw, 62px) 60px; padding: 24px; border-radius: 28px 28px 0 0; background: var(--cream); }
-      .search, .section-heading, .listings, .chips { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
+      .search, .section-heading, .listings, .chips, .explore-tools { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
       .listings { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
       .listing { grid-template-columns: 42% minmax(0, 1fr); grid-template-rows: 1fr; min-height: 244px; height: 100%; }
       .photo { aspect-ratio: auto; min-height: 100%; }
@@ -583,6 +813,7 @@
       }
       .detail-photo, .detail-photo img { min-height: 100%; }
       .detail-body { padding: 28px; }
+      .window-backdrop { place-items: center; }
     }
   </style>
 </head>
@@ -607,14 +838,37 @@
         <div class="browse-content">
           <label class="search">
             <span>⌕</span>
-            <input id="search" placeholder="MRT, estate or project" aria-label="Search rentals">
+            <input id="search" placeholder="Search postcode, address, district, MRT or project" aria-label="Search rentals">
             <span>≡</span>
           </label>
+          <div class="explore-tools" aria-label="Sort and quick filters">
+            <select id="sortSelect" class="tool-select" aria-label="Sort listings">
+              <option value="newest">Sort: Newest</option>
+              <option value="priceAsc">Rent: low to high</option>
+              <option value="priceDesc">Rent: high to low</option>
+              <option value="available">Available soonest</option>
+            </select>
+            <select id="districtSelect" class="tool-select" aria-label="Filter by district">
+              <option value="All">All districts</option>
+              <option value="D03">D03 Queenstown / Tiong Bahru</option>
+              <option value="D05">D05 Clementi / Buona Vista</option>
+              <option value="D09">D09 River Valley</option>
+              <option value="D14">D14 Paya Lebar</option>
+              <option value="D18">D18 Tampines</option>
+              <option value="D19">D19 Serangoon</option>
+              <option value="D20">D20 Bishan</option>
+              <option value="D22">D22 Jurong East</option>
+            </select>
+          </div>
           <div class="chips" aria-label="Property type">
             <button class="chip active" type="button" data-filter="All">All</button>
-            <button class="chip" type="button" data-filter="Rooms">Rooms</button>
+            <button class="chip" type="button" data-filter="Whole unit">Whole unit</button>
+            <button class="chip" type="button" data-filter="Room only">Room only</button>
             <button class="chip" type="button" data-filter="HDB">HDB</button>
             <button class="chip" type="button" data-filter="Condo">Condo</button>
+            <button class="chip" type="button" data-filter="Owner">Owner</button>
+            <button class="chip" type="button" data-filter="Agent">Agent</button>
+            <button class="chip" type="button" data-filter="Liked">Liked</button>
           </div>
           <div class="section-heading">
             <div><span class="eyebrow" style="color:var(--mint-deep)">Fresh listings</span><span id="dataStatus" class="data-status">Loading Neon listings...</span><h2>Homes worth a look</h2></div>
@@ -719,20 +973,58 @@
         </div>
         <div id="detailFacts" class="detail-facts"></div>
         <p id="detailCopy" style="margin:0;color:var(--ink-soft);line-height:1.55"></p>
+        <section class="insight-card" aria-label="Price insights">
+          <div class="insight-head">
+            <strong>Price insights</strong>
+            <small id="insightLabel">12-month trend</small>
+          </div>
+          <p id="insightCopy" class="insight-note"></p>
+          <div id="trendBars" class="trend-bars" aria-label="Transaction price trend over 12 months"></div>
+          <div id="scatterPlot" class="scatter-plot" aria-label="Comparable offering prices in neighbourhood"></div>
+        </section>
         <div class="detail-actions">
           <button id="detailChat" class="button secondary" type="button">Chat</button>
           <button id="detailView" class="button coral" type="button">Arrange viewing</button>
         </div>
-        <form id="enquiryForm" class="enquiry-form">
-          <h3 id="enquiryTitle">Start enquiry</h3>
-          <div class="form-row">
-            <label>Your name<input id="enquiryName" required value="Priya S."></label>
-            <label>Mobile / email<input id="enquiryContact" required placeholder="+65 or email"></label>
-          </div>
-          <label>Preferred viewing time<input id="enquiryTime" value="Saturday, 11:00 AM"></label>
-          <label>Message<textarea id="enquiryMessage">Hi, I am interested. Is this still available?</textarea></label>
-          <button class="button coral" type="submit">Send enquiry</button>
-        </form>
+      </div>
+    </article>
+  </section>
+
+  <section id="chatWindow" class="window-backdrop" aria-hidden="true">
+    <article class="task-window" role="dialog" aria-modal="true" aria-labelledby="chatTitle">
+      <header class="window-head">
+        <div><h3 id="chatTitle">Chat</h3><small id="chatSubtitle">Message owner or authorised agent</small></div>
+        <button id="chatClose" class="window-close" type="button" aria-label="Close chat">×</button>
+      </header>
+      <div id="messages" class="messages"></div>
+      <form id="chatForm" class="chat-compose">
+        <input id="chatInput" autocomplete="off" aria-label="Message" placeholder="Type a quick question...">
+        <button class="button coral" type="submit">Send</button>
+      </form>
+    </article>
+  </section>
+
+  <section id="viewWindow" class="window-backdrop" aria-hidden="true">
+    <article class="task-window" role="dialog" aria-modal="true" aria-labelledby="viewTitle">
+      <header class="window-head">
+        <div><h3 id="viewTitle">Arrange viewing</h3><small id="viewSubtitle">Pick a slot that fits the owner preferences</small></div>
+        <button id="viewClose" class="window-close" type="button" aria-label="Close viewing request">×</button>
+      </header>
+      <div class="viewing-body">
+        <div id="requestStatus" class="request-status hidden"></div>
+        <div class="owner-note" id="ownerNote">Owner prefers weekday evenings or Saturday late morning. Agent-listed homes usually confirm within half a day.</div>
+        <div>
+          <span class="eyebrow" style="color:var(--mint-deep)">Choose date</span>
+          <div id="dateSlots" class="slot-grid" style="margin-top:8px"></div>
+        </div>
+        <div>
+          <span class="eyebrow" style="color:var(--mint-deep)">Choose time</span>
+          <div id="timeSlots" class="slot-grid" style="margin-top:8px"></div>
+        </div>
+        <div class="inline-actions">
+          <button id="cancelViewing" class="button secondary hidden" type="button">Cancel request</button>
+          <button id="requestViewing" class="button coral" type="button">Request viewing</button>
+        </div>
       </div>
     </article>
   </section>
@@ -760,32 +1052,57 @@
     };
     const listingPhotoPool = Object.values(listingPhotos);
     const fallbackListings = [
-      { title: "Sunny 4-room near Bishan MRT", area: "Bishan Street 13", type: "HDB", price: 3750, beds: "3 bed · Furnished", available: "Available 1 Sep", lister: "Owner", tone: "sunset" },
-      { title: "Calm common room in Tiong Bahru", area: "Tiong Bahru Road", type: "Rooms", price: 1350, beds: "Common room · Owner staying", available: "Available now", lister: "Owner", tone: "mint" },
-      { title: "City-view 2-bed at Paya Lebar", area: "Paya Lebar Quarter", type: "Condo", price: 4300, beds: "2 bed · 2 bath", available: "Available 15 Aug", lister: "Agent", tone: "sky" },
-      { title: "Family 5-room beside Clementi Mall", area: "Clementi Avenue 3", type: "HDB", price: 4050, beds: "3 bed · Part-furnished", available: "Available 1 Oct", lister: "Agent", tone: "lilac" },
-      { title: "High-floor room near Queenstown MRT", area: "Stirling Road", type: "Rooms", price: 1550, beds: "Common room · Furnished", available: "Available 1 Aug", lister: "Owner", tone: "sky" },
-      { title: "Pet-friendly studio at River Valley", area: "River Valley Close", type: "Condo", price: 3200, beds: "Studio · 1 bath", available: "Available 20 Aug", lister: "Agent", tone: "lilac" },
-      { title: "Renovated 5-room near Tampines Hub", area: "Tampines Street 82", type: "HDB", price: 4200, beds: "3 bed · Part-furnished", available: "Available 1 Sep", lister: "Owner", tone: "mint" },
-      { title: "Master room beside Buona Vista", area: "North Buona Vista Road", type: "Rooms", price: 1850, beds: "Master room · Ensuite", available: "Available now", lister: "Agent", tone: "sunset" },
-      { title: "Quiet 3-bed family condo in Serangoon", area: "Serangoon Avenue 3", type: "Condo", price: 5200, beds: "3 bed · 2 bath", available: "Available 15 Sep", lister: "Owner", tone: "sky" },
-      { title: "Whole unit minutes from Jurong East", area: "Jurong East Street 21", type: "HDB", price: 3900, beds: "3 bed · Furnished", available: "Available 1 Oct", lister: "Agent", tone: "lilac" }
-    ].map((item) => ({ ...item, image: listingPhotos[item.title] }));
+      { title: "Sunny 4-room near Bishan MRT", area: "Bishan Street 13", type: "HDB", mode: "Whole unit", price: 3750, beds: "3 bed · Furnished", available: "Available 1 Sep", availableDate: "2026-09-01", lister: "Owner", district: "D20", postcode: "570013", mrt: "Bishan MRT", tone: "sunset", description: "Bright 4-room HDB with cross breeze, tidy furnishing and a sheltered walk to Bishan MRT. Ideal for a small family that wants schools, Junction 8 and park access without paying central rents." },
+      { title: "Calm common room in Tiong Bahru", area: "Tiong Bahru Road", type: "HDB", mode: "Room only", price: 1350, beds: "Common room · Owner staying", available: "Available now", availableDate: "2026-07-20", lister: "Owner", district: "D03", postcode: "160055", mrt: "Tiong Bahru MRT", tone: "mint", description: "Quiet common room in an owner-occupied flat, with light cooking, weekly cleaning and a short walk to cafes, wet market and Tiong Bahru MRT." },
+      { title: "City-view 2-bed at Paya Lebar", area: "Paya Lebar Quarter", type: "Condo", mode: "Whole unit", price: 4300, beds: "2 bed · 2 bath", available: "Available 15 Aug", availableDate: "2026-08-15", lister: "Agent", district: "D14", postcode: "409057", mrt: "Paya Lebar MRT", tone: "sky", description: "Compact city-fringe condo with a proper balcony, pool access and direct access to the Paya Lebar interchange area. Works well for professionals splitting rent." },
+      { title: "Family 5-room beside Clementi Mall", area: "Clementi Avenue 3", type: "HDB", mode: "Whole unit", price: 4050, beds: "3 bed · Part-furnished", available: "Available 1 Oct", availableDate: "2026-10-01", lister: "Agent", district: "D05", postcode: "120443", mrt: "Clementi MRT", tone: "lilac", description: "Large 5-room flat with practical storage, mature-estate amenities and an easy commute to NUS, one-north and Jurong East." },
+      { title: "High-floor room near Queenstown MRT", area: "Stirling Road", type: "HDB", mode: "Room only", price: 1550, beds: "Common room · Furnished", available: "Available 1 Aug", availableDate: "2026-08-01", lister: "Owner", district: "D03", postcode: "140171", mrt: "Queenstown MRT", tone: "sky", description: "High-floor furnished room with unblocked outlook, fast access to Queenstown MRT and simple house rules for a peaceful shared home." },
+      { title: "Pet-friendly studio at River Valley", area: "River Valley Close", type: "Condo", mode: "Whole unit", price: 3200, beds: "Studio · 1 bath", available: "Available 20 Aug", availableDate: "2026-08-20", lister: "Agent", district: "D09", postcode: "238000", mrt: "Great World MRT", tone: "lilac", description: "Pet-considered studio in a central neighbourhood, close to Great World, Robertson Quay and buses into the CBD." },
+      { title: "Renovated 5-room near Tampines Hub", area: "Tampines Street 82", type: "HDB", mode: "Whole unit", price: 4200, beds: "3 bed · Part-furnished", available: "Available 1 Sep", availableDate: "2026-09-01", lister: "Owner", district: "D18", postcode: "520882", mrt: "Tampines MRT", tone: "mint", description: "Renovated family-sized flat with newer kitchen fittings, lift-level convenience and the full Tampines Hub ecosystem nearby." },
+      { title: "Master room beside Buona Vista", area: "North Buona Vista Road", type: "Condo", mode: "Room only", price: 1850, beds: "Master room · Ensuite", available: "Available now", availableDate: "2026-07-21", lister: "Agent", district: "D05", postcode: "139345", mrt: "Buona Vista MRT", tone: "sunset", description: "Master room with ensuite, strong one-north access and flexible lease start. Best fit for a tenant who wants privacy without taking a whole unit." },
+      { title: "Quiet 3-bed family condo in Serangoon", area: "Serangoon Avenue 3", type: "Condo", mode: "Whole unit", price: 5200, beds: "3 bed · 2 bath", available: "Available 15 Sep", availableDate: "2026-09-15", lister: "Owner", district: "D19", postcode: "550303", mrt: "Serangoon MRT", tone: "sky", description: "Low-density family condo with proper bedrooms, a calmer residential feel and quick access to NEX, Serangoon MRT and neighbourhood schools." },
+      { title: "Whole unit minutes from Jurong East", area: "Jurong East Street 21", type: "HDB", mode: "Whole unit", price: 3900, beds: "3 bed · Furnished", available: "Available 1 Oct", availableDate: "2026-10-01", lister: "Agent", district: "D22", postcode: "600021", mrt: "Jurong East MRT", tone: "lilac", description: "Furnished whole HDB unit near Jurong East transport and malls, convenient for tenants working around Jurong Lake District or the west side." }
+    ].map((item, index) => ({ ...item, image: listingPhotos[item.title], images: imagesForListing(item.title, index), postedAt: 100 - index }));
 
     let listings = fallbackListings;
     let activeFilter = "All";
+    let activeSort = "newest";
+    let activeDistrict = "All";
+    let touchStartX = 0;
     const views = document.querySelectorAll(".view");
     const navButtons = document.querySelectorAll("[data-view]");
     const chips = document.querySelectorAll(".chip");
     const search = document.getElementById("search");
+    const sortSelect = document.getElementById("sortSelect");
+    const districtSelect = document.getElementById("districtSelect");
     const toast = document.getElementById("toast");
     const dataStatus = document.getElementById("dataStatus");
     const detailBackdrop = document.getElementById("detailBackdrop");
     const detailClose = document.getElementById("detailClose");
-    const enquiryForm = document.getElementById("enquiryForm");
-    const enquiryTitle = document.getElementById("enquiryTitle");
+    const chatWindow = document.getElementById("chatWindow");
+    const viewWindow = document.getElementById("viewWindow");
     const publishButton = document.querySelector("[data-publish]");
     let selectedListing = null;
+    let selectedViewDate = "";
+    let selectedViewTime = "";
+    const likedListings = new Set(readStorage("leasekaki-liked", []));
+    const photoIndexes = {};
+    const viewingRequests = readStorage("leasekaki-viewings", {});
+    const chatThreads = readStorage("leasekaki-chats", {});
+
+    function readStorage(key, fallback) {
+      try {
+        return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function writeStorage(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {}
+    }
 
     function showToast(message) {
       toast.textContent = "✓ " + message;
@@ -816,9 +1133,20 @@
     }
 
     function typeFromKind(kind) {
-      if (kind === "hdb_room" || kind === "private_room") return "Rooms";
+      if (kind === "hdb_room") return "HDB";
+      if (kind === "private_room") return "Condo";
       if (kind === "private_whole_unit") return "Condo";
       return "HDB";
+    }
+
+    function modeFromKind(kind) {
+      return kind === "hdb_room" || kind === "private_room" ? "Room only" : "Whole unit";
+    }
+
+    function imagesForListing(title, index = 0, apiImages = []) {
+      const primary = listingPhotos[title] || apiImages[0] || listingPhotoPool[index % listingPhotoPool.length];
+      const extras = [listingPhotoPool[(index + 3) % listingPhotoPool.length], listingPhotoPool[(index + 6) % listingPhotoPool.length]].filter(Boolean);
+      return [primary, ...extras].filter((image, imageIndex, array) => image && array.indexOf(image) === imageIndex);
     }
 
     function toneForIndex(index) {
@@ -837,15 +1165,35 @@
         title: item.title,
         area: item.addressHint || item.estate,
         type: typeFromKind(item.kind),
+        mode: modeFromKind(item.kind),
         price: item.askingRent,
         beds: `${item.bedrooms} · ${item.furnishing}`,
         available: formatAvailability(item.availableFrom),
+        availableDate: item.availableFrom || "2026-09-01",
         lister: titleCase(item.listerKind),
         image: listingPhotos[item.title] || item.photoUrls?.[0] || listingPhotoPool[index % listingPhotoPool.length],
+        images: imagesForListing(item.title, index, item.photoUrls || []),
+        district: item.district || districtForEstate(item.estate || item.addressHint || ""),
+        postcode: item.postcode || "",
+        mrt: item.mrt || `${item.estate || item.addressHint || "Nearby"} MRT`,
         description: item.description,
         rentRange: item.suggestedRentMin && item.suggestedRentMax ? `$${Number(item.suggestedRentMin).toLocaleString()}-$${Number(item.suggestedRentMax).toLocaleString()}` : "Guide pending",
-        tone: toneForIndex(index)
+        tone: toneForIndex(index),
+        postedAt: 100 - index
       };
+    }
+
+    function districtForEstate(value) {
+      const text = value.toLowerCase();
+      if (text.includes("tiong") || text.includes("queenstown")) return "D03";
+      if (text.includes("clementi") || text.includes("buona")) return "D05";
+      if (text.includes("river")) return "D09";
+      if (text.includes("paya")) return "D14";
+      if (text.includes("tampines")) return "D18";
+      if (text.includes("serangoon")) return "D19";
+      if (text.includes("bishan")) return "D20";
+      if (text.includes("jurong")) return "D22";
+      return "D20";
     }
 
     function detailCopy(item) {
@@ -854,21 +1202,22 @@
 
     function openListingDetail(item) {
       selectedListing = item;
-      enquiryForm.classList.remove("open");
-      document.getElementById("detailImage").src = item.image;
+      const image = (item.images && item.images[photoIndexes[item.title] || 0]) || item.image;
+      document.getElementById("detailImage").src = image;
       document.getElementById("detailImage").alt = item.title;
       document.getElementById("detailPrice").innerHTML = `$${Number(item.price).toLocaleString()}<small>/mo</small>`;
       document.getElementById("detailTitle").textContent = item.title;
-      document.getElementById("detailLister").textContent = item.lister;
+      document.getElementById("detailLister").textContent = `${item.lister} · ${item.mode}`;
       document.getElementById("detailCopy").textContent = detailCopy(item);
       document.getElementById("detailFacts").innerHTML = [
-        ["Type", item.type],
-        ["Location", item.area],
+        ["Listing", `${item.mode} · ${item.type}`],
+        ["Location", `${item.area}${item.postcode ? ` · ${item.postcode}` : ""}`],
+        ["District", `${item.district} · ${item.mrt}`],
         ["Home", item.beds],
         ["Timing", item.available],
-        ["Rent guide", item.rentRange || "Guide pending"],
-        ["Next step", "Chat or arrange viewing"]
+        ["Rent guide", item.rentRange || "Guide pending"]
       ].map(([label, value]) => `<span><strong>${escapeHtml(label)}</strong><br>${escapeHtml(value)}</span>`).join("");
+      renderPriceInsights(item);
       detailBackdrop.classList.add("open");
       detailBackdrop.setAttribute("aria-hidden", "false");
       detailClose.focus();
@@ -877,22 +1226,11 @@
     function closeListingDetail() {
       detailBackdrop.classList.remove("open");
       detailBackdrop.setAttribute("aria-hidden", "true");
-      enquiryForm.classList.remove("open");
-    }
-
-    function openEnquiry(item, mode) {
-      openListingDetail(item);
-      const isViewing = mode === "viewing";
-      enquiryTitle.textContent = isViewing ? "Arrange viewing" : "Start chat";
-      document.getElementById("enquiryMessage").value = isViewing
-        ? `Hi, I would like to view ${item.title}. Is my preferred timing possible?`
-        : `Hi, I am interested in ${item.title}. Is this still available?`;
-      enquiryForm.classList.add("open");
-      window.setTimeout(() => document.getElementById("enquiryContact").focus(), 80);
     }
 
     function kindToType(kind) {
-      if (kind === "hdb_room" || kind === "private_room") return "Rooms";
+      if (kind === "hdb_room") return "HDB";
+      if (kind === "private_room") return "Condo";
       if (kind === "private_whole_unit") return "Condo";
       return "HDB";
     }
@@ -939,14 +1277,21 @@
         title: payload.title,
         area: payload.addressHint,
         type: kindToType(payload.kind),
+        mode: modeFromKind(payload.kind),
         price: payload.askingRent,
         beds: `${payload.bedrooms} · ${payload.furnishing}`,
         available: formatAvailability(payload.availableFrom),
+        availableDate: payload.availableFrom,
         lister: titleCase(payload.listerKind),
         image: payload.photoUrls[0],
+        images: imagesForListing(payload.title, 0, payload.photoUrls),
+        district: districtForEstate(`${payload.estate} ${payload.addressHint}`),
+        postcode: "",
+        mrt: `${payload.estate} MRT`,
         description: payload.description,
         rentRange: `$${Number(payload.suggestedRentMin).toLocaleString()}-$${Number(payload.suggestedRentMax).toLocaleString()}`,
-        tone: "sunset"
+        tone: "sunset",
+        postedAt: 101
       };
     }
 
@@ -956,8 +1301,10 @@
         if (!response.ok) throw new Error(`API returned ${response.status}`);
         const body = await response.json();
         if (!Array.isArray(body.listings) || !body.listings.length) throw new Error("No listings returned");
-        listings = body.listings.map(mapApiListing);
-        dataStatus.textContent = "Live from Neon";
+        const liveListings = body.listings.map(mapApiListing);
+        const titles = new Set(liveListings.map((item) => item.title));
+        listings = [...liveListings, ...fallbackListings.filter((item) => !titles.has(item.title))];
+        dataStatus.textContent = "Live from Neon + mock catalogue";
       } catch (error) {
         listings = fallbackListings;
         dataStatus.textContent = "Showing local fallback data";
@@ -968,28 +1315,39 @@
     function renderListings() {
       const query = search.value.trim().toLowerCase();
       const visible = listings.filter((item) => {
-        const matchesFilter = activeFilter === "All" || item.type === activeFilter;
-        const matchesSearch = !query || `${item.title} ${item.area} ${item.type}`.toLowerCase().includes(query);
+        const haystack = `${item.title} ${item.area} ${item.type} ${item.mode} ${item.lister} ${item.beds} ${item.district} ${item.postcode} ${item.mrt}`.toLowerCase();
+        const matchesSearch = !query || haystack.includes(query);
+        const matchesFilter =
+          activeFilter === "All" ||
+          item.type === activeFilter ||
+          item.mode === activeFilter ||
+          item.lister === activeFilter ||
+          (activeFilter === "Liked" && likedListings.has(item.title));
         return matchesFilter && matchesSearch;
-      });
+      }).filter((item) => matchesDistrictForItem(item)).sort(sortListings);
 
       document.getElementById("count").textContent = `${visible.length} found`;
       document.getElementById("listings").innerHTML = visible.map((item, index) => `
-        <button class="listing" type="button" data-index="${index}" data-title="${escapeHtml(item.title)}">
+        <article class="listing" role="button" tabindex="0" data-index="${index}" data-title="${escapeHtml(item.title)}">
           <span class="photo ${escapeHtml(item.tone)}">
-            ${item.image ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}">` : ""}
+            ${renderPhotoTrack(item)}
+            <button class="photo-nav prev" type="button" data-action="photoPrev" aria-label="Previous photo">‹</button>
+            <button class="photo-nav next" type="button" data-action="photoNext" aria-label="Next photo">›</button>
             <span class="badge">${escapeHtml(item.lister)}</span>
-            <span class="save">♡</span>
+            <button class="save ${likedListings.has(item.title) ? "liked" : ""}" type="button" data-action="like" aria-label="Save listing">${likedListings.has(item.title) ? "♥" : "♡"}</button>
+            ${renderPhotoDots(item)}
             ${item.image ? "" : `<span class="building"><i></i><i></i><i></i><i></i><i></i><i></i></span>`}
           </span>
           <span class="listing-body">
             <span class="price-row"><strong>$${Number(item.price).toLocaleString()}<small>/mo</small></strong><small>${escapeHtml(item.type)}</small></span>
+            <span class="mode-pill">${escapeHtml(item.mode)}</span>
             <strong class="title">${escapeHtml(item.title)}</strong>
-            <span class="meta">${escapeHtml(item.area)}</span>
+            <span class="meta">${escapeHtml(item.area)} · ${escapeHtml(item.district)}${item.postcode ? ` · ${escapeHtml(item.postcode)}` : ""}</span>
             <span class="meta">${escapeHtml(item.beds)} · ${escapeHtml(item.available)}</span>
+            ${viewingRequests[item.title] ? `<span class="status-pill">Viewing ${escapeHtml(viewingRequests[item.title].status)}</span>` : ""}
             <span class="actions"><span class="button secondary" data-action="chat">Chat</span><span class="button coral" data-action="view">View</span></span>
           </span>
-        </button>
+        </article>
       `).join("");
 
       document.querySelectorAll(".listing").forEach((button) => {
@@ -998,13 +1356,182 @@
           const action = event.target.closest("[data-action]")?.dataset.action;
           if (action === "chat") {
             event.stopPropagation();
-            openEnquiry(item, "chat");
+            openChat(item);
+            return;
+          }
+          if (action === "view") {
+            event.stopPropagation();
+            openViewing(item);
+            return;
+          }
+          if (action === "like") {
+            event.stopPropagation();
+            toggleLike(item);
+            return;
+          }
+          if (action === "photoPrev" || action === "photoNext") {
+            event.stopPropagation();
+            movePhoto(item, action === "photoNext" ? 1 : -1);
             return;
           }
           openListingDetail(item);
         });
         button.addEventListener("dblclick", () => openListingDetail(item));
+        button.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openListingDetail(item);
+          }
+        });
+        const photo = button.querySelector(".photo");
+        photo.addEventListener("touchstart", (event) => { touchStartX = event.touches[0].clientX; }, { passive: true });
+        photo.addEventListener("touchend", (event) => {
+          const delta = event.changedTouches[0].clientX - touchStartX;
+          if (Math.abs(delta) > 32) {
+            event.stopPropagation();
+            movePhoto(item, delta < 0 ? 1 : -1);
+          }
+        });
       });
+    }
+
+    function matchesDistrictForItem(item) {
+      return activeDistrict === "All" || item.district === activeDistrict;
+    }
+
+    function sortListings(a, b) {
+      if (activeSort === "priceAsc") return a.price - b.price;
+      if (activeSort === "priceDesc") return b.price - a.price;
+      if (activeSort === "available") return new Date(a.availableDate || "2026-12-31") - new Date(b.availableDate || "2026-12-31");
+      return (b.postedAt || 0) - (a.postedAt || 0);
+    }
+
+    function renderPhotoTrack(item) {
+      const images = item.images?.length ? item.images : [item.image];
+      const index = photoIndexes[item.title] || 0;
+      return `<span class="photo-track" style="transform:translateX(-${index * 100}%)">${images.map((image, imageIndex) => `<img src="${escapeHtml(image)}" alt="${escapeHtml(item.title)} photo ${imageIndex + 1}">`).join("")}</span>`;
+    }
+
+    function renderPhotoDots(item) {
+      const images = item.images?.length ? item.images : [item.image];
+      const index = photoIndexes[item.title] || 0;
+      return `<span class="photo-dots" aria-hidden="true">${images.map((_, dotIndex) => `<i class="${dotIndex === index ? "active" : ""}"></i>`).join("")}</span>`;
+    }
+
+    function movePhoto(item, delta) {
+      const total = item.images?.length || 1;
+      photoIndexes[item.title] = ((photoIndexes[item.title] || 0) + delta + total) % total;
+      renderListings();
+    }
+
+    function toggleLike(item) {
+      if (likedListings.has(item.title)) {
+        likedListings.delete(item.title);
+        showToast("Removed from Liked");
+      } else {
+        likedListings.add(item.title);
+        showToast("Saved to Liked");
+      }
+      writeStorage("leasekaki-liked", Array.from(likedListings));
+      renderListings();
+    }
+
+    function priceInsights(item) {
+      const seed = Math.max(1, item.title.length + item.price / 100);
+      const average = Math.round((item.price * (item.mode === "Room only" ? 1.04 : .97)) / 50) * 50;
+      const delta = item.price - average;
+      const label = Math.abs(delta) < average * .04 ? "near average" : delta < 0 ? "below average" : "above average";
+      const trend = Array.from({ length: 12 }, (_, index) => Math.round(average * (.92 + index * .009 + Math.sin(seed + index) * .035)));
+      const comps = Array.from({ length: 13 }, (_, index) => ({
+        x: 10 + ((index * 7 + seed) % 78),
+        y: 18 + ((index * 11 + seed * 2) % 64)
+      }));
+      return { average, delta, label, trend, comps };
+    }
+
+    function renderPriceInsights(item) {
+      const insight = priceInsights(item);
+      const comparison = insight.delta === 0 ? "right at" : `$${Math.abs(insight.delta).toLocaleString()} ${insight.delta < 0 ? "below" : "above"}`;
+      document.getElementById("insightLabel").textContent = `${item.district} comparable rents`;
+      document.getElementById("insightCopy").textContent = `Mock insight: asking rent is ${insight.label} — about ${comparison} the neighbourhood average of $${insight.average.toLocaleString()}/mo for similar ${item.mode.toLowerCase()} listings.`;
+      const maxTrend = Math.max(...insight.trend);
+      document.getElementById("trendBars").innerHTML = insight.trend.map((value) => `<i style="height:${Math.max(18, Math.round(value / maxTrend * 78))}px" title="$${value.toLocaleString()}"></i>`).join("");
+      document.getElementById("scatterPlot").innerHTML = [
+        ...insight.comps.map((point) => `<i style="left:${point.x}%;bottom:${point.y}%"></i>`),
+        `<i class="current" style="left:74%;bottom:${Math.max(16, Math.min(86, 50 + (item.price - insight.average) / insight.average * 90))}%"></i>`
+      ].join("");
+    }
+
+    function openChat(item) {
+      selectedListing = item;
+      document.getElementById("chatTitle").textContent = `Chat: ${item.title}`;
+      document.getElementById("chatSubtitle").textContent = `${item.lister} · ${item.mode} · ${item.area}`;
+      if (!chatThreads[item.title]) {
+        chatThreads[item.title] = [
+          { who: "them", text: `Hi! ${item.title} is still available. Ask me anything before arranging a viewing.` },
+          { who: "me", text: "Hi, is this still available and are viewings possible this week?" }
+        ];
+      }
+      renderChat();
+      chatWindow.classList.add("open");
+      chatWindow.setAttribute("aria-hidden", "false");
+      window.setTimeout(() => document.getElementById("chatInput").focus(), 80);
+    }
+
+    function renderChat() {
+      const thread = chatThreads[selectedListing?.title] || [];
+      document.getElementById("messages").innerHTML = thread.map((message) => `<div class="bubble ${message.who}">${escapeHtml(message.text)}</div>`).join("");
+      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+    }
+
+    function closeChat() {
+      chatWindow.classList.remove("open");
+      chatWindow.setAttribute("aria-hidden", "true");
+    }
+
+    function nextDates() {
+      const start = new Date("2026-07-18T00:00:00+08:00");
+      return Array.from({ length: 6 }, (_, index) => {
+        const date = new Date(start);
+        date.setDate(start.getDate() + index);
+        return {
+          value: date.toISOString().slice(0, 10),
+          label: date.toLocaleDateString("en-SG", { weekday: "short" }),
+          sub: date.toLocaleDateString("en-SG", { day: "numeric", month: "short" })
+        };
+      });
+    }
+
+    function openViewing(item) {
+      selectedListing = item;
+      const existing = viewingRequests[item.title];
+      selectedViewDate = existing?.date || "";
+      selectedViewTime = existing?.time || "";
+      document.getElementById("viewTitle").textContent = `View: ${item.title}`;
+      document.getElementById("viewSubtitle").textContent = `${item.lister} · ${item.mode} · ${item.area}`;
+      document.getElementById("ownerNote").textContent = item.lister === "Owner"
+        ? "Owner prefers weekday evenings and Saturday late morning. Pick a slot and they can confirm or suggest an alternative."
+        : "Agent can coordinate weekday lunch, evening, or Saturday slots. Request one clean slot first to keep the follow-up simple.";
+      renderViewing();
+      viewWindow.classList.add("open");
+      viewWindow.setAttribute("aria-hidden", "false");
+    }
+
+    function renderViewing() {
+      const existing = viewingRequests[selectedListing?.title];
+      const statusBox = document.getElementById("requestStatus");
+      statusBox.classList.toggle("hidden", !existing);
+      if (existing) statusBox.innerHTML = `<strong>Viewing ${escapeHtml(existing.status)}</strong>${escapeHtml(existing.dateLabel)} at ${escapeHtml(existing.time)}. You can change the slot or cancel if plans move.`;
+      document.getElementById("dateSlots").innerHTML = nextDates().map((date) => `<button class="slot ${selectedViewDate === date.value ? "selected" : ""}" type="button" data-date="${date.value}" data-label="${date.label}, ${date.sub}">${date.label}<small>${date.sub}</small></button>`).join("");
+      const times = ["10:30 AM", "12:30 PM", "2:30 PM", "6:30 PM", "7:30 PM", "8:30 PM"];
+      document.getElementById("timeSlots").innerHTML = times.map((time) => `<button class="slot ${selectedViewTime === time ? "selected" : ""}" type="button" data-time="${time}">${time}<small>${time.includes("PM") && !time.startsWith("12") ? "Evening" : "Day"}</small></button>`).join("");
+      document.getElementById("cancelViewing").classList.toggle("hidden", !existing);
+      document.getElementById("requestViewing").textContent = existing ? "Update request" : "Request viewing";
+    }
+
+    function closeViewing() {
+      viewWindow.classList.remove("open");
+      viewWindow.setAttribute("aria-hidden", "true");
     }
 
     chips.forEach((chip) => {
@@ -1015,6 +1542,14 @@
       });
     });
     search.addEventListener("input", renderListings);
+    sortSelect.addEventListener("change", () => {
+      activeSort = sortSelect.value;
+      renderListings();
+    });
+    districtSelect.addEventListener("change", () => {
+      activeDistrict = districtSelect.value;
+      renderListings();
+    });
 
     document.getElementById("photos").addEventListener("change", (event) => {
       const count = event.target.files.length;
@@ -1072,30 +1607,76 @@
     });
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && detailBackdrop.classList.contains("open")) closeListingDetail();
+      if (event.key === "Escape" && chatWindow.classList.contains("open")) closeChat();
+      if (event.key === "Escape" && viewWindow.classList.contains("open")) closeViewing();
     });
     document.getElementById("detailChat").addEventListener("click", () => {
-      if (selectedListing) openEnquiry(selectedListing, "chat");
+      if (selectedListing) openChat(selectedListing);
     });
     document.getElementById("detailView").addEventListener("click", () => {
-      if (selectedListing) openEnquiry(selectedListing, "viewing");
+      if (selectedListing) openViewing(selectedListing);
     });
-    enquiryForm.addEventListener("submit", (event) => {
+    document.getElementById("chatClose").addEventListener("click", closeChat);
+    chatWindow.addEventListener("click", (event) => {
+      if (event.target === chatWindow) closeChat();
+    });
+    document.getElementById("chatForm").addEventListener("submit", (event) => {
       event.preventDefault();
       if (!selectedListing) return;
-      const enquiry = {
-        listing: selectedListing.title,
-        name: document.getElementById("enquiryName").value.trim(),
-        contact: document.getElementById("enquiryContact").value.trim(),
-        time: document.getElementById("enquiryTime").value.trim(),
-        message: document.getElementById("enquiryMessage").value.trim(),
-        createdAt: new Date().toISOString()
+      const input = document.getElementById("chatInput");
+      const text = input.value.trim();
+      if (!text) return;
+      chatThreads[selectedListing.title] = chatThreads[selectedListing.title] || [];
+      chatThreads[selectedListing.title].push({ who: "me", text });
+      writeStorage("leasekaki-chats", chatThreads);
+      input.value = "";
+      renderChat();
+      showToast("Message saved in chat");
+    });
+    document.getElementById("viewClose").addEventListener("click", closeViewing);
+    viewWindow.addEventListener("click", (event) => {
+      if (event.target === viewWindow) closeViewing();
+    });
+    document.getElementById("dateSlots").addEventListener("click", (event) => {
+      const slot = event.target.closest("[data-date]");
+      if (!slot) return;
+      selectedViewDate = slot.dataset.date;
+      renderViewing();
+    });
+    document.getElementById("timeSlots").addEventListener("click", (event) => {
+      const slot = event.target.closest("[data-time]");
+      if (!slot) return;
+      selectedViewTime = slot.dataset.time;
+      renderViewing();
+    });
+    document.getElementById("requestViewing").addEventListener("click", () => {
+      if (!selectedListing) return;
+      if (!selectedViewDate || !selectedViewTime) {
+        showToast("Choose a date and time first");
+        return;
+      }
+      const selectedDate = nextDates().find((date) => date.value === selectedViewDate);
+      viewingRequests[selectedListing.title] = {
+        status: "requested",
+        date: selectedViewDate,
+        dateLabel: selectedDate ? `${selectedDate.label}, ${selectedDate.sub}` : selectedViewDate,
+        time: selectedViewTime,
+        updatedAt: new Date().toISOString()
       };
-      const enquiries = JSON.parse(localStorage.getItem("leasekaki-enquiries") || "[]");
-      enquiries.unshift(enquiry);
-      localStorage.setItem("leasekaki-enquiries", JSON.stringify(enquiries.slice(0, 20)));
-      showToast(`Enquiry saved for ${selectedListing.title}`);
-      closeListingDetail();
-      setView("deals");
+      writeStorage("leasekaki-viewings", viewingRequests);
+      renderViewing();
+      renderListings();
+      showToast("Viewing requested");
+    });
+    document.getElementById("cancelViewing").addEventListener("click", () => {
+      if (!selectedListing) return;
+      delete viewingRequests[selectedListing.title];
+      writeStorage("leasekaki-viewings", viewingRequests);
+      selectedViewDate = "";
+      selectedViewTime = "";
+      renderViewing();
+      renderListings();
+      showToast("Viewing request cancelled");
     });
 
     renderListings();
