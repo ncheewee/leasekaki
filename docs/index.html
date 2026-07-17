@@ -193,6 +193,20 @@
       place-items: center;
       background: linear-gradient(145deg, #f9c8a7, #e97866);
     }
+    .photo img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .photo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(16, 43, 54, .04), rgba(16, 43, 54, .32));
+      pointer-events: none;
+    }
     .photo.mint { background: linear-gradient(145deg, #c9efcf, #6ec3a7); }
     .photo.sky { background: linear-gradient(145deg, #c8e5f0, #70a6c5); }
     .photo.lilac { background: linear-gradient(145deg, #ded4ef, #9f85c3); }
@@ -215,6 +229,7 @@
     }
     .badge, .save {
       position: absolute;
+      z-index: 1;
       top: 12px;
       border-radius: 999px;
       background: rgba(255, 253, 248, .9);
@@ -253,6 +268,19 @@
       border-radius: 22px;
       background: var(--cream);
       text-align: center;
+    }
+    .mock-strip {
+      width: min(100%, 360px);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .mock-strip img {
+      width: 100%;
+      aspect-ratio: 1.25;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 7px 20px rgba(16, 43, 54, .13);
     }
     .camera {
       width: 86px;
@@ -463,6 +491,11 @@
           <div class="desktop-grid">
             <label class="capture">
               <input id="photos" type="file" accept="image/*" multiple>
+              <span class="mock-strip" aria-hidden="true">
+                <img src="./assets/listings/01-bishan-hdb-living.jpg" alt="">
+                <img src="./assets/listings/05-queenstown-room.jpg" alt="">
+                <img src="./assets/listings/03-paya-lebar-condo.jpg" alt="">
+              </span>
               <span class="camera">◎</span>
               <strong id="photoLabel">Tap to add property photos</strong>
               <span id="photoHint">Living, bedroom, kitchen, toilet and view.</span>
@@ -530,6 +563,19 @@
 
   <script>
     const API_BASE = "https://leasekaki-api.ncheewee.workers.dev";
+    const listingPhotos = {
+      "Sunny 4-room near Bishan MRT": "./assets/listings/01-bishan-hdb-living.jpg",
+      "Calm common room in Tiong Bahru": "./assets/listings/02-tiong-bahru-common-room.jpg",
+      "City-view 2-bed at Paya Lebar": "./assets/listings/03-paya-lebar-condo.jpg",
+      "Family 5-room beside Clementi Mall": "./assets/listings/04-clementi-family-hdb.jpg",
+      "High-floor room near Queenstown MRT": "./assets/listings/05-queenstown-room.jpg",
+      "Pet-friendly studio at River Valley": "./assets/listings/06-river-valley-studio.jpg",
+      "Renovated 5-room near Tampines Hub": "./assets/listings/07-tampines-renovated-hdb.jpg",
+      "Master room beside Buona Vista": "./assets/listings/08-buona-vista-master-room.jpg",
+      "Quiet 3-bed family condo in Serangoon": "./assets/listings/09-serangoon-family-condo.jpg",
+      "Whole unit minutes from Jurong East": "./assets/listings/10-jurong-east-whole-unit.jpg"
+    };
+    const listingPhotoPool = Object.values(listingPhotos);
     const fallbackListings = [
       { title: "Sunny 4-room near Bishan MRT", area: "Bishan Street 13", type: "HDB", price: 3750, beds: "3 bed · Furnished", available: "Available 1 Sep", lister: "Owner", tone: "sunset" },
       { title: "Calm common room in Tiong Bahru", area: "Tiong Bahru Road", type: "Rooms", price: 1350, beds: "Common room · Owner staying", available: "Available now", lister: "Owner", tone: "mint" },
@@ -541,7 +587,7 @@
       { title: "Master room beside Buona Vista", area: "North Buona Vista Road", type: "Rooms", price: 1850, beds: "Master room · Ensuite", available: "Available now", lister: "Agent", tone: "sunset" },
       { title: "Quiet 3-bed family condo in Serangoon", area: "Serangoon Avenue 3", type: "Condo", price: 5200, beds: "3 bed · 2 bath", available: "Available 15 Sep", lister: "Owner", tone: "sky" },
       { title: "Whole unit minutes from Jurong East", area: "Jurong East Street 21", type: "HDB", price: 3900, beds: "3 bed · Furnished", available: "Available 1 Oct", lister: "Agent", tone: "lilac" }
-    ];
+    ].map((item) => ({ ...item, image: listingPhotos[item.title] }));
 
     let listings = fallbackListings;
     let activeFilter = "All";
@@ -606,6 +652,7 @@
         beds: `${item.bedrooms} · ${item.furnishing}`,
         available: formatAvailability(item.availableFrom),
         lister: titleCase(item.listerKind),
+        image: listingPhotos[item.title] || item.photoUrls?.[0] || listingPhotoPool[index % listingPhotoPool.length],
         tone: toneForIndex(index)
       };
     }
@@ -637,9 +684,10 @@
       document.getElementById("listings").innerHTML = visible.map((item) => `
         <button class="listing" type="button" data-title="${escapeHtml(item.title)}">
           <span class="photo ${escapeHtml(item.tone)}">
+            ${item.image ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}">` : ""}
             <span class="badge">${escapeHtml(item.lister)}</span>
             <span class="save">♡</span>
-            <span class="building"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            ${item.image ? "" : `<span class="building"><i></i><i></i><i></i><i></i><i></i><i></i></span>`}
           </span>
           <span class="listing-body">
             <span class="price-row"><strong>$${Number(item.price).toLocaleString()}<small>/mo</small></strong><small>${escapeHtml(item.type)}</small></span>
