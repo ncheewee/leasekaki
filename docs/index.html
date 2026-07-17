@@ -167,6 +167,15 @@
     }
     .section-heading h2 { margin: 5px 0 0; font-size: 26px; letter-spacing: -.04em; }
     .count { color: var(--muted); font-size: 12px; }
+    .data-status {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+    }
 
     .listings { display: grid; gap: 14px; padding: 0 16px 28px; }
     .listing {
@@ -437,8 +446,8 @@
             <button class="chip" type="button" data-filter="Condo">Condo</button>
           </div>
           <div class="section-heading">
-            <div><span class="eyebrow" style="color:var(--mint-deep)">Fresh listings</span><h2>Homes worth a look</h2></div>
-            <span id="count" class="count">4 found</span>
+            <div><span class="eyebrow" style="color:var(--mint-deep)">Fresh listings</span><span id="dataStatus" class="data-status">Loading Neon listings...</span><h2>Homes worth a look</h2></div>
+            <span id="count" class="count">10 found</span>
           </div>
           <div id="listings" class="listings"></div>
         </div>
@@ -520,19 +529,28 @@
   <button id="toast" class="toast hidden" type="button" aria-label="Dismiss message"></button>
 
   <script>
-    const listings = [
+    const API_BASE = "https://rentalguru-sg.ncheewee.chatgpt.site";
+    const fallbackListings = [
       { title: "Sunny 4-room near Bishan MRT", area: "Bishan Street 13", type: "HDB", price: 3750, beds: "3 bed · Furnished", available: "Available 1 Sep", lister: "Owner", tone: "sunset" },
       { title: "Calm common room in Tiong Bahru", area: "Tiong Bahru Road", type: "Rooms", price: 1350, beds: "Common room · Owner staying", available: "Available now", lister: "Owner", tone: "mint" },
       { title: "City-view 2-bed at Paya Lebar", area: "Paya Lebar Quarter", type: "Condo", price: 4300, beds: "2 bed · 2 bath", available: "Available 15 Aug", lister: "Agent", tone: "sky" },
-      { title: "Family 5-room beside Clementi Mall", area: "Clementi Avenue 3", type: "HDB", price: 4050, beds: "3 bed · Part-furnished", available: "Available 1 Oct", lister: "Agent", tone: "lilac" }
+      { title: "Family 5-room beside Clementi Mall", area: "Clementi Avenue 3", type: "HDB", price: 4050, beds: "3 bed · Part-furnished", available: "Available 1 Oct", lister: "Agent", tone: "lilac" },
+      { title: "High-floor room near Queenstown MRT", area: "Stirling Road", type: "Rooms", price: 1550, beds: "Common room · Furnished", available: "Available 1 Aug", lister: "Owner", tone: "sky" },
+      { title: "Pet-friendly studio at River Valley", area: "River Valley Close", type: "Condo", price: 3200, beds: "Studio · 1 bath", available: "Available 20 Aug", lister: "Agent", tone: "lilac" },
+      { title: "Renovated 5-room near Tampines Hub", area: "Tampines Street 82", type: "HDB", price: 4200, beds: "3 bed · Part-furnished", available: "Available 1 Sep", lister: "Owner", tone: "mint" },
+      { title: "Master room beside Buona Vista", area: "North Buona Vista Road", type: "Rooms", price: 1850, beds: "Master room · Ensuite", available: "Available now", lister: "Agent", tone: "sunset" },
+      { title: "Quiet 3-bed family condo in Serangoon", area: "Serangoon Avenue 3", type: "Condo", price: 5200, beds: "3 bed · 2 bath", available: "Available 15 Sep", lister: "Owner", tone: "sky" },
+      { title: "Whole unit minutes from Jurong East", area: "Jurong East Street 21", type: "HDB", price: 3900, beds: "3 bed · Furnished", available: "Available 1 Oct", lister: "Agent", tone: "lilac" }
     ];
 
+    let listings = fallbackListings;
     let activeFilter = "All";
     const views = document.querySelectorAll(".view");
     const navButtons = document.querySelectorAll("[data-view]");
     const chips = document.querySelectorAll(".chip");
     const search = document.getElementById("search");
     const toast = document.getElementById("toast");
+    const dataStatus = document.getElementById("dataStatus");
 
     function showToast(message) {
       toast.textContent = "✓ " + message;
@@ -548,6 +566,65 @@
 
     navButtons.forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
 
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function titleCase(value) {
+      return value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+    }
+
+    function typeFromKind(kind) {
+      if (kind === "hdb_room" || kind === "private_room") return "Rooms";
+      if (kind === "private_whole_unit") return "Condo";
+      return "HDB";
+    }
+
+    function toneForIndex(index) {
+      return ["sunset", "mint", "sky", "lilac"][index % 4];
+    }
+
+    function formatAvailability(value) {
+      if (!value) return "Available soon";
+      const date = new Date(`${value}T00:00:00`);
+      if (Number.isNaN(date.getTime())) return value;
+      return `Available ${date.toLocaleDateString("en-SG", { day: "numeric", month: "short" })}`;
+    }
+
+    function mapApiListing(item, index) {
+      return {
+        title: item.title,
+        area: item.addressHint || item.estate,
+        type: typeFromKind(item.kind),
+        price: item.askingRent,
+        beds: `${item.bedrooms} · ${item.furnishing}`,
+        available: formatAvailability(item.availableFrom),
+        lister: titleCase(item.listerKind),
+        tone: toneForIndex(index)
+      };
+    }
+
+    async function loadListings() {
+      try {
+        const response = await fetch(`${API_BASE}/api/listings`, { headers: { accept: "application/json" } });
+        if (!response.ok) throw new Error(`API returned ${response.status}`);
+        const body = await response.json();
+        if (!Array.isArray(body.listings) || !body.listings.length) throw new Error("No listings returned");
+        listings = body.listings.map(mapApiListing);
+        dataStatus.textContent = "Live from Neon";
+      } catch (error) {
+        listings = fallbackListings;
+        dataStatus.textContent = "Showing local fallback data";
+      }
+      renderListings();
+    }
+
     function renderListings() {
       const query = search.value.trim().toLowerCase();
       const visible = listings.filter((item) => {
@@ -558,17 +635,17 @@
 
       document.getElementById("count").textContent = `${visible.length} found`;
       document.getElementById("listings").innerHTML = visible.map((item) => `
-        <button class="listing" type="button" data-title="${item.title}">
-          <span class="photo ${item.tone}">
-            <span class="badge">${item.lister}</span>
+        <button class="listing" type="button" data-title="${escapeHtml(item.title)}">
+          <span class="photo ${escapeHtml(item.tone)}">
+            <span class="badge">${escapeHtml(item.lister)}</span>
             <span class="save">♡</span>
             <span class="building"><i></i><i></i><i></i><i></i><i></i><i></i></span>
           </span>
           <span class="listing-body">
-            <span class="price-row"><strong>$${item.price.toLocaleString()}<small>/mo</small></strong><small>${item.type}</small></span>
-            <strong class="title">${item.title}</strong>
-            <span class="meta">${item.area}</span>
-            <span class="meta">${item.beds} · ${item.available}</span>
+            <span class="price-row"><strong>$${Number(item.price).toLocaleString()}<small>/mo</small></strong><small>${escapeHtml(item.type)}</small></span>
+            <strong class="title">${escapeHtml(item.title)}</strong>
+            <span class="meta">${escapeHtml(item.area)}</span>
+            <span class="meta">${escapeHtml(item.beds)} · ${escapeHtml(item.available)}</span>
             <span class="actions"><span class="button secondary">Chat</span><span class="button coral">View</span></span>
           </span>
         </button>
@@ -612,6 +689,7 @@
     });
 
     renderListings();
+    loadListings();
   </script>
 </body>
 </html>

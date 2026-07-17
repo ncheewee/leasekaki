@@ -1,6 +1,7 @@
 import { desc } from "drizzle-orm";
 import { getDb, hasDatabase } from "../../../db";
 import { listings, type NewListing } from "../../../db/schema";
+import { corsHeaders, optionsResponse } from "../cors";
 
 export const dynamic = "force-dynamic";
 
@@ -75,19 +76,23 @@ function parseListing(payload: ListingPayload): NewListing {
   };
 }
 
-export async function GET() {
+export function OPTIONS(request: Request) {
+  return optionsResponse(request);
+}
+
+export async function GET(request: Request) {
   if (!(await hasDatabase())) {
     return Response.json(
       {
         error: "DATABASE_URL is not configured.",
       },
-      { status: 503 }
+      { status: 503, headers: corsHeaders(request) }
     );
   }
 
   const db = await getDb();
   const rows = await db.select().from(listings).orderBy(desc(listings.createdAt)).limit(50);
-  return Response.json({ listings: rows });
+  return Response.json({ listings: rows }, { headers: corsHeaders(request) });
 }
 
 export async function POST(request: Request) {
@@ -96,7 +101,7 @@ export async function POST(request: Request) {
       {
         error: "DATABASE_URL is not configured.",
       },
-      { status: 503 }
+      { status: 503, headers: corsHeaders(request) }
     );
   }
 
@@ -106,13 +111,13 @@ export async function POST(request: Request) {
     const db = await getDb();
     const [created] = await db.insert(listings).values(values).returning();
 
-    return Response.json({ listing: created }, { status: 201 });
+    return Response.json({ listing: created }, { status: 201, headers: corsHeaders(request) });
   } catch (error) {
     return Response.json(
       {
         error: error instanceof Error ? error.message : "Unable to create listing.",
       },
-      { status: 400 }
+      { status: 400, headers: corsHeaders(request) }
     );
   }
 }
