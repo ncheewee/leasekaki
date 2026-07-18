@@ -244,11 +244,8 @@
       margin: 0 12px 12px;
       border-radius: 16px;
       background:
-        linear-gradient(90deg, rgba(16, 43, 54, .06) 1px, transparent 1px) 0 0 / 68px 68px,
-        linear-gradient(0deg, rgba(16, 43, 54, .06) 1px, transparent 1px) 0 0 / 68px 68px,
-        radial-gradient(circle at 22% 28%, rgba(187, 241, 209, .8), transparent 22%),
-        radial-gradient(circle at 72% 70%, rgba(255, 115, 95, .18), transparent 24%),
-        #eaf0e8;
+        linear-gradient(135deg, rgba(236, 242, 239, .95), rgba(255, 253, 248, .96)),
+        #eef2ef;
       overflow: hidden;
     }
     .map-canvas.leaflet-container {
@@ -258,18 +255,18 @@
     }
     .map-canvas .leaflet-control-attribution {
       font-size: 9px;
-      background: rgba(255, 253, 248, .86);
+      background: rgba(255, 255, 255, .9);
     }
     .map-canvas::before,
     .map-canvas::after {
       content: "";
       position: absolute;
       border-radius: 999px;
-      background: rgba(255, 253, 248, .68);
+      background: rgba(255, 255, 255, .72);
       transform: rotate(-18deg);
     }
-    .map-canvas::before { left: -18%; right: 12%; top: 46%; height: 18px; }
-    .map-canvas::after { left: 18%; right: -20%; top: 30%; height: 12px; transform: rotate(24deg); }
+    .map-canvas::before { left: -18%; right: 12%; top: 46%; height: 14px; }
+    .map-canvas::after { left: 18%; right: -20%; top: 30%; height: 10px; transform: rotate(24deg); }
     .map-card.expanded .map-canvas { height: min(58vh, 520px); }
     .map-pin {
       position: absolute;
@@ -305,7 +302,8 @@
       gap: 8px;
       padding: 0 16px 10px;
     }
-    .tool-select, .district-picker-button {
+    .sort-picker, .district-picker { position: relative; }
+    .sort-picker-button, .district-picker-button {
       min-height: 42px;
       border: 1px solid var(--line);
       border-radius: 14px;
@@ -316,15 +314,14 @@
       font-weight: 800;
       box-shadow: 0 8px 18px rgba(16, 43, 54, .05);
     }
-    .district-picker { position: relative; }
-    .district-picker-button {
+    .sort-picker-button, .district-picker-button {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
       text-align: left;
     }
-    .district-menu {
+    .sort-menu, .district-menu {
       position: absolute;
       z-index: 18;
       top: calc(100% + 8px);
@@ -339,8 +336,9 @@
       background: var(--paper);
       box-shadow: var(--shadow);
     }
+    .sort-picker.open .sort-menu,
     .district-picker.open .district-menu { display: grid; gap: 5px; }
-    .district-option {
+    .sort-option, .district-option {
       min-height: 38px;
       border: 0;
       border-radius: 12px;
@@ -351,14 +349,45 @@
       font-weight: 850;
       text-align: left;
     }
+    .sort-option.active, .sort-option:hover,
     .district-option.active, .district-option:hover { background: var(--cream); color: var(--ink); }
 
+    .filter-stack {
+      display: grid;
+      gap: 8px;
+      padding: 0 16px 10px;
+    }
+    .toggle-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .toggle-group {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--paper);
+      box-shadow: 0 8px 18px rgba(16, 43, 54, .04);
+    }
+    .toggle-group button {
+      min-height: 34px;
+      border: 0;
+      border-radius: 13px;
+      background: transparent;
+      color: var(--ink-soft);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .toggle-group button.active { background: var(--ink); color: var(--paper); }
     .chips {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       overflow: visible;
-      padding: 0 16px 10px;
+      padding: 0;
       scrollbar-width: none;
     }
     .chip {
@@ -494,8 +523,8 @@
       transform: rotate(-38deg);
       box-shadow: 0 6px 16px rgba(16, 43, 54, .18);
     }
-    .badge.agent { background: rgba(35, 100, 216, .96); color: var(--paper); }
-    .badge.owner { background: rgba(16, 43, 54, .96); color: var(--paper); }
+    .badge.agent { background: rgba(255, 115, 95, .96); color: var(--paper); }
+    .badge.owner { background: rgba(187, 241, 209, .96); color: var(--mint-deep); }
     .save {
       right: 12px;
       width: 34px;
@@ -669,6 +698,26 @@
       font-size: 15px;
     }
     textarea { min-height: 92px; padding-top: 12px; resize: vertical; line-height: 1.45; }
+    .form-toggle {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .form-toggle button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 11px;
+      background: var(--paper);
+      color: var(--ink-soft);
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .form-toggle button.active {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+    }
     .rent-card {
       display: grid;
       gap: 12px;
@@ -861,8 +910,8 @@
     .detail-photo .photo-dots { bottom: 14px; }
     .detail-close {
       position: fixed;
-      top: calc(5dvh + 12px);
-      right: calc(5vw + 12px);
+      top: calc(5dvh + 10px);
+      right: calc(5vw + 10px);
       z-index: 45;
       width: 38px;
       height: 38px;
@@ -1181,7 +1230,7 @@
       .topbar { position: sticky; height: 100vh; align-items: start; flex-direction: column; justify-content: start; padding: 28px 20px; }
       .hero { padding: 52px clamp(28px, 5vw, 76px) 110px; }
       .browse-content { margin: 12px clamp(18px, 4vw, 62px) 60px; padding: 24px; border-radius: 28px 28px 0 0; background: var(--cream); }
-      .search, .section-heading, .listings, .chips, .explore-tools { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
+      .search, .section-heading, .listings, .filter-stack, .chips, .explore-tools { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
       .listings { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
       .listing { grid-template-columns: 42% minmax(0, 1fr); grid-template-rows: 1fr; min-height: 244px; height: 100%; }
       .photo { aspect-ratio: auto; min-height: 100%; }
@@ -1205,7 +1254,7 @@
       }
       .detail-close {
         top: calc(5vh + 40px);
-        right: calc(5vw + 40px);
+        right: calc((100vw - min(90vw, 860px)) / 2 + 16px);
       }
       .detail-photo, .detail-photo img { min-height: 100%; }
       .detail-body { padding: 28px; }
@@ -1237,12 +1286,10 @@
             <div id="searchSuggestions" class="search-suggestions" aria-label="Search suggestions"></div>
           </div>
           <div class="explore-tools" aria-label="Sort and quick filters">
-            <select id="sortSelect" class="tool-select" aria-label="Sort listings">
-              <option value="newest">Sort: Newest</option>
-              <option value="priceAsc">Rent: low to high</option>
-              <option value="priceDesc">Rent: high to low</option>
-              <option value="available">Available soonest</option>
-            </select>
+            <div id="sortPicker" class="sort-picker">
+              <button id="sortButton" class="sort-picker-button" type="button" aria-expanded="false">Sort: Newest <span>⌄</span></button>
+              <div id="sortMenu" class="sort-menu" aria-label="Sort listings"></div>
+            </div>
             <div id="districtPicker" class="district-picker">
               <button id="districtButton" class="district-picker-button" type="button" aria-expanded="false">All districts <span>⌄</span></button>
               <div id="districtMenu" class="district-menu" aria-label="District filter"></div>
@@ -1251,19 +1298,28 @@
           <section id="resultMap" class="map-card" aria-label="Map of available rentals">
             <div class="map-head">
               <div><strong id="mapTitle">Map results</strong><small id="mapSubtitle">Showing available units near your search</small></div>
-              <button id="mapToggle" class="map-toggle" type="button">Enlarge map</button>
             </div>
             <div id="mapCanvas" class="map-canvas"></div>
           </section>
-          <div class="chips" aria-label="Property type">
-            <button class="chip active" type="button" data-filter="All">All</button>
-            <button class="chip" type="button" data-filter="Whole unit">Whole unit</button>
-            <button class="chip" type="button" data-filter="Room only">Room only</button>
-            <button class="chip" type="button" data-filter="HDB">HDB</button>
-            <button class="chip" type="button" data-filter="Condo">Condo</button>
-            <button class="chip" type="button" data-filter="Landed">Landed</button>
-            <button class="chip" type="button" data-filter="Owner">Owner</button>
-            <button class="chip" type="button" data-filter="Agent">Agent</button>
+          <div class="filter-stack" aria-label="Listing filters">
+            <div class="toggle-row">
+              <div class="toggle-group" aria-label="Rental mode">
+                <button class="active" type="button" data-mode-filter="All">Any</button>
+                <button type="button" data-mode-filter="Whole unit">Whole</button>
+                <button type="button" data-mode-filter="Room only">Room</button>
+              </div>
+              <div class="toggle-group" aria-label="Listed by">
+                <button class="active" type="button" data-lister-filter="All">Any</button>
+                <button type="button" data-lister-filter="Owner">Owner</button>
+                <button type="button" data-lister-filter="Agent">Agent</button>
+              </div>
+            </div>
+            <div class="chips" aria-label="Property type">
+              <button class="chip active" type="button" data-type-filter="All">All types</button>
+              <button class="chip" type="button" data-type-filter="HDB">HDB</button>
+              <button class="chip" type="button" data-type-filter="Condo">Condo</button>
+              <button class="chip" type="button" data-type-filter="Landed">Landed</button>
+            </div>
           </div>
           <div class="section-heading"><span id="count" class="count">100 found</span></div>
           <div id="listings" class="listings"></div>
@@ -1319,14 +1375,28 @@
           <div class="desktop-grid">
             <div class="form two">
               <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT"></label>
-              <label>Property type<select id="kindInput"><option value="hdb_whole_unit">Whole HDB unit</option><option value="hdb_room">HDB room</option><option value="private_whole_unit">Private whole unit</option><option value="private_room">Private room</option></select></label>
+              <label>Property type
+                <input id="kindInput" type="hidden" value="hdb_whole_unit">
+                <span class="form-toggle" role="group" aria-label="Property type">
+                  <button class="active" type="button" data-field-toggle="kindInput" data-value="hdb_whole_unit">Whole HDB</button>
+                  <button type="button" data-field-toggle="kindInput" data-value="hdb_room">HDB room</button>
+                  <button type="button" data-field-toggle="kindInput" data-value="private_whole_unit">Whole private</button>
+                  <button type="button" data-field-toggle="kindInput" data-value="private_room">Private room</button>
+                </span>
+              </label>
               <label>Estate<input id="estateInput" value="Bishan"></label>
               <label>Street / project<input id="addressInput" value="Bishan Street 13"></label>
               <label>Available from<input id="availableInput" type="date" value="2026-09-01"></label>
               <label>Asking rent<input id="rentInput" type="number" value="3750" min="500" step="50"></label>
               <label>Bedrooms / room<input id="bedroomsInput" value="3 bed"></label>
               <label>Furnishing<input id="furnishingInput" value="Furnished"></label>
-              <label>Lister<select id="listerInput"><option value="owner">Owner</option><option value="agent">Agent</option></select></label>
+              <label>Lister
+                <input id="listerInput" type="hidden" value="owner">
+                <span class="form-toggle" role="group" aria-label="Lister type">
+                  <button class="active" type="button" data-field-toggle="listerInput" data-value="owner">Owner</button>
+                  <button type="button" data-field-toggle="listerInput" data-value="agent">Agent</button>
+                </span>
+              </label>
             </div>
             <aside class="rent-card">
               <span class="eyebrow">Suggested asking rent</span>
@@ -1358,11 +1428,11 @@
   </main>
 
   <section id="detailBackdrop" class="detail-backdrop" aria-hidden="true">
+    <button id="detailClose" class="detail-close" type="button" aria-label="Close listing details">×</button>
     <article class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
       <div id="detailPhoto" class="detail-photo">
         <div id="detailCarousel"></div>
         <div id="detailPhotoDots"></div>
-        <button id="detailClose" class="detail-close" type="button" aria-label="Close listing details">×</button>
       </div>
       <div class="detail-body">
         <div class="detail-topline">
@@ -1508,20 +1578,25 @@
     const fallbackListings = buildMockListings();
 
     let listings = fallbackListings;
-    const activeFilters = new Set();
+    let activeModeFilter = "All";
+    let activeListerFilter = "All";
+    const activeTypeFilters = new Set();
     let activeSort = "newest";
     let activeDistrict = "All";
     let touchStartX = 0;
     let pointerStartX = 0;
     let mouseStartX = 0;
     let suppressCardOpen = false;
+    const photoSwipeLocks = {};
     const views = document.querySelectorAll(".view");
     const navButtons = document.querySelectorAll("[data-view]");
     const chips = document.querySelectorAll(".chip");
     const searchBox = document.getElementById("searchBox");
     const searchSuggestions = document.getElementById("searchSuggestions");
     const search = document.getElementById("search");
-    const sortSelect = document.getElementById("sortSelect");
+    const sortPicker = document.getElementById("sortPicker");
+    const sortButton = document.getElementById("sortButton");
+    const sortMenu = document.getElementById("sortMenu");
     const districtPicker = document.getElementById("districtPicker");
     const districtButton = document.getElementById("districtButton");
     const districtMenu = document.getElementById("districtMenu");
@@ -1586,6 +1661,12 @@
       ["24 25 26 27", "D10"], ["28 29 30", "D11"], ["31 32 33", "D12"], ["34 35 36 37", "D13"],
       ["38 39 40 41", "D14"], ["42 43 44 45", "D15"], ["46 47 48", "D16"], ["49 50 81", "D17"],
       ["51 52", "D18"], ["53 54 55 82", "D19"], ["56 57", "D20"], ["58 59", "D21"], ["60 61 62 63 64", "D22"]
+    ];
+    const sortOptions = [
+      ["newest", "Sort: Newest"],
+      ["priceAsc", "Rent: low to high"],
+      ["priceDesc", "Rent: high to low"],
+      ["available", "Available soonest"]
     ];
 
     function readStorage(key, fallback) {
@@ -1679,17 +1760,25 @@
       edgeSwipeStart = null;
       if (isBackGesture && history.state?.leasekakiLayer !== "root") history.back();
     }, { passive: true });
-    document.getElementById("mapToggle").addEventListener("click", () => {
-      resultMap.classList.toggle("expanded");
-      document.getElementById("mapToggle").textContent = resultMap.classList.contains("expanded") ? "Shrink map" : "Enlarge map";
-      window.setTimeout(() => leafletMap?.invalidateSize(), 180);
+    sortButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      sortPicker.classList.toggle("open");
+      sortButton.setAttribute("aria-expanded", String(sortPicker.classList.contains("open")));
+      districtPicker.classList.remove("open");
+      districtButton.setAttribute("aria-expanded", "false");
     });
     districtButton.addEventListener("click", (event) => {
       event.stopPropagation();
       districtPicker.classList.toggle("open");
       districtButton.setAttribute("aria-expanded", String(districtPicker.classList.contains("open")));
+      sortPicker.classList.remove("open");
+      sortButton.setAttribute("aria-expanded", "false");
     });
     document.addEventListener("click", (event) => {
+      if (!sortPicker.contains(event.target)) {
+        sortPicker.classList.remove("open");
+        sortButton.setAttribute("aria-expanded", "false");
+      }
       if (!districtPicker.contains(event.target)) {
         districtPicker.classList.remove("open");
         districtButton.setAttribute("aria-expanded", "false");
@@ -1760,6 +1849,23 @@
     function conciseDistrictLabel(label) {
       const match = String(label || "").match(/^(D\d{2})\s+([^/]+)/);
       return match ? `${match[1]} - ${match[2].trim()}` : label;
+    }
+
+    function populateSortMenu() {
+      sortMenu.innerHTML = sortOptions.map(([value, label]) => `<button class="sort-option ${value === activeSort ? "active" : ""}" type="button" data-sort="${value}">${escapeHtml(label)}</button>`).join("");
+      sortMenu.querySelectorAll("[data-sort]").forEach((button) => {
+        button.addEventListener("click", () => setSort(button.dataset.sort));
+      });
+    }
+
+    function setSort(value) {
+      activeSort = value || "newest";
+      const selected = sortOptions.find(([sort]) => sort === activeSort) || sortOptions[0];
+      sortButton.innerHTML = `${escapeHtml(selected[1])} <span>⌄</span>`;
+      sortPicker.classList.remove("open");
+      sortButton.setAttribute("aria-expanded", "false");
+      populateSortMenu();
+      renderListings();
     }
 
     function populateDistrictMenu() {
@@ -1918,17 +2024,17 @@
       photo.ontouchstart = (event) => { touchStartX = event.touches[0].clientX; };
       photo.ontouchend = (event) => {
         const delta = event.changedTouches[0].clientX - touchStartX;
-        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
+        handlePhotoSwipe(item, delta);
       };
       photo.onpointerdown = (event) => { pointerStartX = event.clientX; };
       photo.onpointerup = (event) => {
         const delta = event.clientX - pointerStartX;
-        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
+        handlePhotoSwipe(item, delta);
       };
       photo.onmousedown = (event) => { mouseStartX = event.clientX; };
       photo.onmouseup = (event) => {
         const delta = event.clientX - mouseStartX;
-        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
+        handlePhotoSwipe(item, delta);
       };
     }
 
@@ -2064,13 +2170,10 @@
     function getVisibleListings(query = "") {
       return listings.filter((item) => {
         const matchesSearch = !query || searchableText(item).includes(query) || matchesPostalSearch(item, query);
-        const selectedModes = Array.from(activeFilters).filter((filter) => ["Whole unit", "Room only"].includes(filter));
-        const selectedTypes = Array.from(activeFilters).filter((filter) => ["HDB", "Condo", "Landed"].includes(filter));
-        const selectedListers = Array.from(activeFilters).filter((filter) => ["Owner", "Agent"].includes(filter));
         const matchesFilter =
-          (!selectedModes.length || selectedModes.includes(item.mode)) &&
-          (!selectedTypes.length || selectedTypes.includes(item.type)) &&
-          (!selectedListers.length || selectedListers.includes(item.lister));
+          (activeModeFilter === "All" || item.mode === activeModeFilter) &&
+          (activeListerFilter === "All" || item.lister === activeListerFilter) &&
+          (!activeTypeFilters.size || activeTypeFilters.has(item.type));
         return matchesFilter && matchesSearch;
       }).filter((item) => matchesDistrictForItem(item)).sort(sortListings);
     }
@@ -2142,7 +2245,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta > 0 ? 1 : -1);
+            handlePhotoSwipe(item, delta);
           }
         });
         photo.addEventListener("pointerdown", (event) => { pointerStartX = event.clientX; });
@@ -2153,7 +2256,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta > 0 ? 1 : -1);
+            handlePhotoSwipe(item, delta);
           }
         });
         photo.addEventListener("mousedown", (event) => { mouseStartX = event.clientX; });
@@ -2164,7 +2267,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta > 0 ? 1 : -1);
+            handlePhotoSwipe(item, delta);
           }
         });
       });
@@ -2211,9 +2314,9 @@
           touchZoom: true,
           dragging: true
         });
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
           maxZoom: 19,
-          attribution: "&copy; OpenStreetMap contributors"
+          attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
         }).addTo(leafletMap);
         leafletLayer = L.layerGroup().addTo(leafletMap);
       }
@@ -2256,9 +2359,9 @@
           dragging: true,
           zoomControl: false
         });
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
           maxZoom: 19,
-          attribution: "&copy; OpenStreetMap contributors"
+          attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
         }).addTo(detailLeafletMap);
         detailLeafletLayer = L.layerGroup().addTo(detailLeafletMap);
       }
@@ -2336,6 +2439,14 @@
       document.querySelectorAll(`[data-dots-title="${cssEscape(item.title)}"]`).forEach((dots) => {
         dots.querySelectorAll("i").forEach((dot, index) => dot.classList.toggle("active", index === photoIndexes[item.title]));
       });
+    }
+
+    function handlePhotoSwipe(item, delta) {
+      if (Math.abs(delta) <= 32) return;
+      const now = Date.now();
+      if (now - (photoSwipeLocks[item.title] || 0) < 180) return;
+      photoSwipeLocks[item.title] = now;
+      movePhoto(item, delta < 0 ? 1 : -1);
     }
 
     function toggleLike(item) {
@@ -2896,24 +3007,45 @@
 
     chips.forEach((chip) => {
       chip.addEventListener("click", () => {
-        const filter = chip.dataset.filter;
+        const filter = chip.dataset.typeFilter;
         if (filter === "All") {
-          activeFilters.clear();
-        } else if (activeFilters.has(filter)) {
-          activeFilters.delete(filter);
+          activeTypeFilters.clear();
+        } else if (activeTypeFilters.has(filter)) {
+          activeTypeFilters.delete(filter);
         } else {
-          activeFilters.add(filter);
+          activeTypeFilters.add(filter);
         }
         chips.forEach((item) => {
-          const value = item.dataset.filter;
-          item.classList.toggle("active", value === "All" ? activeFilters.size === 0 : activeFilters.has(value));
+          const value = item.dataset.typeFilter;
+          item.classList.toggle("active", value === "All" ? activeTypeFilters.size === 0 : activeTypeFilters.has(value));
         });
         renderListings();
       });
     });
-    sortSelect.addEventListener("change", () => {
-      activeSort = sortSelect.value;
-      renderListings();
+
+    document.querySelectorAll("[data-mode-filter]").forEach((button) => {
+      button.addEventListener("click", () => {
+        activeModeFilter = button.dataset.modeFilter || "All";
+        document.querySelectorAll("[data-mode-filter]").forEach((item) => item.classList.toggle("active", item.dataset.modeFilter === activeModeFilter));
+        renderListings();
+      });
+    });
+
+    document.querySelectorAll("[data-lister-filter]").forEach((button) => {
+      button.addEventListener("click", () => {
+        activeListerFilter = button.dataset.listerFilter || "All";
+        document.querySelectorAll("[data-lister-filter]").forEach((item) => item.classList.toggle("active", item.dataset.listerFilter === activeListerFilter));
+        renderListings();
+      });
+    });
+
+    document.querySelectorAll("[data-field-toggle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const input = document.getElementById(button.dataset.fieldToggle);
+        if (!input) return;
+        input.value = button.dataset.value || "";
+        document.querySelectorAll(`[data-field-toggle="${cssEscape(button.dataset.fieldToggle)}"]`).forEach((item) => item.classList.toggle("active", item === button));
+      });
     });
 
     document.getElementById("photos").addEventListener("change", (event) => {
@@ -2998,6 +3130,7 @@
     });
 
     renderListings();
+    populateSortMenu();
     populateDistrictMenu();
     renderSearchSuggestions();
     loadUraInsights();
