@@ -147,6 +147,14 @@
       color: rgba(255, 255, 255, .68);
       line-height: 1.55;
     }
+    .search-helper {
+      display: block;
+      margin: 18px 16px -4px;
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 950;
+      letter-spacing: -.01em;
+    }
 
     .search {
       margin: 16px;
@@ -199,7 +207,7 @@
       border: 0;
       border-radius: 14px;
       display: grid;
-      grid-template-columns: auto 1fr auto;
+      grid-template-columns: auto 1fr;
       align-items: center;
       gap: 10px;
       padding: 0 10px;
@@ -208,6 +216,7 @@
       text-align: left;
     }
     .suggestion b { font-size: 13px; }
+    .suggestion span { display: grid; gap: 2px; }
     .suggestion small { color: var(--muted); font-size: 11px; font-weight: 850; }
     .suggestion i { font-style: normal; color: var(--mint-deep); font-weight: 950; }
     .map-card {
@@ -277,7 +286,7 @@
       border: 0;
       border-radius: 999px;
       padding: 7px 10px;
-      background: var(--ink);
+      background: #2364d8;
       color: var(--paper);
       font-size: 12px;
       font-weight: 950;
@@ -285,20 +294,20 @@
       transform: translate(-50%, -50%);
       transition: transform .16s ease, background .16s ease;
     }
-    .map-pin.room { background: var(--coral); }
+    .map-pin.room { background: var(--ink); }
     .map-pin:hover { transform: translate(-50%, -54%) scale(1.04); }
     .map-price-marker {
       border: 0;
       border-radius: 999px;
       padding: 7px 10px;
-      background: var(--ink);
+      background: #2364d8;
       color: var(--paper);
       font-size: 12px;
       font-weight: 950;
       box-shadow: 0 8px 18px rgba(16, 43, 54, .22);
       white-space: nowrap;
     }
-    .map-price-marker.room { background: var(--coral); }
+    .map-price-marker.room { background: var(--ink); }
     .explore-tools {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -499,23 +508,24 @@
     .type-chip {
       border-radius: 999px;
       padding: 5px 8px;
+      background: rgba(16, 43, 54, .08);
+      color: var(--ink-soft);
       font-size: 10px;
       font-weight: 950;
       text-transform: uppercase;
     }
-    .type-chip.hdb { background: rgba(187, 241, 209, .78); color: var(--mint-deep); }
-    .type-chip.condo { background: rgba(16, 43, 54, .10); color: var(--ink); }
-    .type-chip.landed { background: rgba(255, 115, 95, .18); color: var(--coral); }
     .mode-pill {
       width: max-content;
       margin-top: 7px;
       padding: 5px 8px;
       border-radius: 999px;
-      background: rgba(187, 241, 209, .55);
-      color: var(--mint-deep);
+      background: #2364d8;
+      color: var(--paper);
       font-size: 11px;
       font-weight: 900;
     }
+    .mode-pill.room { background: var(--ink); }
+    .mode-pill.whole { background: #2364d8; }
     .status-pill {
       width: max-content;
       margin-top: 7px;
@@ -982,6 +992,17 @@
     }
     .window-head h3 { margin: 0; font-size: 20px; letter-spacing: -.04em; }
     .window-head small { color: var(--muted); font-weight: 800; }
+    .chat-head {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      background: var(--paper);
+    }
+    .chat-title-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+    }
     .window-close {
       width: 36px;
       height: 36px;
@@ -1022,9 +1043,9 @@
     .chat-viewing-panel {
       display: grid;
       gap: 10px;
-      padding: 12px;
-      border-top: 1px solid var(--line);
-      background: var(--paper);
+      padding: 0;
+      border-top: 0;
+      background: transparent;
     }
     .chat-viewing-card {
       display: grid;
@@ -1148,7 +1169,8 @@
       .app { display: grid; grid-template-columns: 238px 1fr; padding-bottom: 0; }
       .topbar { position: sticky; height: 100vh; align-items: start; flex-direction: column; justify-content: start; padding: 28px 20px; }
       .hero { padding: 52px clamp(28px, 5vw, 76px) 110px; }
-      .browse-content { margin: -56px clamp(18px, 4vw, 62px) 60px; padding: 24px; border-radius: 28px 28px 0 0; background: var(--cream); }
+      .browse-content { margin: 12px clamp(18px, 4vw, 62px) 60px; padding: 24px; border-radius: 28px 28px 0 0; background: var(--cream); }
+      .search-helper { margin-left: 0; margin-right: 0; }
       .search, .section-heading, .listings, .chips, .explore-tools { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
       .listings { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
       .listing { grid-template-columns: 42% minmax(0, 1fr); grid-template-rows: 1fr; min-height: 244px; height: 100%; }
@@ -1192,12 +1214,8 @@
 
     <section>
       <div id="browse" class="view active">
-        <section class="hero">
-          <span class="eyebrow">Singapore rentals, simplified</span>
-          <h1>Find a place.<br>Skip the runaround.</h1>
-          <p>Fresh owner and authorised-agent listings, with every next step handled in one place.</p>
-        </section>
         <div class="browse-content">
+          <span class="search-helper">Search listings</span>
           <div id="searchBox" class="search">
             <label class="search-row">
               <span>⌕</span>
@@ -1369,12 +1387,14 @@
 
   <section id="chatWindow" class="window-backdrop" aria-hidden="true">
     <article class="task-window" role="dialog" aria-modal="true" aria-labelledby="chatTitle">
-      <header class="window-head">
-        <div><h3 id="chatTitle">Chat</h3><small id="chatSubtitle">Message owner or authorised agent</small></div>
-        <button id="chatClose" class="window-close" type="button" aria-label="Close chat">×</button>
+      <header class="window-head chat-head">
+        <div class="chat-title-row">
+          <div><h3 id="chatTitle">Chat</h3><small id="chatSubtitle">Message owner or authorised agent</small></div>
+          <button id="chatClose" class="window-close" type="button" aria-label="Close chat">×</button>
+        </div>
+        <div id="chatViewingPanel" class="chat-viewing-panel"></div>
       </header>
       <div id="messages" class="messages"></div>
-      <div id="chatViewingPanel" class="chat-viewing-panel"></div>
       <form id="chatForm" class="chat-compose">
         <input id="chatInput" autocomplete="off" aria-label="Message" placeholder="Type a quick question...">
         <button class="button coral" type="submit">Send</button>
@@ -1593,6 +1613,7 @@
         setDistrict(value);
         search.value = "";
       } else {
+        setDistrict("All");
         search.value = value;
       }
       searchBox.classList.remove("expanded");
@@ -1633,6 +1654,15 @@
       return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "default";
     }
 
+    function modeClass(item) {
+      return item?.mode === "Room only" ? "room" : "whole";
+    }
+
+    function conciseDistrictLabel(label) {
+      const match = String(label || "").match(/^(D\d{2})\s+([^/]+)/);
+      return match ? `${match[1]} - ${match[2].trim()}` : label;
+    }
+
     function populateDistrictMenu() {
       districtMenu.innerHTML = districtOptions.map(([value, label]) => `<button class="district-option ${value === activeDistrict ? "active" : ""}" type="button" data-district="${value}">${escapeHtml(label)}</button>`).join("");
       districtMenu.querySelectorAll("[data-district]").forEach((button) => {
@@ -1656,7 +1686,7 @@
       const matchedDistricts = districtOptions
         .filter(([value, label]) => value !== "All" && (!query || label.toLowerCase().includes(query) || value.toLowerCase().includes(query)))
         .slice(0, 3)
-        .map(([value, label]) => ({ kind: "district", value, title: label, meta: "District", icon: "◎" }));
+        .map(([value, label]) => ({ kind: "district", value, title: conciseDistrictLabel(label), meta: "", icon: "◎" }));
       const matchedListings = listings
         .filter((item) => !query || searchableText(item).includes(query) || matchesPostalSearch(item, query))
         .slice(0, 5)
@@ -1664,7 +1694,7 @@
       suggestions.push(...matchedDistricts, ...matchedListings);
       const fallback = query ? [{ kind: "search", value: search.value.trim(), title: `Search “${search.value.trim()}”`, meta: "Address, MRT, project or postal code", icon: "⌕" }] : [];
       const visible = suggestions.length ? suggestions : fallback;
-      searchSuggestions.innerHTML = visible.map((item) => `<button class="suggestion" type="button" data-suggestion data-kind="${escapeHtml(item.kind)}" data-value="${escapeHtml(item.value)}"><i>${escapeHtml(item.icon)}</i><span><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.meta)}</small></span><small>Tap</small></button>`).join("");
+      searchSuggestions.innerHTML = visible.map((item) => `<button class="suggestion" type="button" data-suggestion data-kind="${escapeHtml(item.kind)}" data-value="${escapeHtml(item.value)}"><i>${escapeHtml(item.icon)}</i><span><b>${escapeHtml(item.title)}</b>${item.meta ? `<small>${escapeHtml(item.meta)}</small>` : ""}</span></button>`).join("");
     }
 
     function imagesForListing(title, index = 0, apiImages = []) {
@@ -1973,8 +2003,8 @@
             ${item.image ? "" : `<span class="building"><i></i><i></i><i></i><i></i><i></i><i></i></span>`}
           </span>
           <span class="listing-body">
-            <span class="price-row"><strong>$${Number(item.price).toLocaleString()}<small>/mo</small></strong><small class="type-chip ${classToken(item.type)}">${escapeHtml(item.type)}</small></span>
-            <span class="mode-pill">${escapeHtml(item.mode)}</span>
+            <span class="price-row"><strong>$${Number(item.price).toLocaleString()}<small>/mo</small></strong><small class="type-chip">${escapeHtml(item.type)}</small></span>
+            <span class="mode-pill ${modeClass(item)}">${escapeHtml(item.mode)}</span>
             <strong class="title">${escapeHtml(item.title)}</strong>
             <span class="meta">${escapeHtml(item.area)} · ${escapeHtml(item.district)}${item.postcode ? ` · ${escapeHtml(item.postcode)}` : ""}</span>
             <span class="meta">${escapeHtml(item.beds)} · ${escapeHtml(item.available)}</span>
@@ -2061,7 +2091,7 @@
     function renderFallbackMap(items) {
       mapCanvas.innerHTML = items.slice(0, 14).map((item) => {
         const point = item.map || mapForIndex(item.title.length);
-        return `<button class="map-pin ${item.mode === "Room only" ? "room" : ""}" type="button" data-title="${escapeHtml(item.title)}" style="left:${point.x}%;top:${point.y}%">$${Math.round(item.price / 100) / 10}k</button>`;
+        return `<button class="map-pin ${modeClass(item)}" type="button" data-title="${escapeHtml(item.title)}" style="left:${point.x}%;top:${point.y}%">$${Math.round(item.price / 100) / 10}k</button>`;
       }).join("");
       mapCanvas.querySelectorAll(".map-pin").forEach((pin) => {
         pin.addEventListener("click", (event) => {
@@ -2096,7 +2126,7 @@
         bounds.push(latLng);
         const icon = L.divIcon({
           className: "",
-          html: `<button class="map-price-marker ${item.mode === "Room only" ? "room" : ""}" type="button">$${Math.round(item.price / 100) / 10}k</button>`,
+          html: `<button class="map-price-marker ${modeClass(item)}" type="button">$${Math.round(item.price / 100) / 10}k</button>`,
           iconSize: [58, 30],
           iconAnchor: [29, 15]
         });
@@ -2137,7 +2167,7 @@
       detailLeafletLayer.clearLayers();
       const icon = L.divIcon({
         className: "",
-        html: `<button class="map-price-marker ${item.mode === "Room only" ? "room" : ""}" type="button">$${Math.round(item.price / 100) / 10}k</button>`,
+        html: `<button class="map-price-marker ${modeClass(item)}" type="button">$${Math.round(item.price / 100) / 10}k</button>`,
         iconSize: [58, 30],
         iconAnchor: [29, 15]
       });
@@ -2594,13 +2624,7 @@
       selectedListing = item;
       document.getElementById("chatTitle").textContent = `Chat: ${item.title}`;
       document.getElementById("chatSubtitle").textContent = `${item.lister} · ${item.mode} · ${item.area}`;
-      if (!chatThreads[item.title]) {
-        chatThreads[item.title] = [
-          { who: "them", text: `Hi! ${item.title} is still available. Ask me anything before arranging a viewing.` },
-          { who: "me", text: "Hi, is this still available and are viewings possible this week?" }
-        ];
-        writeStorage("leasekaki-chats", chatThreads);
-      }
+      if (!chatThreads[item.title]) chatThreads[item.title] = [];
       renderChat();
       renderChatViewingPanel();
       renderChatList();
@@ -2608,13 +2632,15 @@
       chatWindow.setAttribute("aria-hidden", "false");
       pushLayerState("chat", item.title);
       setBodyLock();
-      window.setTimeout(() => document.getElementById("chatInput").focus(), 80);
     }
 
     function renderChat() {
       const thread = chatThreads[selectedListing?.title] || [];
-      document.getElementById("messages").innerHTML = thread.map((message) => `<div class="bubble ${message.who}">${escapeHtml(message.text)}</div>`).join("");
-      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+      const messagesBox = document.getElementById("messages");
+      messagesBox.innerHTML = thread.length
+        ? thread.map((message) => `<div class="bubble ${message.who}">${escapeHtml(message.text)}</div>`).join("")
+        : `<div class="bubble them">Ask about availability, lease terms, furnishing, or request a viewing when ready.</div>`;
+      messagesBox.scrollTop = messagesBox.scrollHeight;
     }
 
     function renderChatViewingPanel() {
@@ -2650,13 +2676,12 @@
     function handleChatViewingAction(action) {
       if (!selectedListing) return;
       if (action === "start" || action === "edit") {
-        viewingRequests[selectedListing.title] = {
+        const draft = {
           ...viewingRequests[selectedListing.title],
-          status: "draft",
           preferred: viewingRequests[selectedListing.title]?.preferred || defaultPreferredSlot(2, 19),
           alternative: viewingRequests[selectedListing.title]?.alternative || defaultPreferredSlot(4, 11)
         };
-        renderChatViewingForm();
+        renderChatViewingForm(draft);
         return;
       }
       if (action === "accept") setChatViewingStatus("confirmed");
@@ -2664,8 +2689,7 @@
       if (action === "cancel") setChatViewingStatus("cancelled");
     }
 
-    function renderChatViewingForm() {
-      const request = viewingRequests[selectedListing.title];
+    function renderChatViewingForm(request) {
       chatViewingPanel.innerHTML = `<div class="chat-viewing-card">
         <strong>Request to view</strong>
         <label>Preferred date/time<input id="chatPreferredSlot" type="datetime-local" value="${escapeHtml(request.preferred)}"></label>
@@ -2707,13 +2731,17 @@
     function setChatViewingStatus(status) {
       const request = viewingRequests[selectedListing.title];
       if (!request) return;
-      request.status = status;
-      request.updatedAt = new Date().toISOString();
-      if (status === "confirmed") request.agentNote = `Confirmed for ${formatSlot(request.preferred)}.`;
-      if (status === "countered") request.agentNote = `Suggested change: ${formatSlot(request.alternative)} works better.`;
-      if (status === "cancelled") request.agentNote = "Viewing cancelled. Chat to reopen or suggest a new slot.";
       chatThreads[selectedListing.title] = chatThreads[selectedListing.title] || [];
-      chatThreads[selectedListing.title].push({ who: "them", text: status === "confirmed" ? `Viewing confirmed for ${formatSlot(request.preferred)}.` : status === "countered" ? `Can we use the alternative slot instead: ${formatSlot(request.alternative)}?` : "Viewing request cancelled for now." });
+      if (status === "cancelled") {
+        delete viewingRequests[selectedListing.title];
+        chatThreads[selectedListing.title].push({ who: "them", text: "Viewing request cancelled. Send a new request anytime." });
+      } else {
+        request.status = status;
+        request.updatedAt = new Date().toISOString();
+        if (status === "confirmed") request.agentNote = `Confirmed for ${formatSlot(request.preferred)}.`;
+        if (status === "countered") request.agentNote = `Suggested change: ${formatSlot(request.alternative)} works better.`;
+        chatThreads[selectedListing.title].push({ who: "them", text: status === "confirmed" ? `Viewing confirmed for ${formatSlot(request.preferred)}.` : `Can we use the alternative slot instead: ${formatSlot(request.alternative)}?` });
+      }
       writeStorage("leasekaki-viewings", viewingRequests);
       writeStorage("leasekaki-chats", chatThreads);
       renderChat();
