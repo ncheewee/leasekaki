@@ -283,6 +283,7 @@
       transition: transform .16s ease, background .16s ease;
     }
     .map-pin.room { background: var(--ink); }
+    .map-pin.current { background: #e53935; box-shadow: 0 0 0 3px rgba(229, 57, 53, .18), 0 10px 22px rgba(16, 43, 54, .24); }
     .map-pin:hover { transform: translate(-50%, -54%) scale(1.04); }
     .map-price-marker {
       border: 0;
@@ -296,6 +297,7 @@
       white-space: nowrap;
     }
     .map-price-marker.room { background: var(--ink); }
+    .map-price-marker.current { background: #e53935; box-shadow: 0 0 0 3px rgba(229, 57, 53, .18), 0 10px 22px rgba(16, 43, 54, .24); }
     .explore-tools {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -921,6 +923,7 @@
       color: var(--ink);
       font-size: 20px;
       line-height: 1;
+      box-shadow: 0 0 0 1px rgba(16, 43, 54, .08), 0 8px 22px rgba(16, 43, 54, .28), 0 0 18px rgba(255, 253, 248, .95);
     }
     .detail-body { display: grid; gap: 14px; padding: 18px 16px 22px; }
     .detail-topline { display: flex; align-items: start; justify-content: space-between; gap: 14px; }
@@ -1514,7 +1517,8 @@
       { title: "Renovated 5-room near Tampines Hub", area: "Tampines Street 82", type: "HDB", mode: "Whole unit", price: 4200, beds: "3 bed · Part-furnished", available: "Available 1 Sep", availableDate: "2026-09-01", lister: "Owner", district: "D18", postcode: "520882", mrt: "Tampines MRT", map: { x: 84, y: 46 }, tone: "mint", description: "Renovated family-sized flat with newer kitchen fittings, lift-level convenience and the full Tampines Hub ecosystem nearby." },
       { title: "Master room beside Buona Vista", area: "North Buona Vista Road", type: "Condo", mode: "Room only", price: 1850, beds: "Master room · Ensuite", available: "Available now", availableDate: "2026-07-21", lister: "Agent", district: "D05", postcode: "139345", mrt: "Buona Vista MRT", map: { x: 25, y: 51 }, tone: "sunset", description: "Master room with ensuite, strong one-north access and flexible lease start. Best fit for a tenant who wants privacy without taking a whole unit." },
       { title: "Quiet 3-bed family condo in Serangoon", area: "Serangoon Avenue 3", type: "Condo", mode: "Whole unit", price: 5200, beds: "3 bed · 2 bath", available: "Available 15 Sep", availableDate: "2026-09-15", lister: "Owner", district: "D19", postcode: "550303", mrt: "Serangoon MRT", map: { x: 61, y: 32 }, tone: "sky", description: "Low-density family condo with proper bedrooms, a calmer residential feel and quick access to NEX, Serangoon MRT and neighbourhood schools." },
-      { title: "Whole unit minutes from Jurong East", area: "Jurong East Street 21", type: "HDB", mode: "Whole unit", price: 3900, beds: "3 bed · Furnished", available: "Available 1 Oct", availableDate: "2026-10-01", lister: "Agent", district: "D22", postcode: "600021", mrt: "Jurong East MRT", map: { x: 13, y: 42 }, tone: "lilac", description: "Furnished whole HDB unit near Jurong East transport and malls, convenient for tenants working around Jurong Lake District or the west side." }
+      { title: "Whole unit minutes from Jurong East", area: "Jurong East Street 21", type: "HDB", mode: "Whole unit", price: 3900, beds: "3 bed · Furnished", available: "Available 1 Oct", availableDate: "2026-10-01", lister: "Agent", district: "D22", postcode: "600021", mrt: "Jurong East MRT", map: { x: 13, y: 42 }, tone: "lilac", description: "Furnished whole HDB unit near Jurong East transport and malls, convenient for tenants working around Jurong Lake District or the west side." },
+      { title: "Family unit at 25 Ang Mo Kio Ave 9", area: "25 Ang Mo Kio Ave 9", type: "HDB", mode: "Whole unit", price: 4100, beds: "3 bed · Furnished", available: "Available 1 Sep", availableDate: "2026-09-01", lister: "Owner", district: "D20", postcode: "569788", mrt: "Yio Chu Kang MRT", map: { x: 54, y: 29 }, tone: "mint", description: "Mock listing pinned to postal code 569788 at 25 Ang Mo Kio Ave 9, so postcode search can land on a specific mapped address for MVP testing." }
     ].map((item, index) => ({ ...item, image: listingPhotos[item.title], images: imagesForListing(item.title, index), postedAt: 200 - index }));
     const mockAreas = [
       ["D01", "Raffles Place", "048624", "Raffles Place MRT", 44, 70],
@@ -1543,7 +1547,7 @@
 
     function buildMockListings() {
       const generated = [];
-      for (let index = 0; generated.length < 90; index += 1) {
+      for (let index = 0; generated.length < 89; index += 1) {
         const area = mockAreas[index % mockAreas.length];
         const type = mockTypes[(index + Math.floor(index / 6)) % mockTypes.length];
         const mode = type === "Landed" ? "Whole unit" : mockModes[(index + Math.floor(index / 3)) % mockModes.length];
@@ -1695,6 +1699,7 @@
       Object.keys(chatThreads).forEach((title) => {
         const thread = Array.isArray(chatThreads[title]) ? chatThreads[title] : [];
         const hasActiveViewing = Boolean(viewingRequests[title]);
+        const isBuonaVistaDemo = title.toLowerCase().includes("buona vista") || thread.some((message) => String(message?.text || "").toLowerCase().includes("buona vista"));
         const isLegacyDemoThread = thread.length === 0 || thread.every((message) => {
           const text = String(message?.text || "");
           return /^Hi! .* is still available/.test(text) ||
@@ -1704,7 +1709,7 @@
             text.startsWith("Viewing confirmed") ||
             text.startsWith("Can we use the alternative slot instead");
         });
-        if (!hasActiveViewing && isLegacyDemoThread) {
+        if (!hasActiveViewing && (isLegacyDemoThread || isBuonaVistaDemo)) {
           delete chatThreads[title];
           changedChats = true;
         }
@@ -2168,8 +2173,9 @@
     }
 
     function getVisibleListings(query = "") {
+      const hasDirectPostalMatch = /^\d{2,6}$/.test(query) && listings.some((item) => String(item.postcode || "").startsWith(query));
       return listings.filter((item) => {
-        const matchesSearch = !query || searchableText(item).includes(query) || matchesPostalSearch(item, query);
+        const matchesSearch = !query || searchableText(item).includes(query) || matchesPostalSearch(item, query, hasDirectPostalMatch);
         const matchesFilter =
           (activeModeFilter === "All" || item.mode === activeModeFilter) &&
           (activeListerFilter === "All" || item.lister === activeListerFilter) &&
@@ -2182,9 +2188,10 @@
       return `${item.title} ${item.area} ${item.type} ${item.mode} ${item.lister} ${item.beds} ${item.district} ${item.postcode} ${item.mrt}`.toLowerCase();
     }
 
-    function matchesPostalSearch(item, query) {
+    function matchesPostalSearch(item, query, directOnly = false) {
       if (!/^\d{2,6}$/.test(query)) return false;
       if (String(item.postcode || "").startsWith(query)) return true;
+      if (directOnly) return false;
       const district = districtFromPostcode(query);
       return Boolean(district && item.district === district);
     }
@@ -2343,8 +2350,23 @@
 
     function renderDetailMap(item) {
       if (!detailMap || !item) return;
+      const nearbyItems = listings
+        .filter((listing) => listing.title !== item.title && listing.district === item.district)
+        .slice(0, 8);
       if (!window.L) {
-        detailMap.innerHTML = `<div class="map-canvas" style="height:190px;margin:0;border-radius:0"><button class="map-pin" type="button" style="left:50%;top:50%">$${Math.round(item.price / 100) / 10}k</button></div>`;
+        detailMap.innerHTML = `<div class="map-canvas" style="height:190px;margin:0;border-radius:0">
+          ${[item, ...nearbyItems].map((listing) => {
+            const point = listing.map || mapForIndex(listing.title.length);
+            const current = listing.title === item.title;
+            return `<button class="map-pin ${current ? "current" : modeClass(listing)}" type="button" data-title="${escapeHtml(listing.title)}" style="left:${point.x}%;top:${point.y}%">$${Math.round(listing.price / 100) / 10}k</button>`;
+          }).join("")}
+        </div>`;
+        detailMap.querySelectorAll("[data-title]").forEach((pin) => {
+          pin.addEventListener("click", () => {
+            const next = listings.find((listing) => listing.title === pin.dataset.title);
+            if (next && next.title !== item.title) openListingDetail(next);
+          });
+        });
         return;
       }
       const latLng = latLngForItem(item);
@@ -2366,16 +2388,26 @@
         detailLeafletLayer = L.layerGroup().addTo(detailLeafletMap);
       }
       detailLeafletLayer.clearLayers();
-      const icon = L.divIcon({
-        className: "",
-        html: `<button class="map-price-marker ${modeClass(item)}" type="button">$${Math.round(item.price / 100) / 10}k</button>`,
-        iconSize: [58, 30],
-        iconAnchor: [29, 15]
+      const bounds = [];
+      [item, ...nearbyItems].forEach((listing) => {
+        const markerLatLng = latLngForItem(listing);
+        bounds.push(markerLatLng);
+        const current = listing.title === item.title;
+        const icon = L.divIcon({
+          className: "",
+          html: `<button class="map-price-marker ${current ? "current" : modeClass(listing)}" type="button">$${Math.round(listing.price / 100) / 10}k</button>`,
+          iconSize: [58, 30],
+          iconAnchor: [29, 15]
+        });
+        const marker = L.marker(markerLatLng, { icon, title: listing.title }).addTo(detailLeafletLayer);
+        marker.on("click", () => {
+          if (listing.title !== item.title) openListingDetail(listing);
+        });
       });
-      L.marker(latLng, { icon, title: item.title }).addTo(detailLeafletLayer);
       window.setTimeout(() => {
         detailLeafletMap.invalidateSize();
-        detailLeafletMap.setView(latLng, 15);
+        if (bounds.length > 1) detailLeafletMap.fitBounds(bounds, { padding: [28, 28], maxZoom: 15 });
+        else detailLeafletMap.setView(latLng, 15);
       }, 120);
     }
 
