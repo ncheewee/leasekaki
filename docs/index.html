@@ -16,6 +16,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png">
   <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <style>
     :root {
       --ink: #102b36;
@@ -243,6 +244,15 @@
         #eaf0e8;
       overflow: hidden;
     }
+    .map-canvas.leaflet-container {
+      background: #eaf0e8;
+      font-family: inherit;
+      z-index: 0;
+    }
+    .map-canvas .leaflet-control-attribution {
+      font-size: 9px;
+      background: rgba(255, 253, 248, .86);
+    }
     .map-canvas::before,
     .map-canvas::after {
       content: "";
@@ -270,6 +280,18 @@
     }
     .map-pin.room { background: var(--coral); }
     .map-pin:hover { transform: translate(-50%, -54%) scale(1.04); }
+    .map-price-marker {
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 12px;
+      font-weight: 950;
+      box-shadow: 0 8px 18px rgba(16, 43, 54, .22);
+      white-space: nowrap;
+    }
+    .map-price-marker.room { background: var(--coral); }
     .explore-tools {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -716,7 +738,7 @@
       inset: 0;
       display: grid;
       align-items: end;
-      background: rgba(16, 43, 54, .46);
+      background: rgba(8, 19, 24, .84);
       opacity: 0;
       pointer-events: none;
       transition: opacity .18s ease;
@@ -726,7 +748,9 @@
       pointer-events: auto;
     }
     .detail-sheet {
-      max-height: min(88vh, 760px);
+      width: min(100vw, 980px);
+      height: min(100dvh, 900px);
+      max-height: 100dvh;
       overflow: auto;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
@@ -808,11 +832,18 @@
     }
     .insight-head { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
     .insight-head strong { font-size: 16px; letter-spacing: -.03em; }
-    .insight-head small { color: var(--muted); font-size: 11px; font-weight: 800; text-align: right; }
+    .insight-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--ink-soft);
+      font-size: 13px;
+      line-height: 1.42;
+    }
+    .insight-list li + li { margin-top: 5px; }
     .chart-box {
       position: relative;
       min-height: 226px;
-      padding: 12px;
+      padding: 12px 10px;
       border: 1px solid rgba(16, 43, 54, .08);
       border-radius: 15px;
       background: rgba(255, 253, 248, .72);
@@ -837,7 +868,7 @@
     .chart-caption span:last-child { text-align: right; }
     .chart-caption .current { color: var(--coral); }
     .chart-title {
-      margin: 2px 0 -4px;
+      margin: 4px 0 -4px;
       color: var(--muted);
       font-size: 11px;
       font-weight: 900;
@@ -974,10 +1005,12 @@
       .toast { left: auto; right: 24px; bottom: 24px; width: 320px; }
       .detail-backdrop { align-items: center; padding: 28px; }
       .detail-sheet {
-        width: min(880px, 100%);
+        width: min(94vw, 1040px);
+        height: min(92vh, 860px);
+        max-height: 92vh;
         margin: auto;
         display: grid;
-        grid-template-columns: minmax(0, .94fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
         border-radius: 24px;
       }
       .detail-photo, .detail-photo img { min-height: 100%; }
@@ -1166,12 +1199,11 @@
         <section class="insight-card" aria-label="AI insights">
           <div class="insight-head">
             <strong>AI insights</strong>
-            <small id="insightLabel">12-month trend</small>
           </div>
-          <p id="insightCopy" class="insight-note"></p>
-          <div class="chart-title">Transaction rent trend, last 12 months</div>
+          <ul id="insightCopy" class="insight-list"></ul>
+          <div class="chart-title">Price trend</div>
           <div id="trendBars" class="chart-box trend-line" aria-label="Transaction price trend over 12 months"></div>
-          <div class="chart-title">Comparable asking rents nearby</div>
+          <div class="chart-title">Nearby listings</div>
           <div id="scatterPlot" class="chart-box scatter-plot" aria-label="Comparable offering prices in neighbourhood"></div>
         </section>
         <div class="detail-actions">
@@ -1228,6 +1260,7 @@
   </nav>
   <button id="toast" class="toast hidden" type="button" aria-label="Dismiss message"></button>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     const API_BASE = "https://leasekaki-api.ncheewee.workers.dev";
     const listingPhotos = {
@@ -1284,6 +1317,10 @@
     let selectedListing = null;
     let selectedViewDate = "";
     let selectedViewTime = "";
+    let leafletMap = null;
+    let leafletLayer = null;
+    let navigationClosing = false;
+    let edgeSwipeStart = null;
     const likedListings = new Set(readStorage("leasekaki-liked", []));
     const photoIndexes = {};
     const viewingRequests = readStorage("leasekaki-viewings", {});
@@ -1326,6 +1363,7 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    history.replaceState({ leasekakiLayer: "root" }, "", window.location.pathname + window.location.search);
     navButtons.forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
     accountButton.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -1334,9 +1372,33 @@
     document.addEventListener("click", (event) => {
       if (!accountMenu.contains(event.target) && event.target !== accountButton) accountMenu.classList.remove("open");
     });
+    window.addEventListener("popstate", closeTopLayerFromHistory);
+    window.addEventListener("touchstart", (event) => {
+      const touch = event.touches[0];
+      const openLayer = detailBackdrop.classList.contains("open") || chatWindow.classList.contains("open") || viewWindow.classList.contains("open");
+      if (!openLayer) {
+        edgeSwipeStart = null;
+        return;
+      }
+      edgeSwipeStart = {
+        x: touch.clientX,
+        y: touch.clientY,
+        edge: touch.clientX < 28 || touch.clientX > window.innerWidth - 28
+      };
+    }, { passive: true });
+    window.addEventListener("touchend", (event) => {
+      if (!edgeSwipeStart?.edge) return;
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - edgeSwipeStart.x;
+      const deltaY = touch.clientY - edgeSwipeStart.y;
+      const isBackGesture = Math.abs(deltaX) > 72 && Math.abs(deltaX) > Math.abs(deltaY) * 1.8;
+      edgeSwipeStart = null;
+      if (isBackGesture && history.state?.leasekakiLayer !== "root") history.back();
+    }, { passive: true });
     document.getElementById("mapToggle").addEventListener("click", () => {
       resultMap.classList.toggle("expanded");
       document.getElementById("mapToggle").textContent = resultMap.classList.contains("expanded") ? "Shrink map" : "Enlarge map";
+      window.setTimeout(() => leafletMap?.invalidateSize(), 180);
     });
 
     function escapeHtml(value) {
@@ -1383,6 +1445,14 @@
 
     function mapForIndex(index) {
       return { x: 15 + ((index * 17) % 72), y: 24 + ((index * 13) % 54) };
+    }
+
+    function latLngForItem(item) {
+      if (Number.isFinite(item.lat) && Number.isFinite(item.lng)) return [item.lat, item.lng];
+      const point = item.map || mapForIndex(item.title.length);
+      const lng = 103.62 + (Number(point.x || 50) / 100) * 0.44;
+      const lat = 1.47 - (Number(point.y || 50) / 100) * 0.25;
+      return [lat, lng];
     }
 
     function toneForIndex(index) {
@@ -1472,6 +1542,7 @@
       renderPriceInsights(item);
       detailBackdrop.classList.add("open");
       detailBackdrop.setAttribute("aria-hidden", "false");
+      pushLayerState("detail", item.title);
       setBodyLock();
       detailClose.focus();
     }
@@ -1495,10 +1566,29 @@
       };
     }
 
-    function closeListingDetail() {
+    function closeListingDetail(fromHistory = false) {
+      if (!fromHistory && detailBackdrop.classList.contains("open") && history.state?.leasekakiLayer === "detail") {
+        history.back();
+        return;
+      }
       detailBackdrop.classList.remove("open");
       detailBackdrop.setAttribute("aria-hidden", "true");
       setBodyLock();
+    }
+
+    function pushLayerState(layer, title = "") {
+      if (navigationClosing) return;
+      const current = history.state || {};
+      if (current.leasekakiLayer === layer && current.listingTitle === title) return;
+      history.pushState({ leasekakiLayer: layer, listingTitle: title }, "", `#${layer}`);
+    }
+
+    function closeTopLayerFromHistory() {
+      navigationClosing = true;
+      if (viewWindow.classList.contains("open")) closeViewing(true);
+      else if (chatWindow.classList.contains("open")) closeChat(true);
+      else if (detailBackdrop.classList.contains("open")) closeListingDetail(true);
+      navigationClosing = false;
     }
 
     function kindToType(kind) {
@@ -1728,6 +1818,11 @@
       if (!showMap) return;
       document.getElementById("mapTitle").textContent = `${items.length} available ${items.length === 1 ? "unit" : "units"}`;
       document.getElementById("mapSubtitle").textContent = query ? `Near “${search.value.trim()}”` : `${activeDistrict} results`;
+      if (window.L) renderLeafletMap(items);
+      else renderFallbackMap(items);
+    }
+
+    function renderFallbackMap(items) {
       mapCanvas.innerHTML = items.slice(0, 14).map((item) => {
         const point = item.map || mapForIndex(item.title.length);
         return `<button class="map-pin ${item.mode === "Room only" ? "room" : ""}" type="button" data-title="${escapeHtml(item.title)}" style="left:${point.x}%;top:${point.y}%">$${Math.round(item.price / 100) / 10}k</button>`;
@@ -1739,6 +1834,44 @@
           if (item) openListingDetail(item);
         });
       });
+    }
+
+    function renderLeafletMap(items) {
+      if (!leafletMap) {
+        leafletMap = L.map(mapCanvas, {
+          center: [1.3521, 103.8198],
+          zoom: 11,
+          minZoom: 10,
+          maxZoom: 18,
+          scrollWheelZoom: false,
+          touchZoom: true,
+          dragging: true
+        });
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(leafletMap);
+        leafletLayer = L.layerGroup().addTo(leafletMap);
+      }
+      leafletLayer.clearLayers();
+      const bounds = [];
+      items.slice(0, 24).forEach((item) => {
+        const latLng = latLngForItem(item);
+        bounds.push(latLng);
+        const icon = L.divIcon({
+          className: "",
+          html: `<button class="map-price-marker ${item.mode === "Room only" ? "room" : ""}" type="button">$${Math.round(item.price / 100) / 10}k</button>`,
+          iconSize: [58, 30],
+          iconAnchor: [29, 15]
+        });
+        const marker = L.marker(latLng, { icon, title: item.title }).addTo(leafletLayer);
+        marker.on("click", () => openListingDetail(item));
+      });
+      window.setTimeout(() => {
+        leafletMap.invalidateSize();
+        if (bounds.length > 1) leafletMap.fitBounds(bounds, { padding: [32, 32], maxZoom: 14 });
+        else if (bounds.length === 1) leafletMap.setView(bounds[0], 15);
+      }, 80);
     }
 
     function renderChatList() {
@@ -1860,16 +1993,25 @@
 
     function renderPriceInsights(item) {
       const insight = priceInsights(item);
+      const forecast = buildTrendForecast(insight.trend);
       const comparison = insight.delta === 0 ? "right at" : `$${Math.abs(insight.delta).toLocaleString()} ${insight.delta < 0 ? "below" : "above"}`;
-      const periodText = insight.refPeriods?.length ? ` · ${insight.refPeriods.join(", ")}` : "";
-      document.getElementById("insightLabel").textContent = `${item.district} · ${insight.source}${periodText}`;
-      document.getElementById("insightCopy").textContent = `AI estimate: asking rent is ${insight.label} — about ${comparison} the benchmark average of $${insight.average.toLocaleString()}/mo. Source basis: ${insight.benchmarkNote}${insight.sampleCount ? ` from ${insight.sampleCount.toLocaleString()} URA rental records` : ""}.`;
-      renderTrendLine(insight);
+      document.getElementById("insightCopy").innerHTML = [
+        `Asking rent is ${insight.label}; about ${comparison} the $${insight.average.toLocaleString()}/mo benchmark.`,
+        `${forecast.label} expected over the next 3 months based on recent trend shape.`,
+        `${insight.sampleCount ? `${insight.sampleCount.toLocaleString()} nearby URA rental records` : "Mock benchmark"} behind this estimate.`
+      ].map((line) => `<li>${escapeHtml(line)}</li>`).join("");
+      renderTrendLine(insight, forecast);
       renderScatterPlot(item, insight);
     }
 
     function moneyCompact(value) {
       return `$${Number(value).toLocaleString()}`;
+    }
+
+    function moneyAxis(value) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return "$0";
+      return number >= 1000 ? `$${(number / 1000).toFixed(number % 1000 === 0 ? 0 : 1)}k` : `$${Math.round(number)}`;
     }
 
     function monthLabel(value) {
@@ -1879,6 +2021,78 @@
       const year = raw.slice(2);
       const name = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][month - 1] || raw.slice(0, 2);
       return `${name} '${year}`;
+    }
+
+    function nextMonthValue(value, offset = 1) {
+      const raw = String(value || "");
+      if (raw.length !== 4) return raw;
+      const month = Number(raw.slice(0, 2));
+      const year = Number(`20${raw.slice(2)}`);
+      if (!Number.isFinite(month) || !Number.isFinite(year)) return raw;
+      const date = new Date(year, month - 1 + offset, 1);
+      return `${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getFullYear()).slice(2)}`;
+    }
+
+    function solveQuadratic(points) {
+      const sums = points.reduce((acc, point) => {
+        const x = point.x;
+        const y = point.y;
+        acc.n += 1;
+        acc.x += x;
+        acc.x2 += x ** 2;
+        acc.x3 += x ** 3;
+        acc.x4 += x ** 4;
+        acc.y += y;
+        acc.xy += x * y;
+        acc.x2y += x ** 2 * y;
+        return acc;
+      }, { n: 0, x: 0, x2: 0, x3: 0, x4: 0, y: 0, xy: 0, x2y: 0 });
+      const matrix = [
+        [sums.n, sums.x, sums.x2, sums.y],
+        [sums.x, sums.x2, sums.x3, sums.xy],
+        [sums.x2, sums.x3, sums.x4, sums.x2y]
+      ];
+      for (let column = 0; column < 3; column += 1) {
+        let pivot = column;
+        for (let row = column + 1; row < 3; row += 1) {
+          if (Math.abs(matrix[row][column]) > Math.abs(matrix[pivot][column])) pivot = row;
+        }
+        [matrix[column], matrix[pivot]] = [matrix[pivot], matrix[column]];
+        const divisor = matrix[column][column] || 1;
+        for (let cell = column; cell < 4; cell += 1) matrix[column][cell] /= divisor;
+        for (let row = 0; row < 3; row += 1) {
+          if (row === column) continue;
+          const factor = matrix[row][column];
+          for (let cell = column; cell < 4; cell += 1) matrix[row][cell] -= factor * matrix[column][cell];
+        }
+      }
+      return [matrix[0][3], matrix[1][3], matrix[2][3]];
+    }
+
+    function buildTrendForecast(trend) {
+      const actual = trend.map((point, index) => ({
+        month: typeof point === "number" ? "" : point.month,
+        value: typeof point === "number" ? point : point.value,
+        index
+      })).filter((point) => Number.isFinite(point.value));
+      if (actual.length < 3) return { predicted: [], pct: 0, label: "Stable trend" };
+      const sample = actual.slice(-Math.min(8, actual.length)).map((point, index) => ({ x: index, y: point.value }));
+      const [a, b, c] = solveQuadratic(sample);
+      const last = actual[actual.length - 1];
+      const lastSampleIndex = sample.length - 1;
+      const predicted = Array.from({ length: 3 }, (_, offset) => {
+        const rawValue = a + b * (lastSampleIndex + offset + 1) + c * ((lastSampleIndex + offset + 1) ** 2);
+        const capped = Math.min(last.value * 1.12, Math.max(last.value * .88, rawValue));
+        return {
+          month: nextMonthValue(last.month, offset + 1),
+          value: Math.round(capped / 50) * 50,
+          index: last.index + offset + 1
+        };
+      });
+      const pct = ((predicted[predicted.length - 1].value - last.value) / last.value) * 100;
+      const direction = Math.abs(pct) < 1 ? "stable" : pct > 0 ? "rise" : "drop";
+      const label = direction === "stable" ? "Stable trend" : `${Math.abs(pct).toFixed(1)}% ${direction}`;
+      return { predicted, pct, label };
     }
 
     function prepareCanvas(canvas) {
@@ -1924,60 +2138,99 @@
       context.fillText(labels.yMax, margins.left - 8, margins.top + 4);
       context.fillText(labels.yMin, margins.left - 8, height - margins.bottom);
       context.textAlign = "left";
-      context.fillText(labels.yName, margins.left, 10);
       context.fillText(labels.xStart, margins.left, height - 7);
       context.textAlign = "right";
-      context.fillText(labels.xName, width - margins.right, 10);
       context.fillText(labels.xEnd, width - margins.right, height - 7);
     }
 
-    function renderTrendLine(insight) {
-      const values = insight.trend.map((point) => typeof point === "number" ? point : point.value).filter(Number.isFinite);
+    function drawSmoothPath(context, points) {
+      if (!points.length) return;
+      context.beginPath();
+      context.moveTo(points[0].x, points[0].y);
+      for (let index = 0; index < points.length - 1; index += 1) {
+        const current = points[index];
+        const next = points[index + 1];
+        const previous = points[index - 1] || current;
+        const after = points[index + 2] || next;
+        const cp1 = { x: current.x + (next.x - previous.x) / 6, y: current.y + (next.y - previous.y) / 6 };
+        const cp2 = { x: next.x - (after.x - current.x) / 6, y: next.y - (after.y - current.y) / 6 };
+        context.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, next.x, next.y);
+      }
+    }
+
+    function renderTrendLine(insight, forecast = buildTrendForecast(insight.trend)) {
+      const actualPoints = insight.trend.map((point, index) => ({
+        month: typeof point === "number" ? "" : point.month,
+        value: typeof point === "number" ? point : point.value,
+        index
+      })).filter((point) => Number.isFinite(point.value));
+      const allPoints = actualPoints.concat(forecast.predicted || []);
+      const values = allPoints.map((point) => point.value);
       const min = Math.min(...values);
       const max = Math.max(...values);
       const span = Math.max(1, max - min);
-      const firstPoint = insight.trend[0];
-      const lastPoint = insight.trend[insight.trend.length - 1];
+      const firstPoint = actualPoints[0];
+      const lastPoint = actualPoints[actualPoints.length - 1];
+      const finalPoint = allPoints[allPoints.length - 1];
       document.getElementById("trendBars").innerHTML = `
         <canvas aria-hidden="true"></canvas>
-        <div class="chart-caption"><span>${monthLabel(firstPoint?.month)} → ${monthLabel(lastPoint?.month)}</span><span>${moneyCompact(min)}–${moneyCompact(max)}</span></div>
+        <div class="chart-caption"><span>${monthLabel(firstPoint?.month)} → ${monthLabel(finalPoint?.month)}</span><span>${forecast.label} expected</span></div>
       `;
       const canvas = document.querySelector("#trendBars canvas");
       const { context, width, height } = prepareCanvas(canvas);
-      const margins = { top: 24, right: 24, bottom: 34, left: 58 };
+      const margins = { top: 18, right: 18, bottom: 30, left: 42 };
       const plotWidth = width - margins.left - margins.right;
       const plotHeight = height - margins.top - margins.bottom;
-      const xFor = (index) => margins.left + (values.length === 1 ? plotWidth / 2 : (index / (values.length - 1)) * plotWidth);
+      const maxIndex = Math.max(...allPoints.map((point) => point.index));
+      const xFor = (index) => margins.left + (maxIndex === 0 ? plotWidth / 2 : (index / maxIndex) * plotWidth);
       const yFor = (value) => margins.top + (1 - (value - min) / span) * plotHeight;
       drawAxis(context, width, height, margins, {
-        yMax: moneyCompact(max),
-        yMin: moneyCompact(min),
-        yName: "Rent/mo",
+        yMax: moneyAxis(max),
+        yMin: moneyAxis(min),
         xStart: monthLabel(firstPoint?.month),
-        xEnd: monthLabel(lastPoint?.month),
-        xName: "Month"
+        xEnd: monthLabel(finalPoint?.month)
       });
       context.lineWidth = 3;
       context.lineJoin = "round";
       context.lineCap = "round";
       context.strokeStyle = "#1c6b57";
-      context.beginPath();
-      values.forEach((value, index) => {
-        const x = xFor(index);
-        const y = yFor(value);
-        if (index === 0) context.moveTo(x, y);
-        else context.lineTo(x, y);
-      });
+      const actualDrawPoints = actualPoints.map((point) => ({ x: xFor(point.index), y: yFor(point.value), value: point.value }));
+      drawSmoothPath(context, actualDrawPoints);
       context.stroke();
-      values.forEach((value, index) => {
+      if (forecast.predicted?.length) {
+        const forecastDrawPoints = [lastPoint, ...forecast.predicted].map((point) => ({ x: xFor(point.index), y: yFor(point.value), value: point.value }));
+        context.save();
+        context.setLineDash([6, 6]);
+        context.strokeStyle = "#ff735f";
+        drawSmoothPath(context, forecastDrawPoints);
+        context.stroke();
+        context.restore();
+      }
+      actualDrawPoints.forEach((point, index) => {
         context.beginPath();
-        context.fillStyle = index === values.length - 1 ? "#ff735f" : "#1c6b57";
+        context.fillStyle = index === actualDrawPoints.length - 1 ? "#ff735f" : "#1c6b57";
         context.strokeStyle = "#fffdf8";
         context.lineWidth = 2;
-        context.arc(xFor(index), yFor(value), index === values.length - 1 ? 5 : 3.5, 0, Math.PI * 2);
+        context.arc(point.x, point.y, index === actualDrawPoints.length - 1 ? 5 : 3.5, 0, Math.PI * 2);
         context.fill();
         context.stroke();
       });
+      if (forecast.predicted?.length) {
+        const endpoint = forecast.predicted[forecast.predicted.length - 1];
+        const x = xFor(endpoint.index);
+        const y = yFor(endpoint.value);
+        context.beginPath();
+        context.fillStyle = "#ff735f";
+        context.strokeStyle = "#fffdf8";
+        context.lineWidth = 2;
+        context.arc(x, y, 5, 0, Math.PI * 2);
+        context.fill();
+        context.stroke();
+        context.font = "11px Inter, system-ui, sans-serif";
+        context.textAlign = "right";
+        context.fillStyle = "#ff735f";
+        context.fillText(forecast.label, Math.min(width - 8, x), Math.max(12, y - 10));
+      }
     }
 
     function renderScatterPlot(item, insight) {
@@ -1992,22 +2245,20 @@
       const sizeSpan = Math.max(1, maxSize - minSize);
       document.getElementById("scatterPlot").innerHTML = `
         <canvas aria-hidden="true"></canvas>
-        <div class="chart-caption"><span>${Math.round(minSize)}–${Math.round(maxSize)} sqm</span><span class="current">● current listing</span></div>
+        <div class="chart-caption"><span>${Math.round(minSize)}–${Math.round(maxSize)} sqm</span><span>${moneyAxis(minRent)}–${moneyAxis(maxRent)}</span></div>
       `;
       const canvas = document.querySelector("#scatterPlot canvas");
       const { context, width, height } = prepareCanvas(canvas);
-      const margins = { top: 24, right: 24, bottom: 34, left: 58 };
+      const margins = { top: 18, right: 18, bottom: 30, left: 42 };
       const plotWidth = width - margins.left - margins.right;
       const plotHeight = height - margins.top - margins.bottom;
       const xFor = (size) => margins.left + ((size - minSize) / sizeSpan) * plotWidth;
       const yFor = (rent) => margins.top + (1 - (rent - minRent) / rentSpan) * plotHeight;
       drawAxis(context, width, height, margins, {
-        yMax: moneyCompact(maxRent),
-        yMin: moneyCompact(minRent),
-        yName: "Rent/mo",
+        yMax: moneyAxis(maxRent),
+        yMin: moneyAxis(minRent),
         xStart: `${Math.round(minSize)}sqm`,
-        xEnd: `${Math.round(maxSize)}sqm`,
-        xName: "Size"
+        xEnd: `${Math.round(maxSize)}sqm`
       });
       comps.slice(0, 90).forEach((point) => {
         context.beginPath();
@@ -2039,6 +2290,7 @@
       renderChatList();
       chatWindow.classList.add("open");
       chatWindow.setAttribute("aria-hidden", "false");
+      pushLayerState("chat", item.title);
       setBodyLock();
       window.setTimeout(() => document.getElementById("chatInput").focus(), 80);
     }
@@ -2049,7 +2301,11 @@
       document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
     }
 
-    function closeChat() {
+    function closeChat(fromHistory = false) {
+      if (!fromHistory && chatWindow.classList.contains("open") && history.state?.leasekakiLayer === "chat") {
+        history.back();
+        return;
+      }
       chatWindow.classList.remove("open");
       chatWindow.setAttribute("aria-hidden", "true");
       setBodyLock();
@@ -2081,6 +2337,7 @@
       renderViewing();
       viewWindow.classList.add("open");
       viewWindow.setAttribute("aria-hidden", "false");
+      pushLayerState("view", item.title);
       setBodyLock();
     }
 
@@ -2096,7 +2353,11 @@
       document.getElementById("requestViewing").textContent = existing ? "Update request" : "Request viewing";
     }
 
-    function closeViewing() {
+    function closeViewing(fromHistory = false) {
+      if (!fromHistory && viewWindow.classList.contains("open") && history.state?.leasekakiLayer === "view") {
+        history.back();
+        return;
+      }
       viewWindow.classList.remove("open");
       viewWindow.setAttribute("aria-hidden", "true");
       setBodyLock();
