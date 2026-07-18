@@ -1018,20 +1018,16 @@
     .chart-title { margin: 4px 0 -4px; }
     .insight-note { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.45; }
     .detail-actions {
-      position: sticky;
-      bottom: 14px;
-      z-index: 3;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: calc(5vh + 12px);
+      z-index: 47;
       display: flex;
       justify-content: center;
-      margin-top: -4px;
       pointer-events: none;
     }
     #detailChat {
-      position: fixed;
-      left: 50%;
-      bottom: calc(5vh + 12px);
-      z-index: 46;
-      transform: translateX(-50%);
       width: auto;
       min-width: 132px;
       border-radius: 999px;
@@ -1157,11 +1153,15 @@
       font-size: 20px;
     }
     .messages {
-      display: grid;
-      align-content: end;
+      display: flex;
+      flex-direction: column;
       gap: 10px;
+      min-height: 0;
       min-height: 280px;
       overflow: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
       padding: 16px;
       background: linear-gradient(180deg, var(--paper), var(--cream));
     }
@@ -1202,6 +1202,13 @@
       border: 1px solid var(--line);
       border-radius: 17px;
       background: var(--cream);
+    }
+    .chat-viewing-card.request-start {
+      justify-content: flex-start;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
     }
     .chat-viewing-card.requested {
       display: grid;
@@ -1666,11 +1673,11 @@
         <section class="insight-card" aria-label="Listing map">
           <div id="detailMap" class="detail-map"></div>
         </section>
-        <div class="detail-actions">
-          <button id="detailChat" class="button" type="button">Chat</button>
-        </div>
       </div>
     </article>
+    <div class="detail-actions">
+      <button id="detailChat" class="button" type="button">Chat</button>
+    </div>
   </section>
 
   <section id="chatWindow" class="window-backdrop" aria-hidden="true">
@@ -3292,7 +3299,7 @@
       const messagesBox = document.getElementById("messages");
       messagesBox.innerHTML = thread.length
         ? thread.map((message) => `<div class="bubble ${message.who}">${escapeHtml(message.text)}</div>`).join("")
-        : `<div class="bubble them">Ask about availability, lease terms, furnishing, or request a viewing when ready.</div>`;
+        : "";
       messagesBox.scrollTop = messagesBox.scrollHeight;
     }
 
@@ -3303,8 +3310,8 @@
       }
       const request = viewingRequests[selectedListing.title];
       if (!request) {
-        chatViewingPanel.innerHTML = `<div class="chat-viewing-card">
-          <button class="button coral" type="button" data-chat-view-action="start">Request to view</button>
+        chatViewingPanel.innerHTML = `<div class="chat-viewing-card request-start">
+          <button class="button coral" type="button" data-chat-view-action="start">Request to View</button>
         </div>`;
       } else {
         const status = request.status === "accepted" || request.status === "confirmed" ? "VIEWING ACCEPTED" : "VIEWING REQUESTED";
