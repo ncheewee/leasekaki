@@ -147,15 +147,6 @@
       color: rgba(255, 255, 255, .68);
       line-height: 1.55;
     }
-    .search-helper {
-      display: block;
-      margin: 18px 16px -4px;
-      color: var(--ink);
-      font-size: 15px;
-      font-weight: 950;
-      letter-spacing: -.01em;
-    }
-
     .search {
       margin: 16px;
       display: grid;
@@ -195,7 +186,7 @@
       font-size: 16px;
       font-weight: 700;
     }
-    .search input::placeholder { color: rgba(49, 80, 91, .66); }
+    .search input::placeholder { color: rgba(49, 80, 91, .56); font-weight: 750; }
     .search-suggestions {
       display: none;
       gap: 7px;
@@ -362,7 +353,14 @@
     }
     .district-option.active, .district-option:hover { background: var(--cream); color: var(--ink); }
 
-    .chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 6px; scrollbar-width: none; }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      overflow: visible;
+      padding: 0 16px 10px;
+      scrollbar-width: none;
+    }
     .chip {
       flex: 0 0 auto;
       border: 1px solid var(--line);
@@ -377,10 +375,10 @@
 
     .section-heading {
       display: flex;
-      justify-content: space-between;
-      align-items: end;
+      justify-content: flex-end;
+      align-items: center;
       gap: 16px;
-      padding: 22px 16px 12px;
+      padding: 4px 16px 12px;
     }
     .section-heading h2 { margin: 5px 0 0; font-size: 26px; letter-spacing: -.04em; }
     .count { color: var(--muted); font-size: 13px; font-weight: 800; }
@@ -480,17 +478,30 @@
       position: absolute;
       z-index: 1;
       top: 12px;
-      border-radius: 999px;
       background: rgba(255, 253, 248, .9);
     }
-    .badge { left: 12px; padding: 6px 9px; font-size: 10px; font-weight: 900; }
-    .badge.agent { background: rgba(255, 115, 95, .94); color: var(--paper); }
-    .badge.owner { background: rgba(187, 241, 209, .96); color: var(--mint-deep); }
+    .badge {
+      left: -36px;
+      top: 16px;
+      width: 128px;
+      padding: 6px 0;
+      border-radius: 0;
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: .07em;
+      text-align: center;
+      text-transform: uppercase;
+      transform: rotate(-38deg);
+      box-shadow: 0 6px 16px rgba(16, 43, 54, .18);
+    }
+    .badge.agent { background: rgba(35, 100, 216, .96); color: var(--paper); }
+    .badge.owner { background: rgba(16, 43, 54, .96); color: var(--paper); }
     .save {
       right: 12px;
       width: 34px;
       height: 34px;
       border: 0;
+      border-radius: 999px;
       display: grid;
       place-items: center;
       color: var(--ink);
@@ -849,10 +860,10 @@
     }
     .detail-photo .photo-dots { bottom: 14px; }
     .detail-close {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 1;
+      position: fixed;
+      top: calc(5dvh + 12px);
+      right: calc(5vw + 12px);
+      z-index: 45;
       width: 38px;
       height: 38px;
       border: 0;
@@ -1170,7 +1181,6 @@
       .topbar { position: sticky; height: 100vh; align-items: start; flex-direction: column; justify-content: start; padding: 28px 20px; }
       .hero { padding: 52px clamp(28px, 5vw, 76px) 110px; }
       .browse-content { margin: 12px clamp(18px, 4vw, 62px) 60px; padding: 24px; border-radius: 28px 28px 0 0; background: var(--cream); }
-      .search-helper { margin-left: 0; margin-right: 0; }
       .search, .section-heading, .listings, .chips, .explore-tools { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
       .listings { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
       .listing { grid-template-columns: 42% minmax(0, 1fr); grid-template-rows: 1fr; min-height: 244px; height: 100%; }
@@ -1192,6 +1202,10 @@
         display: grid;
         grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
         border-radius: 24px;
+      }
+      .detail-close {
+        top: calc(5vh + 40px);
+        right: calc(5vw + 40px);
       }
       .detail-photo, .detail-photo img { min-height: 100%; }
       .detail-body { padding: 28px; }
@@ -1215,11 +1229,10 @@
     <section>
       <div id="browse" class="view active">
         <div class="browse-content">
-          <span class="search-helper">Search listings</span>
           <div id="searchBox" class="search">
             <label class="search-row">
               <span>⌕</span>
-            <input id="search" placeholder="Search postcode, address, district, MRT or project" aria-label="Search rentals">
+            <input id="search" placeholder="Search listings" aria-label="Search rentals">
             </label>
             <div id="searchSuggestions" class="search-suggestions" aria-label="Search suggestions"></div>
           </div>
@@ -1252,10 +1265,7 @@
             <button class="chip" type="button" data-filter="Owner">Owner</button>
             <button class="chip" type="button" data-filter="Agent">Agent</button>
           </div>
-          <div class="section-heading">
-            <div><span class="eyebrow" style="color:var(--mint-deep)">Fresh listings</span><span id="dataStatus" class="data-status">Loading Neon listings...</span><h2>Homes worth a look</h2></div>
-            <span id="count" class="count">10 found</span>
-          </div>
+          <div class="section-heading"><span id="count" class="count">100 found</span></div>
           <div id="listings" class="listings"></div>
         </div>
       </div>
@@ -1375,7 +1385,6 @@
           <div id="scatterPlot" class="chart-box scatter-plot" aria-label="Comparable offering prices in neighbourhood"></div>
         </section>
         <section class="insight-card" aria-label="Listing map">
-          <div class="chart-title"><span class="chip-label graph">Map</span></div>
           <div id="detailMap" class="detail-map"></div>
         </section>
         <div class="detail-actions">
@@ -1425,7 +1434,7 @@
       "Whole unit minutes from Jurong East": "./assets/listings/10-jurong-east-whole-unit.jpg"
     };
     const listingPhotoPool = Object.values(listingPhotos);
-    const fallbackListings = [
+    const seedListings = [
       { title: "Sunny 4-room near Bishan MRT", area: "Bishan Street 13", type: "HDB", mode: "Whole unit", price: 3750, beds: "3 bed · Furnished", available: "Available 1 Sep", availableDate: "2026-09-01", lister: "Owner", district: "D20", postcode: "570013", mrt: "Bishan MRT", map: { x: 52, y: 36 }, tone: "sunset", description: "Bright 4-room HDB with cross breeze, tidy furnishing and a sheltered walk to Bishan MRT. Ideal for a small family that wants schools, Junction 8 and park access without paying central rents." },
       { title: "Calm common room in Tiong Bahru", area: "Tiong Bahru Road", type: "HDB", mode: "Room only", price: 1350, beds: "Common room · Owner staying", available: "Available now", availableDate: "2026-07-20", lister: "Owner", district: "D03", postcode: "160055", mrt: "Tiong Bahru MRT", map: { x: 34, y: 66 }, tone: "mint", description: "Quiet common room in an owner-occupied flat, with light cooking, weekly cleaning and a short walk to cafes, wet market and Tiong Bahru MRT." },
       { title: "City-view 2-bed at Paya Lebar", area: "Paya Lebar Quarter", type: "Condo", mode: "Whole unit", price: 4300, beds: "2 bed · 2 bath", available: "Available 15 Aug", availableDate: "2026-08-15", lister: "Agent", district: "D14", postcode: "409057", mrt: "Paya Lebar MRT", map: { x: 70, y: 52 }, tone: "sky", description: "Compact city-fringe condo with a proper balcony, pool access and direct access to the Paya Lebar interchange area. Works well for professionals splitting rent." },
@@ -1436,10 +1445,70 @@
       { title: "Master room beside Buona Vista", area: "North Buona Vista Road", type: "Condo", mode: "Room only", price: 1850, beds: "Master room · Ensuite", available: "Available now", availableDate: "2026-07-21", lister: "Agent", district: "D05", postcode: "139345", mrt: "Buona Vista MRT", map: { x: 25, y: 51 }, tone: "sunset", description: "Master room with ensuite, strong one-north access and flexible lease start. Best fit for a tenant who wants privacy without taking a whole unit." },
       { title: "Quiet 3-bed family condo in Serangoon", area: "Serangoon Avenue 3", type: "Condo", mode: "Whole unit", price: 5200, beds: "3 bed · 2 bath", available: "Available 15 Sep", availableDate: "2026-09-15", lister: "Owner", district: "D19", postcode: "550303", mrt: "Serangoon MRT", map: { x: 61, y: 32 }, tone: "sky", description: "Low-density family condo with proper bedrooms, a calmer residential feel and quick access to NEX, Serangoon MRT and neighbourhood schools." },
       { title: "Whole unit minutes from Jurong East", area: "Jurong East Street 21", type: "HDB", mode: "Whole unit", price: 3900, beds: "3 bed · Furnished", available: "Available 1 Oct", availableDate: "2026-10-01", lister: "Agent", district: "D22", postcode: "600021", mrt: "Jurong East MRT", map: { x: 13, y: 42 }, tone: "lilac", description: "Furnished whole HDB unit near Jurong East transport and malls, convenient for tenants working around Jurong Lake District or the west side." }
-    ].map((item, index) => ({ ...item, image: listingPhotos[item.title], images: imagesForListing(item.title, index), postedAt: 100 - index }));
+    ].map((item, index) => ({ ...item, image: listingPhotos[item.title], images: imagesForListing(item.title, index), postedAt: 200 - index }));
+    const mockAreas = [
+      ["D01", "Raffles Place", "048624", "Raffles Place MRT", 44, 70],
+      ["D02", "Tanjong Pagar", "079903", "Tanjong Pagar MRT", 43, 66],
+      ["D03", "Queenstown", "140171", "Queenstown MRT", 31, 55],
+      ["D04", "HarbourFront", "099253", "HarbourFront MRT", 35, 78],
+      ["D05", "Clementi", "120443", "Clementi MRT", 22, 45],
+      ["D09", "River Valley", "238000", "Great World MRT", 42, 72],
+      ["D10", "Holland Village", "278995", "Holland Village MRT", 33, 49],
+      ["D12", "Toa Payoh", "310177", "Toa Payoh MRT", 50, 44],
+      ["D14", "Paya Lebar", "409057", "Paya Lebar MRT", 70, 52],
+      ["D15", "Katong", "428751", "Marine Parade MRT", 76, 63],
+      ["D16", "Bedok", "460210", "Bedok MRT", 84, 58],
+      ["D18", "Tampines", "520882", "Tampines MRT", 84, 46],
+      ["D19", "Serangoon", "550303", "Serangoon MRT", 61, 32],
+      ["D20", "Bishan", "570013", "Bishan MRT", 52, 36],
+      ["D22", "Jurong East", "600021", "Jurong East MRT", 13, 42],
+      ["D23", "Bukit Batok", "650192", "Bukit Batok MRT", 18, 34],
+      ["D25", "Woodlands", "730515", "Woodlands MRT", 38, 16],
+      ["D27", "Yishun", "760734", "Yishun MRT", 55, 17]
+    ];
+    const mockTypes = ["HDB", "Condo", "Landed"];
+    const mockModes = ["Whole unit", "Room only"];
+    const mockTones = ["sunset", "mint", "sky", "lilac"];
+    const mockDescriptors = ["Bright", "Renovated", "High-floor", "Quiet", "City-fringe", "Family-friendly", "Pet-considered", "Furnished", "Breezy", "Near-MRT"];
+
+    function buildMockListings() {
+      const generated = [];
+      for (let index = 0; generated.length < 90; index += 1) {
+        const area = mockAreas[index % mockAreas.length];
+        const type = mockTypes[(index + Math.floor(index / 6)) % mockTypes.length];
+        const mode = type === "Landed" ? "Whole unit" : mockModes[(index + Math.floor(index / 3)) % mockModes.length];
+        const lister = index % 3 === 0 ? "Owner" : "Agent";
+        const bedrooms = mode === "Room only" ? (index % 4 === 0 ? "Master room · Ensuite" : "Common room · Furnished") : `${type === "Landed" ? 4 : (index % 3) + 2} bed · ${index % 2 ? "Part-furnished" : "Furnished"}`;
+        const basePrice = mode === "Room only" ? 1150 + (index % 8) * 140 : type === "Landed" ? 7800 + (index % 9) * 520 : type === "Condo" ? 3300 + (index % 12) * 260 : 3000 + (index % 10) * 180;
+        const day = String((index % 24) + 1).padStart(2, "0");
+        const month = index % 4;
+        const availableDate = `2026-${String(8 + month).padStart(2, "0")}-${day}`;
+        const title = `${mockDescriptors[index % mockDescriptors.length]} ${mode === "Room only" ? "room" : type.toLowerCase()} in ${area[1]} #${index + 11}`;
+        generated.push({
+          title,
+          area: `${area[1]} ${type === "HDB" ? "Street" : type === "Condo" ? "Residences" : "Terrace"} ${((index % 80) + 1)}`,
+          type,
+          mode,
+          price: basePrice,
+          beds: bedrooms,
+          available: month === 0 ? "Available now" : `Available ${Number(day)} ${["Aug", "Sep", "Oct", "Nov"][month]}`,
+          availableDate,
+          lister,
+          district: area[0],
+          postcode: String(Number(area[2]) + (index % 30)).padStart(6, "0"),
+          mrt: area[3],
+          map: { x: Math.max(8, Math.min(90, area[4] + ((index % 5) - 2) * 2)), y: Math.max(10, Math.min(84, area[5] + ((index % 7) - 3) * 2)) },
+          tone: mockTones[index % mockTones.length],
+          description: `${mode === "Room only" ? "Room listing" : "Whole-home listing"} near ${area[3]}, mocked to test search density, filters, map pins and chat workflow across ${area[0]}. Includes realistic rent, availability and lister mix for MVP exploration.`
+        });
+      }
+      return [...seedListings, ...generated].map((item, index) => ({ ...item, image: listingPhotos[item.title] || listingPhotoPool[index % listingPhotoPool.length], images: imagesForListing(item.title, index), postedAt: 200 - index }));
+    }
+
+    const fallbackListings = buildMockListings();
 
     let listings = fallbackListings;
-    let activeFilter = "All";
+    const activeFilters = new Set();
     let activeSort = "newest";
     let activeDistrict = "All";
     let touchStartX = 0;
@@ -1461,7 +1530,6 @@
     const accountButton = document.getElementById("accountButton");
     const accountMenu = document.getElementById("accountMenu");
     const toast = document.getElementById("toast");
-    const dataStatus = document.getElementById("dataStatus");
     const detailBackdrop = document.getElementById("detailBackdrop");
     const detailClose = document.getElementById("detailClose");
     const chatWindow = document.getElementById("chatWindow");
@@ -1479,6 +1547,7 @@
     const photoIndexes = {};
     const viewingRequests = readStorage("leasekaki-viewings", {});
     const chatThreads = readStorage("leasekaki-chats", {});
+    cleanupLegacyConversationState();
     let uraRentalSummary = null;
     const districtOptions = [
       ["All", "All districts"],
@@ -1531,6 +1600,36 @@
       try {
         localStorage.setItem(key, JSON.stringify(value));
       } catch (error) {}
+    }
+
+    function cleanupLegacyConversationState() {
+      let changedViewings = false;
+      let changedChats = false;
+      Object.keys(viewingRequests).forEach((title) => {
+        if (viewingRequests[title]?.status === "cancelled") {
+          delete viewingRequests[title];
+          changedViewings = true;
+        }
+      });
+      Object.keys(chatThreads).forEach((title) => {
+        const thread = Array.isArray(chatThreads[title]) ? chatThreads[title] : [];
+        const hasActiveViewing = Boolean(viewingRequests[title]);
+        const isLegacyDemoThread = thread.length === 0 || thread.every((message) => {
+          const text = String(message?.text || "");
+          return /^Hi! .* is still available/.test(text) ||
+            text === "Hi, is this still available and are viewings possible this week?" ||
+            text.startsWith("Viewing request:") ||
+            text.startsWith("Viewing request cancelled") ||
+            text.startsWith("Viewing confirmed") ||
+            text.startsWith("Can we use the alternative slot instead");
+        });
+        if (!hasActiveViewing && isLegacyDemoThread) {
+          delete chatThreads[title];
+          changedChats = true;
+        }
+      });
+      if (changedViewings) writeStorage("leasekaki-viewings", viewingRequests);
+      if (changedChats) writeStorage("leasekaki-chats", chatThreads);
     }
 
     function showToast(message) {
@@ -1819,17 +1918,17 @@
       photo.ontouchstart = (event) => { touchStartX = event.touches[0].clientX; };
       photo.ontouchend = (event) => {
         const delta = event.changedTouches[0].clientX - touchStartX;
-        if (Math.abs(delta) > 32) movePhoto(item, delta < 0 ? 1 : -1);
+        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
       };
       photo.onpointerdown = (event) => { pointerStartX = event.clientX; };
       photo.onpointerup = (event) => {
         const delta = event.clientX - pointerStartX;
-        if (Math.abs(delta) > 32) movePhoto(item, delta < 0 ? 1 : -1);
+        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
       };
       photo.onmousedown = (event) => { mouseStartX = event.clientX; };
       photo.onmouseup = (event) => {
         const delta = event.clientX - mouseStartX;
-        if (Math.abs(delta) > 32) movePhoto(item, delta < 0 ? 1 : -1);
+        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
       };
     }
 
@@ -1934,10 +2033,8 @@
         const liveListings = body.listings.map(mapApiListing);
         const titles = new Set(liveListings.map((item) => item.title));
         listings = [...liveListings, ...fallbackListings.filter((item) => !titles.has(item.title))];
-        dataStatus.textContent = "Live from Neon + mock catalogue";
       } catch (error) {
         listings = fallbackListings;
-        dataStatus.textContent = "Showing local fallback data";
       }
       renderListings();
     }
@@ -1967,12 +2064,13 @@
     function getVisibleListings(query = "") {
       return listings.filter((item) => {
         const matchesSearch = !query || searchableText(item).includes(query) || matchesPostalSearch(item, query);
+        const selectedModes = Array.from(activeFilters).filter((filter) => ["Whole unit", "Room only"].includes(filter));
+        const selectedTypes = Array.from(activeFilters).filter((filter) => ["HDB", "Condo", "Landed"].includes(filter));
+        const selectedListers = Array.from(activeFilters).filter((filter) => ["Owner", "Agent"].includes(filter));
         const matchesFilter =
-          activeFilter === "All" ||
-          item.type === activeFilter ||
-          item.mode === activeFilter ||
-          item.lister === activeFilter ||
-          (activeFilter === "Liked" && likedListings.has(item.title));
+          (!selectedModes.length || selectedModes.includes(item.mode)) &&
+          (!selectedTypes.length || selectedTypes.includes(item.type)) &&
+          (!selectedListers.length || selectedListers.includes(item.lister));
         return matchesFilter && matchesSearch;
       }).filter((item) => matchesDistrictForItem(item)).sort(sortListings);
     }
@@ -2044,7 +2142,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta < 0 ? 1 : -1);
+            movePhoto(item, delta > 0 ? 1 : -1);
           }
         });
         photo.addEventListener("pointerdown", (event) => { pointerStartX = event.clientX; });
@@ -2055,7 +2153,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta < 0 ? 1 : -1);
+            movePhoto(item, delta > 0 ? 1 : -1);
           }
         });
         photo.addEventListener("mousedown", (event) => { mouseStartX = event.clientX; });
@@ -2066,7 +2164,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta < 0 ? 1 : -1);
+            movePhoto(item, delta > 0 ? 1 : -1);
           }
         });
       });
@@ -2230,7 +2328,8 @@
 
     function movePhoto(item, delta) {
       const total = item.images?.length || 1;
-      photoIndexes[item.title] = ((photoIndexes[item.title] || 0) + delta + total) % total;
+      const current = photoIndexes[item.title] || 0;
+      photoIndexes[item.title] = Math.max(0, Math.min(total - 1, current + delta));
       document.querySelectorAll(`[data-photo-title="${cssEscape(item.title)}"]`).forEach((track) => {
         track.style.transform = `translateX(-${photoIndexes[item.title] * 100}%)`;
       });
@@ -2797,8 +2896,18 @@
 
     chips.forEach((chip) => {
       chip.addEventListener("click", () => {
-        activeFilter = chip.dataset.filter;
-        chips.forEach((item) => item.classList.toggle("active", item === chip));
+        const filter = chip.dataset.filter;
+        if (filter === "All") {
+          activeFilters.clear();
+        } else if (activeFilters.has(filter)) {
+          activeFilters.delete(filter);
+        } else {
+          activeFilters.add(filter);
+        }
+        chips.forEach((item) => {
+          const value = item.dataset.filter;
+          item.classList.toggle("active", value === "All" ? activeFilters.size === 0 : activeFilters.has(value));
+        });
         renderListings();
       });
     });
