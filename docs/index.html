@@ -352,7 +352,7 @@
       text-align: left;
     }
     .sort-option.active, .sort-option:hover,
-    .district-option.active, .district-option:hover { background: var(--cream); color: var(--ink); }
+    .district-option.active, .district-option:hover { background: rgba(187, 241, 209, .44); color: var(--mint-deep); }
 
     .filter-stack {
       display: grid;
@@ -383,7 +383,7 @@
       font-size: 12px;
       font-weight: 900;
     }
-    .toggle-group button.active { background: var(--ink); color: var(--paper); }
+    .toggle-group button.active { background: var(--mint); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(28, 107, 87, .12); }
     .chips {
       display: flex;
       flex-wrap: wrap;
@@ -402,7 +402,7 @@
       font-size: 14px;
       font-weight: 800;
     }
-    .chip.active { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+    .chip.active { border-color: rgba(255, 115, 95, .5); background: rgba(255, 115, 95, .16); color: #9d4639; }
 
     .section-heading {
       display: flex;
@@ -626,6 +626,7 @@
     .button.coral { background: var(--coral); }
     .button.secondary { border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
     .button.full { width: 100%; }
+    .button:disabled { opacity: .48; cursor: default; }
 
     .panel { margin: 16px; padding: 20px; border-radius: 22px; background: var(--paper); box-shadow: var(--shadow); }
     .capture {
@@ -1008,9 +1009,28 @@
     .chart-title { margin: 4px 0 -4px; }
     .insight-note { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.45; }
     .detail-actions {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 9px;
+      position: sticky;
+      bottom: 14px;
+      z-index: 3;
+      display: flex;
+      justify-content: center;
+      margin-top: -4px;
+      pointer-events: none;
+    }
+    #detailChat {
+      position: fixed;
+      left: 50%;
+      bottom: calc(5vh + 12px);
+      z-index: 46;
+      transform: translateX(-50%);
+      width: auto;
+      min-width: 132px;
+      border-radius: 999px;
+      padding: 0 20px;
+      background: var(--coral);
+      color: var(--paper);
+      box-shadow: 0 14px 34px rgba(255, 115, 95, .36);
+      pointer-events: auto;
     }
     .detail-map {
       min-height: 190px;
@@ -1093,9 +1113,30 @@
     }
     .chat-title-row {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 52px 1fr auto;
       gap: 12px;
-      align-items: start;
+      align-items: center;
+    }
+    .chat-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 15px;
+      object-fit: cover;
+      background: var(--cream);
+    }
+    .chat-title-row h3 {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+    }
+    .chat-title-row small {
+      display: -webkit-box;
+      margin-top: 3px;
+      overflow: hidden;
+      line-height: 1.35;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
     }
     .window-close {
       width: 36px;
@@ -1141,41 +1182,6 @@
       border-top: 0;
       background: transparent;
     }
-    .chat-listing-summary {
-      display: grid;
-      grid-template-columns: 58px 1fr;
-      gap: 10px;
-      align-items: center;
-      padding: 10px;
-      border: 1px solid var(--line);
-      border-radius: 17px;
-      background: var(--cream);
-    }
-    .chat-listing-summary img {
-      width: 58px;
-      height: 52px;
-      border-radius: 14px;
-      object-fit: cover;
-    }
-    .chat-listing-summary strong {
-      display: -webkit-box;
-      overflow: hidden;
-      font-size: 13px;
-      line-height: 1.2;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 1;
-    }
-    .chat-listing-summary p {
-      display: -webkit-box;
-      margin: 3px 0 0;
-      overflow: hidden;
-      color: var(--ink-soft);
-      font-size: 12px;
-      font-weight: 700;
-      line-height: 1.35;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-    }
     .chat-viewing-card {
       display: flex;
       gap: 8px;
@@ -1187,7 +1193,26 @@
       border-radius: 17px;
       background: var(--cream);
     }
-    .chat-viewing-card.form { display: grid; gap: 12px; }
+    .chat-viewing-card.requested {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+    .request-slots {
+      display: grid;
+      gap: 3px;
+      color: var(--ink-soft);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+    .request-slots b { color: var(--ink); font-weight: 950; }
+    .request-state {
+      display: grid;
+      justify-items: end;
+      gap: 6px;
+    }
+    .chat-viewing-card.form { position: relative; display: grid; gap: 12px; padding-top: 14px; }
     .chat-viewing-card strong { font-size: 12px; letter-spacing: .05em; text-transform: uppercase; }
     .chat-viewing-card p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.4; }
     .chat-viewing-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
@@ -1204,6 +1229,36 @@
       text-transform: uppercase;
     }
     .chat-viewing-chip.edit { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+    .chat-viewing-card.form.changed { border-color: rgba(255, 115, 95, .44); box-shadow: 0 10px 28px rgba(255, 115, 95, .1); }
+    .change-note {
+      min-height: 18px;
+      color: #9d4639;
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+    }
+    .inline-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 30px;
+      height: 30px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 18px;
+      box-shadow: 0 7px 16px rgba(16, 43, 54, .1);
+    }
+    .confirm-inline {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid rgba(255, 115, 95, .32);
+      border-radius: 17px;
+      background: rgba(255, 115, 95, .1);
+    }
+    .confirm-inline p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.4; }
     .slot-picker { display: grid; gap: 8px; }
     .slot-picker > strong {
       font-size: 12px;
@@ -1559,7 +1614,7 @@
           <div id="detailMap" class="detail-map"></div>
         </section>
         <div class="detail-actions">
-          <button id="detailChat" class="button secondary" type="button">Chat</button>
+          <button id="detailChat" class="button" type="button">Chat</button>
         </div>
       </div>
     </article>
@@ -1569,10 +1624,10 @@
     <article class="task-window" role="dialog" aria-modal="true" aria-labelledby="chatTitle">
       <header class="window-head chat-head">
         <div class="chat-title-row">
+          <img id="chatThumb" class="chat-thumb" src="" alt="">
           <div><h3 id="chatTitle">Chat</h3><small id="chatSubtitle">Message owner or authorised agent</small></div>
           <button id="chatClose" class="window-close" type="button" aria-label="Close chat">×</button>
         </div>
-        <div id="chatListingSummary" class="chat-listing-summary"></div>
         <div id="chatViewingPanel" class="chat-viewing-panel"></div>
       </header>
       <div id="messages" class="messages"></div>
@@ -3164,10 +3219,12 @@
 
     function openChat(item) {
       selectedListing = item;
-      document.getElementById("chatTitle").textContent = `Chat: ${item.title}`;
-      document.getElementById("chatSubtitle").textContent = `${item.lister} · ${item.mode} · ${item.area}`;
+      document.getElementById("chatTitle").textContent = item.title;
+      document.getElementById("chatSubtitle").textContent = detailCopy(item);
+      const chatThumb = document.getElementById("chatThumb");
+      chatThumb.src = (item.images && item.images[0]) || item.image || "";
+      chatThumb.alt = `${item.title} thumbnail`;
       if (!chatThreads[item.title]) chatThreads[item.title] = [];
-      renderChatListingSummary();
       renderChat();
       renderChatViewingPanel();
       renderChatList();
@@ -3175,13 +3232,6 @@
       chatWindow.setAttribute("aria-hidden", "false");
       pushLayerState("chat", item.title);
       setBodyLock();
-    }
-
-    function renderChatListingSummary() {
-      const target = document.getElementById("chatListingSummary");
-      if (!target || !selectedListing) return;
-      target.innerHTML = `<img src="${escapeHtml((selectedListing.images && selectedListing.images[0]) || selectedListing.image)}" alt="">
-        <span><strong>${escapeHtml(selectedListing.title)}</strong><p>${escapeHtml(detailCopy(selectedListing))}</p></span>`;
     }
 
     function renderChat() {
@@ -3204,9 +3254,16 @@
           <button class="button coral" type="button" data-chat-view-action="start">Request to view</button>
         </div>`;
       } else {
-        chatViewingPanel.innerHTML = `<div class="chat-viewing-card">
-          <span class="chat-viewing-chip">Requested</span>
-          <button class="chat-viewing-chip edit" type="button" data-chat-view-action="edit">Edit</button>
+        const status = request.status === "accepted" || request.status === "confirmed" ? "ACCEPTED" : "REQUESTED";
+        chatViewingPanel.innerHTML = `<div class="chat-viewing-card requested">
+          <div class="request-slots">
+            <span><b>Preferred</b> ${escapeHtml(formatSlot(request.preferred))}</span>
+            <span><b>Alternative</b> ${escapeHtml(formatSlot(request.alternative))}</span>
+          </div>
+          <div class="request-state">
+            <span class="chat-viewing-chip">${escapeHtml(status)}</span>
+            <button class="chat-viewing-chip edit" type="button" data-chat-view-action="edit">Edit</button>
+          </div>
         </div>`;
       }
       chatViewingPanel.querySelectorAll("[data-chat-view-action]").forEach((button) => {
@@ -3229,14 +3286,18 @@
     }
 
     function renderChatViewingForm(request) {
-      chatViewingPanel.innerHTML = `<div class="chat-viewing-card form">
+      const existing = viewingRequests[selectedListing.title];
+      const originalPreferred = existing?.preferred || "";
+      const originalAlternative = existing?.alternative || "";
+      chatViewingPanel.innerHTML = `<div class="chat-viewing-card form" data-original-preferred="${escapeHtml(originalPreferred)}" data-original-alternative="${escapeHtml(originalAlternative)}">
+        <button class="inline-close" type="button" data-chat-view-action="close-form" aria-label="Close edit request">×</button>
         <strong>Request to view</strong>
         ${renderChatSlotPicker("preferred", "Preferred", request.preferred)}
         ${renderChatSlotPicker("alternative", "Alternative", request.alternative)}
+        <div class="change-note" aria-live="polite"></div>
         <div class="chat-viewing-actions">
-          ${viewingRequests[selectedListing.title] ? `<button class="button secondary" type="button" data-chat-view-action="cancel">Cancel request</button>` : ""}
-          <button class="button secondary" type="button" data-chat-view-action="close-form">Back</button>
-          <button class="button coral" type="button" data-chat-view-action="send-request">Save request</button>
+          ${existing ? `<button class="button secondary" type="button" data-chat-view-action="cancel">Cancel request</button>` : ""}
+          <button class="button coral" type="button" data-chat-view-action="send-request">${existing ? "Update request" : "Send request"}</button>
         </div>
       </div>`;
       chatViewingPanel.querySelectorAll("[data-slot-kind][data-slot-value]").forEach((button) => {
@@ -3244,11 +3305,13 @@
           const kind = button.dataset.slotKind;
           const group = button.dataset.slotGroup;
           chatViewingPanel.querySelectorAll(`[data-slot-kind="${cssEscape(kind)}"][data-slot-group="${cssEscape(group)}"]`).forEach((item) => item.classList.toggle("active", item === button));
+          updateChatRequestChangeState();
         });
       });
       chatViewingPanel.querySelector("[data-chat-view-action='close-form']").addEventListener("click", renderChatViewingPanel);
       chatViewingPanel.querySelector("[data-chat-view-action='send-request']").addEventListener("click", sendChatViewingRequest);
-      chatViewingPanel.querySelector("[data-chat-view-action='cancel']")?.addEventListener("click", cancelChatViewingRequest);
+      chatViewingPanel.querySelector("[data-chat-view-action='cancel']")?.addEventListener("click", renderCancelViewingConfirmation);
+      updateChatRequestChangeState();
     }
 
     function renderChatSlotPicker(kind, label, value) {
@@ -3279,6 +3342,35 @@
       const date = chatViewingPanel.querySelector(`[data-slot-kind="${cssEscape(kind)}"][data-slot-group="date"].active`)?.dataset.slotValue;
       const time = chatViewingPanel.querySelector(`[data-slot-kind="${cssEscape(kind)}"][data-slot-group="time"].active`)?.dataset.slotValue;
       return date && time ? `${date}T${time}` : "";
+    }
+
+    function updateChatRequestChangeState() {
+      const card = chatViewingPanel.querySelector(".chat-viewing-card.form");
+      if (!card) return;
+      const preferred = selectedChatSlot("preferred");
+      const alternative = selectedChatSlot("alternative");
+      const originalPreferred = card.dataset.originalPreferred || "";
+      const originalAlternative = card.dataset.originalAlternative || "";
+      const hasExisting = Boolean(originalPreferred || originalAlternative);
+      const changed = !hasExisting || preferred !== originalPreferred || alternative !== originalAlternative;
+      card.classList.toggle("changed", changed && hasExisting);
+      const note = card.querySelector(".change-note");
+      if (note) note.textContent = hasExisting ? (changed ? "Changes detected" : "No changes yet") : "";
+      const submit = card.querySelector("[data-chat-view-action='send-request']");
+      if (submit) submit.disabled = hasExisting && !changed;
+    }
+
+    function renderCancelViewingConfirmation() {
+      chatViewingPanel.innerHTML = `<div class="confirm-inline">
+        <strong>Cancel viewing request?</strong>
+        <p>This removes the requested slot and returns chat to the request state.</p>
+        <div class="chat-viewing-actions">
+          <button class="button secondary" type="button" data-chat-view-action="edit">Keep request</button>
+          <button class="button coral" type="button" data-chat-view-action="confirm-cancel">Yes, cancel</button>
+        </div>
+      </div>`;
+      chatViewingPanel.querySelector("[data-chat-view-action='edit']").addEventListener("click", () => handleChatViewingAction("edit"));
+      chatViewingPanel.querySelector("[data-chat-view-action='confirm-cancel']").addEventListener("click", cancelChatViewingRequest);
     }
 
     function sendChatViewingRequest() {
