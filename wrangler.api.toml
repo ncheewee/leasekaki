@@ -4,3 +4,4 @@ compatibility_date = "2026-07-17"
 
 [vars]
 ALLOWED_ORIGIN = "https://ncheewee.github.io"
+AUTH_REDIRECT_ORIGIN = "https://ncheewee.github.io/leasekaki/"

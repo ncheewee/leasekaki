@@ -105,6 +105,14 @@
       box-shadow: var(--shadow);
     }
     .account-menu.open { display: grid; gap: 6px; }
+    .account-status {
+      display: grid;
+      gap: 3px;
+      padding: 10px 10px 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .account-status strong { font-size: 14px; line-height: 1.2; }
+    .account-status span { color: var(--muted); font-size: 12px; font-weight: 750; }
     .account-menu button {
       min-height: 42px;
       border: 0;
@@ -121,6 +129,16 @@
       text-align: left;
     }
     .account-menu button:hover { background: var(--cream); color: var(--ink); }
+    .account-menu .auth-provider {
+      min-height: 46px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+    }
+    .account-menu .auth-provider.google span:first-child { color: #4285f4; }
+    .account-menu .auth-provider.apple { background: var(--ink); color: var(--paper); }
+    .account-menu .auth-provider.apple:hover { background: #08171d; color: var(--paper); }
+    .account-menu .sign-out { color: var(--coral); }
     .view { display: none; }
     .view.active { display: block; }
     .hero {
@@ -1497,8 +1515,15 @@
       <div class="top-actions">
         <button id="accountButton" class="account-button" type="button" aria-label="Open account menu">☰</button>
         <div id="accountMenu" class="account-menu" aria-label="Account menu">
+          <div id="accountStatus" class="account-status">
+            <strong>Sign in</strong>
+            <span>Save chats, listings and future paperwork.</span>
+          </div>
+          <button id="googleSignIn" class="auth-provider google" type="button"><span>G</span><span>Continue with Google</span></button>
+          <button id="appleSignIn" class="auth-provider apple" type="button"><span></span><span>Continue with Apple</span></button>
           <button type="button"><span>◌</span><span>Profile & verification</span></button>
           <button type="button"><span>⚙</span><span>Settings</span></button>
+          <button id="signOutButton" class="sign-out" type="button" hidden><span>↩</span><span>Sign out</span></button>
         </div>
       </div>
     </header>
@@ -1708,6 +1733,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     const API_BASE = "https://leasekaki-api.ncheewee.workers.dev";
+    const AUTH_STORAGE_KEY = "leasekaki-auth-token";
     const listingPhotos = {
       "Sunny 4-room near Bishan MRT": "./assets/listings/01-bishan-hdb-living.jpg",
       "Calm common room in Tiong Bahru": "./assets/listings/02-tiong-bahru-common-room.jpg",
@@ -1822,6 +1848,10 @@
     const mapCanvas = document.getElementById("mapCanvas");
     const accountButton = document.getElementById("accountButton");
     const accountMenu = document.getElementById("accountMenu");
+    const accountStatus = document.getElementById("accountStatus");
+    const googleSignIn = document.getElementById("googleSignIn");
+    const appleSignIn = document.getElementById("appleSignIn");
+    const signOutButton = document.getElementById("signOutButton");
     const toast = document.getElementById("toast");
     const detailBackdrop = document.getElementById("detailBackdrop");
     const detailClose = document.getElementById("detailClose");
@@ -1915,6 +1945,81 @@
       } catch (error) {}
     }
 
+    function getAuthToken() {
+      try {
+        return localStorage.getItem(AUTH_STORAGE_KEY) || "";
+      } catch (error) {
+        return "";
+      }
+    }
+
+    function setAuthToken(token) {
+      try {
+        if (token) localStorage.setItem(AUTH_STORAGE_KEY, token);
+        else localStorage.removeItem(AUTH_STORAGE_KEY);
+      } catch (error) {}
+    }
+
+    function setSignedOutAccount(message = "Save chats, listings and future paperwork.") {
+      accountStatus.innerHTML = `<strong>Sign in</strong><span>${message}</span>`;
+      googleSignIn.hidden = false;
+      appleSignIn.hidden = false;
+      signOutButton.hidden = true;
+      accountButton.textContent = "☰";
+      accountButton.setAttribute("aria-label", "Open account menu");
+    }
+
+    function setSignedInAccount(user) {
+      const provider = user?.provider === "apple" ? "Apple" : "Google";
+      const name = user?.name || user?.email || "Signed in";
+      const email = user?.email ? `${provider} · ${user.email}` : provider;
+      accountStatus.innerHTML = `<strong>${name}</strong><span>${email}</span>`;
+      googleSignIn.hidden = true;
+      appleSignIn.hidden = true;
+      signOutButton.hidden = false;
+      accountButton.textContent = "✓";
+      accountButton.setAttribute("aria-label", "Open signed-in account menu");
+    }
+
+    async function refreshAccount() {
+      const token = getAuthToken();
+      if (!token) {
+        setSignedOutAccount();
+        return;
+      }
+      try {
+        const response = await fetch(`${API_BASE}/api/auth/me`, {
+          headers: { accept: "application/json", Authorization: `Bearer ${token}` }
+        });
+        const body = await response.json();
+        if (!response.ok || !body.user) throw new Error(body.error || "Session expired");
+        setSignedInAccount(body.user);
+      } catch (error) {
+        setAuthToken("");
+        setSignedOutAccount("Session expired. Please sign in again.");
+      }
+    }
+
+    function handleAuthReturn() {
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const token = hash.get("leasekaki_auth");
+      const authError = hash.get("auth_error");
+      if (token) {
+        setAuthToken(token);
+        toastMessage("Signed in to LeaseKaki.");
+      } else if (authError) {
+        toastMessage(authError);
+      }
+      if (token || authError) {
+        history.replaceState({ leasekakiLayer: "root" }, "", window.location.pathname + window.location.search);
+      }
+    }
+
+    function startSso(provider) {
+      const next = `${window.location.pathname}${window.location.search}`;
+      window.location.href = `${API_BASE}/api/auth/${provider}/start?next=${encodeURIComponent(next)}`;
+    }
+
     function cachedPostalLookup(postal) {
       return postalLookupCache[postal] || postalDirectory[postal] || null;
     }
@@ -1997,8 +2102,18 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    handleAuthReturn();
+    refreshAccount();
     history.replaceState({ leasekakiLayer: "root" }, "", window.location.pathname + window.location.search);
     navButtons.forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
+    googleSignIn.addEventListener("click", () => startSso("google"));
+    appleSignIn.addEventListener("click", () => startSso("apple"));
+    signOutButton.addEventListener("click", () => {
+      setAuthToken("");
+      setSignedOutAccount();
+      accountMenu.classList.remove("open");
+      toastMessage("Signed out.");
+    });
     accountButton.addEventListener("click", (event) => {
       event.stopPropagation();
       accountMenu.classList.toggle("open");

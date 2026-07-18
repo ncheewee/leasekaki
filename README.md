@@ -11,6 +11,7 @@ Mobile-first Singapore rental marketplace prototype: snap a property, generate a
 - Cloudflare Worker API
 - ImageKit image upload auth endpoint
 - OneMap postal-code lookup via the Worker API
+- Google and Apple SSO via the Worker API
 
 ## Local Development
 
@@ -83,6 +84,52 @@ npx wrangler deploy --config wrangler.api.toml
 
 OneMap tokens expire periodically. If `ONEMAP_EMAIL` and `ONEMAP_PASSWORD` are configured, the Worker can generate a fresh token and retry postal lookups when the temporary token expires.
 
+## SSO Setup
+
+LeaseKaki keeps OAuth secrets in the Cloudflare Worker. The GitHub Pages frontend only opens the sign-in route and stores the returned MVP session token.
+
+Set a random session secret first:
+
+```bash
+npx wrangler secret put AUTH_SESSION_SECRET --config wrangler.api.toml
+```
+
+Google OAuth needs a Web application client with this authorized redirect URI:
+
+```text
+https://leasekaki-api.ncheewee.workers.dev/api/auth/google/callback
+```
+
+Then set:
+
+```bash
+npx wrangler secret put GOOGLE_CLIENT_ID --config wrangler.api.toml
+npx wrangler secret put GOOGLE_CLIENT_SECRET --config wrangler.api.toml
+```
+
+Apple Sign in for web needs an Apple Developer Service ID, Team ID, Key ID, and `.p8` private key. Configure this return URL in Apple:
+
+```text
+https://leasekaki-api.ncheewee.workers.dev/api/auth/apple/callback
+```
+
+Then set:
+
+```bash
+npx wrangler secret put APPLE_CLIENT_ID --config wrangler.api.toml
+npx wrangler secret put APPLE_TEAM_ID --config wrangler.api.toml
+npx wrangler secret put APPLE_KEY_ID --config wrangler.api.toml
+npx wrangler secret put APPLE_PRIVATE_KEY --config wrangler.api.toml
+```
+
+Redeploy after secret changes:
+
+```bash
+npx wrangler deploy --config wrangler.api.toml
+```
+
+For production, prefer moving the frontend/API behind one custom domain so sessions can use secure HttpOnly same-site cookies instead of the GitHub Pages MVP token handoff.
+
 ## ImageKit Setup
 
 ImageKit is a good fit for the MVP because browser uploads can go directly to ImageKit while LeaseKaki only returns one-time upload credentials from the Worker.
@@ -104,6 +151,9 @@ The frontend should call `GET /api/imagekit-auth` before uploading. The private 
 - `POST /api/listings`: creates a listing draft or published listing.
 - `GET /api/imagekit-auth`: returns one-time ImageKit upload parameters for browser uploads.
 - `GET /api/postal?postal=569788`: resolves a 6-digit Singapore postal code through OneMap.
+- `GET /api/auth/google/start`: starts Google SSO.
+- `GET /api/auth/apple/start`: starts Apple SSO.
+- `GET /api/auth/me`: returns the current signed-in user for a valid MVP session token.
 
 Minimal `POST /api/listings` payload:
 
