@@ -1639,6 +1639,7 @@
     const detailClose = document.getElementById("detailClose");
     const chatWindow = document.getElementById("chatWindow");
     const chatViewingPanel = document.getElementById("chatViewingPanel");
+    const detailSheet = document.querySelector(".detail-sheet");
     const detailMap = document.getElementById("detailMap");
     const publishButton = document.querySelector("[data-publish]");
     let selectedListing = null;
@@ -1726,14 +1727,6 @@
       } catch (error) {}
     }
 
-    function oneMapToken() {
-      try {
-        return window.LEASEKAKI_ONEMAP_TOKEN || localStorage.getItem("leasekaki-onemap-token") || "";
-      } catch (error) {
-        return window.LEASEKAKI_ONEMAP_TOKEN || "";
-      }
-    }
-
     function cachedPostalLookup(postal) {
       return postalLookupCache[postal] || postalDirectory[postal] || null;
     }
@@ -1747,34 +1740,24 @@
 
     async function resolvePostalCode(postal) {
       if (!/^\d{6}$/.test(postal) || cachedPostalLookup(postal)) return;
-      const token = oneMapToken();
-      if (!token) {
-        postalLookupCache[postal] = { status: "unconfigured", postal };
-        renderSearchSuggestions();
-        renderListings();
-        return;
-      }
       postalLookupCache[postal] = { status: "resolving", postal };
       renderSearchSuggestions();
       try {
-        const response = await fetch(`https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(postal)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`, {
-          headers: { Authorization: token }
-        });
-        if (!response.ok) throw new Error(`OneMap returned ${response.status}`);
-        const body = await response.json();
-        const result = body?.results?.find((entry) => String(entry.POSTAL) === postal) || body?.results?.[0];
-        if (!result) throw new Error("Postal code not found");
+        const response = await fetch(`${API_BASE}/api/postal?postal=${encodeURIComponent(postal)}`, { headers: { accept: "application/json" } });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.code || result.error || `Postal API returned ${response.status}`);
         postalLookupCache[postal] = {
           status: "resolved",
-          address: result.ADDRESS || result.SEARCHVAL || `Singapore ${postal}`,
-          postal,
+          address: result.address || `Singapore ${postal}`,
+          postal: result.postal || postal,
           district: districtFromPostcode(postal),
-          lat: Number(result.LATITUDE),
-          lng: Number(result.LONGITUDE || result.LONGTITUDE),
-          source: "OneMap"
+          lat: Number(result.lat),
+          lng: Number(result.lng),
+          source: result.source || "Postal API"
         };
       } catch (error) {
-        postalLookupCache[postal] = { status: "not-found", postal };
+        const message = error instanceof Error ? error.message : "not_found";
+        postalLookupCache[postal] = { status: message.includes("not_configured") ? "unconfigured" : "not-found", postal };
       }
       renderSearchSuggestions();
       renderListings();
@@ -2101,8 +2084,17 @@
       return item.description || `${item.title} is available from ${item.available.toLowerCase()} at ${item.area}. The mock transaction lane would next help confirm viewing, offer terms and paperwork.`;
     }
 
+    function resetDetailScroll() {
+      if (!detailSheet) return;
+      detailSheet.scrollTop = 0;
+      const top = document.getElementById("detailPhoto");
+      if (top) top.scrollIntoView({ block: "start" });
+      detailSheet.scrollTop = 0;
+    }
+
     function openListingDetail(item) {
       selectedListing = item;
+      resetDetailScroll();
       document.getElementById("detailCarousel").innerHTML = renderPhotoTrack(item);
       document.getElementById("detailPhotoDots").innerHTML = renderPhotoDots(item);
       wireDetailCarousel(item);
@@ -2124,6 +2116,8 @@
       detailBackdrop.setAttribute("aria-hidden", "false");
       pushLayerState("detail", item.title);
       setBodyLock();
+      resetDetailScroll();
+      window.requestAnimationFrame(resetDetailScroll);
       detailClose.focus();
     }
 

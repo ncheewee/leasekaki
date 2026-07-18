@@ -10,6 +10,7 @@ type Env = {
   IMAGEKIT_PRIVATE_KEY?: string;
   IMAGEKIT_PUBLIC_KEY?: string;
   IMAGEKIT_URL_ENDPOINT?: string;
+  ONEMAP_TOKEN?: string;
 };
 
 type ListingPayload = Record<string, unknown>;
@@ -173,6 +174,53 @@ async function handleListings(request: Request, env: Env) {
   return json(request, env, { error: "Method not allowed." }, { status: 405 });
 }
 
+async function handlePostalLookup(request: Request, env: Env) {
+  if (request.method !== "GET") {
+    return json(request, env, { error: "Method not allowed." }, { status: 405 });
+  }
+
+  const url = new URL(request.url);
+  const postal = (url.searchParams.get("postal") ?? "").trim();
+  if (!/^\d{6}$/.test(postal)) {
+    return json(request, env, { error: "Postal code must be 6 digits.", code: "invalid_postal" }, { status: 400 });
+  }
+
+  if (!env.ONEMAP_TOKEN) {
+    return json(request, env, { error: "ONEMAP_TOKEN is not configured.", code: "not_configured" }, { status: 503 });
+  }
+
+  const oneMapUrl = new URL("https://www.onemap.gov.sg/api/common/elastic/search");
+  oneMapUrl.searchParams.set("searchVal", postal);
+  oneMapUrl.searchParams.set("returnGeom", "Y");
+  oneMapUrl.searchParams.set("getAddrDetails", "Y");
+  oneMapUrl.searchParams.set("pageNum", "1");
+
+  const response = await fetch(oneMapUrl, {
+    headers: { Authorization: env.ONEMAP_TOKEN },
+  });
+
+  if (!response.ok) {
+    return json(request, env, { error: `OneMap returned ${response.status}.`, code: "onemap_error" }, { status: response.status === 404 ? 404 : 502 });
+  }
+
+  const body = (await response.json()) as { results?: Array<Record<string, string>> };
+  const result = body.results?.find((entry) => String(entry.POSTAL) === postal) ?? body.results?.[0];
+  if (!result) {
+    return json(request, env, { error: "Postal code not found.", code: "not_found", postal }, { status: 404 });
+  }
+
+  return json(request, env, {
+    postal,
+    address: result.ADDRESS || result.SEARCHVAL || `Singapore ${postal}`,
+    block: result.BLK_NO || "",
+    road: result.ROAD_NAME || "",
+    building: result.BUILDING || "",
+    lat: Number(result.LATITUDE),
+    lng: Number(result.LONGITUDE || result.LONGTITUDE),
+    source: "OneMap",
+  });
+}
+
 const apiWorker = {
   async fetch(request: Request, env: Env): Promise<Response> {
     if (request.method === "OPTIONS") {
@@ -188,6 +236,7 @@ const apiWorker = {
           service: "leasekaki-api",
           databaseConfigured: Boolean(env.DATABASE_URL),
           imageKitConfigured: Boolean(env.IMAGEKIT_PRIVATE_KEY && env.IMAGEKIT_PUBLIC_KEY && env.IMAGEKIT_URL_ENDPOINT),
+          oneMapConfigured: Boolean(env.ONEMAP_TOKEN),
         });
       }
 
@@ -197,6 +246,10 @@ const apiWorker = {
 
       if (url.pathname === "/api/imagekit-auth") {
         return json(request, env, await signImageKitUpload(env));
+      }
+
+      if (url.pathname === "/api/postal") {
+        return handlePostalLookup(request, env);
       }
 
       return json(request, env, { error: "Not found." }, { status: 404 });

@@ -10,6 +10,7 @@ Mobile-first Singapore rental marketplace prototype: snap a property, generate a
 - GitHub Pages frontend
 - Cloudflare Worker API
 - ImageKit image upload auth endpoint
+- OneMap postal-code lookup via the Worker API
 
 ## Local Development
 
@@ -63,6 +64,23 @@ npx wrangler deploy --config wrangler.api.toml
 
 Then update `docs/index.html` so `API_BASE` points at the deployed Worker URL.
 
+## OneMap Postal Code Setup
+
+LeaseKaki keeps OneMap credentials out of the public GitHub Pages frontend. The frontend calls the Cloudflare Worker instead:
+
+```text
+GET /api/postal?postal=569788
+```
+
+Store a OneMap token as a Worker secret, then redeploy:
+
+```bash
+npx wrangler secret put ONEMAP_TOKEN --config wrangler.api.toml
+npx wrangler deploy --config wrangler.api.toml
+```
+
+OneMap tokens expire periodically, so the production version should either refresh this secret or add an auth-refresh flow in the Worker.
+
 ## ImageKit Setup
 
 ImageKit is a good fit for the MVP because browser uploads can go directly to ImageKit while LeaseKaki only returns one-time upload credentials from the Worker.
@@ -83,6 +101,7 @@ The frontend should call `GET /api/imagekit-auth` before uploading. The private 
 - `GET /api/listings`: returns the latest 50 persisted listings from Neon.
 - `POST /api/listings`: creates a listing draft or published listing.
 - `GET /api/imagekit-auth`: returns one-time ImageKit upload parameters for browser uploads.
+- `GET /api/postal?postal=569788`: resolves a 6-digit Singapore postal code through OneMap.
 
 Minimal `POST /api/listings` payload:
 
