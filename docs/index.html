@@ -1973,7 +1973,7 @@
       const suggestions = [];
       const postalLookup = /^\d{6}$/.test(query) ? cachedPostalLookup(query) : null;
       if (postalLookup?.address) {
-        suggestions.push({ kind: "postal", value: postalLookup.postal, title: postalLookup.address, meta: postalLookup.source === "OneMap" ? "Verified by OneMap" : "Mock postal match", icon: "⌖" });
+        suggestions.push({ kind: "postal", value: postalLookup.postal, title: postalLookup.address, meta: "", icon: "⌖" });
       } else if (postalLookup?.status === "resolving") {
         suggestions.push({ kind: "info", value: query, title: "Resolving postal code…", meta: "Checking OneMap", icon: "⌕" });
       } else if (postalLookup?.status === "not-found" || postalLookup?.status === "unconfigured") {
@@ -2015,6 +2015,20 @@
       const lng = 103.62 + (Number(point.x || 50) / 100) * 0.44;
       const lat = 1.47 - (Number(point.y || 50) / 100) * 0.25;
       return [lat, lng];
+    }
+
+    function distanceKm(a, b) {
+      if (!a || !b) return Infinity;
+      const [lat1, lng1] = a.map(Number);
+      const [lat2, lng2] = b.map(Number);
+      if (![lat1, lng1, lat2, lng2].every(Number.isFinite)) return Infinity;
+      const radius = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const rLat1 = lat1 * Math.PI / 180;
+      const rLat2 = lat2 * Math.PI / 180;
+      const h = Math.sin(dLat / 2) ** 2 + Math.cos(rLat1) * Math.cos(rLat2) * Math.sin(dLng / 2) ** 2;
+      return 2 * radius * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
     }
 
     function toneForIndex(index) {
@@ -2271,14 +2285,29 @@
 
     function getVisibleListings(query = "") {
       const hasDirectPostalMatch = /^\d{2,6}$/.test(query) && listings.some((item) => String(item.postcode || "").startsWith(query));
-      return listings.filter((item) => {
-        const matchesSearch = !query || searchableText(item).includes(query) || matchesPostalSearch(item, query, hasDirectPostalMatch);
-        const matchesFilter =
-          (activeModeFilter === "All" || item.mode === activeModeFilter) &&
-          (activeListerFilter === "All" || item.lister === activeListerFilter) &&
-          (!activeTypeFilters.size || activeTypeFilters.has(item.type));
-        return matchesFilter && matchesSearch;
-      }).filter((item) => matchesDistrictForItem(item)).sort(sortListings);
+      const postalTarget = /^\d{6}$/.test(query) ? cachedPostalLookup(query) : null;
+      const filtered = listings.filter((item) => matchesActiveFilters(item) && matchesDistrictForItem(item));
+      if (postalTarget?.address) {
+        const direct = filtered.filter((item) => matchesPostalSearch(item, query, false));
+        const nearby = nearbyPostalListings(postalTarget, filtered);
+        const seen = new Set();
+        return [...direct, ...nearby]
+          .filter((item) => {
+            if (seen.has(item.title)) return false;
+            seen.add(item.title);
+            return true;
+          })
+          .sort((a, b) => postalSortScore(a, postalTarget) - postalSortScore(b, postalTarget) || sortListings(a, b));
+      }
+      return filtered.filter((item) => {
+        return !query || searchableText(item).includes(query) || matchesPostalSearch(item, query, hasDirectPostalMatch);
+      }).sort(sortListings);
+    }
+
+    function matchesActiveFilters(item) {
+      return (activeModeFilter === "All" || item.mode === activeModeFilter) &&
+        (activeListerFilter === "All" || item.lister === activeListerFilter) &&
+        (!activeTypeFilters.size || activeTypeFilters.has(item.type));
     }
 
     function searchableText(item) {
@@ -2292,6 +2321,25 @@
       if (directOnly) return false;
       const district = districtFromPostcode(query);
       return Boolean(district && item.district === district);
+    }
+
+    function postalSortScore(item, target) {
+      if (String(item.postcode || "") === String(target.postal || "")) return -2;
+      if (String(item.postcode || "").startsWith(String(target.postal || "").slice(0, 4))) return -1;
+      const distance = distanceKm([Number(target.lat), Number(target.lng)], latLngForItem(item));
+      const districtBoost = item.district && target.district && item.district === target.district ? -0.5 : 0;
+      return (Number.isFinite(distance) ? distance : 999) + districtBoost;
+    }
+
+    function nearbyPostalListings(target, pool = listings) {
+      const sameDistrict = pool.filter((item) => item.district && target.district && item.district === target.district);
+      const nearbyByDistance = pool
+        .map((item) => ({ item, distance: distanceKm([Number(target.lat), Number(target.lng)], latLngForItem(item)) }))
+        .filter(({ distance }) => Number.isFinite(distance))
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 12)
+        .map(({ item }) => item);
+      return [...sameDistrict, ...nearbyByDistance].slice(0, 18);
     }
 
     function renderListingCards(items, target, emptyTitle, emptyCopy) {
@@ -2389,20 +2437,35 @@
       const showMap = Boolean(query || activeDistrict !== "All" || postalTarget?.address);
       resultMap.classList.toggle("open", showMap);
       if (!showMap) return;
-      document.getElementById("mapTitle").textContent = postalTarget?.address && !items.length ? "Address found" : `${items.length} available ${items.length === 1 ? "unit" : "units"}`;
+      document.getElementById("mapTitle").textContent = postalTarget?.address
+        ? `${items.length} nearby ${items.length === 1 ? "unit" : "units"}`
+        : `${items.length} available ${items.length === 1 ? "unit" : "units"}`;
       document.getElementById("mapSubtitle").textContent = postalTarget?.address ? postalTarget.address : query ? `Near “${search.value.trim()}”` : `${activeDistrict} results`;
-      if (postalTarget?.address && !items.length) {
-        if (window.L) renderLeafletPostalTarget(postalTarget);
-        else renderFallbackPostalTarget(postalTarget);
+      if (postalTarget?.address) {
+        if (window.L) renderLeafletMap(items, postalTarget);
+        else renderFallbackMap(items, postalTarget);
         return;
       }
       if (window.L) renderLeafletMap(items);
       else renderFallbackMap(items);
     }
 
-    function renderFallbackPostalTarget(target) {
+    function renderFallbackPostalTarget(target, items = []) {
       const point = target.map || { x: 50, y: 50 };
-      mapCanvas.innerHTML = `<button class="map-pin current" type="button" style="left:${point.x}%;top:${point.y}%">〒</button>`;
+      mapCanvas.innerHTML = [
+        `<button class="map-pin current" type="button" style="left:${point.x}%;top:${point.y}%">〒</button>`,
+        ...items.slice(0, 14).map((item) => {
+          const itemPoint = item.map || mapForIndex(item.title.length);
+          return `<button class="map-pin ${modeClass(item)}" type="button" data-title="${escapeHtml(item.title)}" style="left:${itemPoint.x}%;top:${itemPoint.y}%">$${Math.round(item.price / 100) / 10}k</button>`;
+        })
+      ].join("");
+      mapCanvas.querySelectorAll(".map-pin[data-title]").forEach((pin) => {
+        pin.addEventListener("click", (event) => {
+          event.stopPropagation();
+          const item = listings.find((listing) => listing.title === pin.dataset.title);
+          if (item) openListingDetail(item);
+        });
+      });
     }
 
     function renderLeafletPostalTarget(target) {
@@ -2422,7 +2485,11 @@
       }, 80);
     }
 
-    function renderFallbackMap(items) {
+    function renderFallbackMap(items, postalTarget = null) {
+      if (postalTarget?.address) {
+        renderFallbackPostalTarget(postalTarget, items);
+        return;
+      }
       mapCanvas.innerHTML = items.slice(0, 14).map((item) => {
         const point = item.map || mapForIndex(item.title.length);
         return `<button class="map-pin ${modeClass(item)}" type="button" data-title="${escapeHtml(item.title)}" style="left:${point.x}%;top:${point.y}%">$${Math.round(item.price / 100) / 10}k</button>`;
@@ -2436,7 +2503,7 @@
       });
     }
 
-    function renderLeafletMap(items) {
+    function renderLeafletMap(items, postalTarget = null) {
       if (!leafletMap) {
         leafletMap = L.map(mapCanvas, {
           center: [1.3521, 103.8198],
@@ -2455,6 +2522,17 @@
       }
       leafletLayer.clearLayers();
       const bounds = [];
+      if (postalTarget?.address) {
+        const targetLatLng = [Number(postalTarget.lat) || 1.3521, Number(postalTarget.lng) || 103.8198];
+        bounds.push(targetLatLng);
+        const targetIcon = L.divIcon({
+          className: "",
+          html: `<button class="map-price-marker current" type="button">〒</button>`,
+          iconSize: [44, 30],
+          iconAnchor: [22, 15]
+        });
+        L.marker(targetLatLng, { icon: targetIcon, title: postalTarget.address }).addTo(leafletLayer).bindPopup(`<div class="map-popup"><div><strong>${escapeHtml(postalTarget.address)}</strong></div></div>`);
+      }
       items.slice(0, 24).forEach((item) => {
         const latLng = latLngForItem(item);
         bounds.push(latLng);
@@ -2469,7 +2547,7 @@
       });
       window.setTimeout(() => {
         leafletMap.invalidateSize();
-        if (bounds.length > 1) leafletMap.fitBounds(bounds, { padding: [32, 32], maxZoom: 14 });
+        if (bounds.length > 1) leafletMap.fitBounds(bounds, { padding: [32, 32], maxZoom: postalTarget?.address ? 15 : 14 });
         else if (bounds.length === 1) leafletMap.setView(bounds[0], 15);
       }, 80);
     }
