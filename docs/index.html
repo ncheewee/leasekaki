@@ -9,6 +9,13 @@
   <meta property="og:description" content="The fastest way to list and complete a Singapore lease.">
   <meta property="og:image" content="./og.png">
   <meta name="theme-color" content="#102b36">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LeaseKaki">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
   <style>
     :root {
       --ink: #102b36;
@@ -804,75 +811,36 @@
     .insight-head small { color: var(--muted); font-size: 11px; font-weight: 800; text-align: right; }
     .chart-box {
       position: relative;
-      height: 156px;
-      padding: 18px 18px 24px 34px;
+      min-height: 226px;
+      padding: 12px;
       border: 1px solid rgba(16, 43, 54, .08);
       border-radius: 15px;
-      background:
-        linear-gradient(90deg, rgba(16, 43, 54, .07) 1px, transparent 1px) 34px 18px / calc((100% - 52px) / 4) calc(100% - 42px),
-        linear-gradient(0deg, rgba(16, 43, 54, .07) 1px, transparent 1px) 34px 18px / calc(100% - 52px) calc((100% - 42px) / 3),
-        rgba(255, 253, 248, .72);
+      background: rgba(255, 253, 248, .72);
       overflow: hidden;
     }
+    .chart-box canvas {
+      width: 100%;
+      height: 184px;
+      display: block;
+    }
+    .chart-caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 850;
+      line-height: 1.25;
+    }
+    .chart-caption span:first-child { padding-right: 8px; }
+    .chart-caption span:last-child { text-align: right; }
+    .chart-caption .current { color: var(--coral); }
     .chart-title {
       margin: 2px 0 -4px;
       color: var(--muted);
       font-size: 11px;
       font-weight: 900;
-    }
-    .axis-label {
-      position: absolute;
-      color: var(--muted);
-      font-size: 9px;
-      font-weight: 900;
-      letter-spacing: .02em;
-      text-transform: uppercase;
-      pointer-events: none;
-    }
-    .axis-label.y { left: 8px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center; }
-    .axis-label.x { left: 50%; bottom: 6px; transform: translateX(-50%); }
-    .axis-tick {
-      position: absolute;
-      color: rgba(49, 80, 91, .72);
-      font-size: 9px;
-      font-weight: 850;
-      pointer-events: none;
-    }
-    .axis-tick.y-max { left: 7px; top: 14px; }
-    .axis-tick.y-min { left: 7px; bottom: 22px; }
-    .axis-tick.x-start { left: 34px; bottom: 6px; }
-    .axis-tick.x-end { right: 12px; bottom: 6px; }
-    .trend-segment {
-      position: absolute;
-      height: 3px;
-      border-radius: 999px;
-      background: var(--mint-deep);
-      transform-origin: left center;
-      box-shadow: 0 0 0 1px rgba(255, 253, 248, .6);
-    }
-    .trend-point {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      border: 2px solid var(--paper);
-      border-radius: 999px;
-      background: var(--mint-deep);
-      transform: translate(-50%, -50%);
-      box-shadow: 0 4px 10px rgba(16, 43, 54, .15);
-    }
-    .scatter-plot i {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: rgba(49, 80, 91, .35);
-      transform: translate(-50%, -50%);
-    }
-    .scatter-plot i.current {
-      width: 15px;
-      height: 15px;
-      background: var(--coral);
-      box-shadow: 0 0 0 5px rgba(233, 120, 102, .18);
     }
     .insight-note { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.45; }
     .detail-actions {
@@ -1904,38 +1872,116 @@
       return `$${Number(value).toLocaleString()}`;
     }
 
+    function monthLabel(value) {
+      const raw = String(value || "");
+      if (raw.length !== 4) return raw || "Month";
+      const month = Number(raw.slice(0, 2));
+      const year = raw.slice(2);
+      const name = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][month - 1] || raw.slice(0, 2);
+      return `${name} '${year}`;
+    }
+
+    function prepareCanvas(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.round(rect.width * ratio));
+      canvas.height = Math.max(1, Math.round(rect.height * ratio));
+      const context = canvas.getContext("2d");
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      return { context, width: rect.width, height: rect.height };
+    }
+
+    function drawAxis(context, width, height, margins, labels) {
+      const plotWidth = width - margins.left - margins.right;
+      const plotHeight = height - margins.top - margins.bottom;
+      context.clearRect(0, 0, width, height);
+      context.font = "10px Inter, system-ui, sans-serif";
+      context.lineWidth = 1;
+      context.strokeStyle = "rgba(16, 43, 54, .10)";
+      context.fillStyle = "rgba(49, 80, 91, .72)";
+      for (let i = 0; i <= 3; i += 1) {
+        const y = margins.top + (plotHeight / 3) * i;
+        context.beginPath();
+        context.moveTo(margins.left, y);
+        context.lineTo(width - margins.right, y);
+        context.stroke();
+      }
+      for (let i = 0; i <= 4; i += 1) {
+        const x = margins.left + (plotWidth / 4) * i;
+        context.beginPath();
+        context.moveTo(x, margins.top);
+        context.lineTo(x, height - margins.bottom);
+        context.stroke();
+      }
+      context.strokeStyle = "rgba(16, 43, 54, .28)";
+      context.beginPath();
+      context.moveTo(margins.left, margins.top);
+      context.lineTo(margins.left, height - margins.bottom);
+      context.lineTo(width - margins.right, height - margins.bottom);
+      context.stroke();
+      context.fillStyle = "rgba(49, 80, 91, .82)";
+      context.textAlign = "right";
+      context.fillText(labels.yMax, margins.left - 8, margins.top + 4);
+      context.fillText(labels.yMin, margins.left - 8, height - margins.bottom);
+      context.textAlign = "left";
+      context.fillText(labels.yName, margins.left, 10);
+      context.fillText(labels.xStart, margins.left, height - 7);
+      context.textAlign = "right";
+      context.fillText(labels.xName, width - margins.right, 10);
+      context.fillText(labels.xEnd, width - margins.right, height - 7);
+    }
+
     function renderTrendLine(insight) {
-      const values = insight.trend.map((point) => typeof point === "number" ? point : point.value);
+      const values = insight.trend.map((point) => typeof point === "number" ? point : point.value).filter(Number.isFinite);
       const min = Math.min(...values);
       const max = Math.max(...values);
       const span = Math.max(1, max - min);
-      const points = values.map((value, index) => ({
-        x: 13 + (index / (values.length - 1)) * 78,
-        y: 80 - ((value - min) / span) * 54,
-        value
-      }));
-      const segments = points.slice(1).map((point, index) => {
-        const prev = points[index];
-        const dx = point.x - prev.x;
-        const dy = point.y - prev.y;
-        const length = Math.sqrt(dx * dx + dy * dy);
-        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-        return `<i class="trend-segment" style="left:${prev.x}%;top:${prev.y}%;width:${length}%;transform:rotate(${angle}deg)"></i>`;
-      }).join("");
+      const firstPoint = insight.trend[0];
+      const lastPoint = insight.trend[insight.trend.length - 1];
       document.getElementById("trendBars").innerHTML = `
-        <span class="axis-label y">Rent / mo</span>
-        <span class="axis-label x">Month</span>
-        <span class="axis-tick y-max">${moneyCompact(max)}</span>
-        <span class="axis-tick y-min">${moneyCompact(min)}</span>
-        <span class="axis-tick x-start">12m ago</span>
-        <span class="axis-tick x-end">Now</span>
-        ${segments}
-        ${points.map((point) => `<i class="trend-point" style="left:${point.x}%;top:${point.y}%" title="${moneyCompact(point.value)}"></i>`).join("")}
+        <canvas aria-hidden="true"></canvas>
+        <div class="chart-caption"><span>${monthLabel(firstPoint?.month)} → ${monthLabel(lastPoint?.month)}</span><span>${moneyCompact(min)}–${moneyCompact(max)}</span></div>
       `;
+      const canvas = document.querySelector("#trendBars canvas");
+      const { context, width, height } = prepareCanvas(canvas);
+      const margins = { top: 24, right: 24, bottom: 34, left: 58 };
+      const plotWidth = width - margins.left - margins.right;
+      const plotHeight = height - margins.top - margins.bottom;
+      const xFor = (index) => margins.left + (values.length === 1 ? plotWidth / 2 : (index / (values.length - 1)) * plotWidth);
+      const yFor = (value) => margins.top + (1 - (value - min) / span) * plotHeight;
+      drawAxis(context, width, height, margins, {
+        yMax: moneyCompact(max),
+        yMin: moneyCompact(min),
+        yName: "Rent/mo",
+        xStart: monthLabel(firstPoint?.month),
+        xEnd: monthLabel(lastPoint?.month),
+        xName: "Month"
+      });
+      context.lineWidth = 3;
+      context.lineJoin = "round";
+      context.lineCap = "round";
+      context.strokeStyle = "#1c6b57";
+      context.beginPath();
+      values.forEach((value, index) => {
+        const x = xFor(index);
+        const y = yFor(value);
+        if (index === 0) context.moveTo(x, y);
+        else context.lineTo(x, y);
+      });
+      context.stroke();
+      values.forEach((value, index) => {
+        context.beginPath();
+        context.fillStyle = index === values.length - 1 ? "#ff735f" : "#1c6b57";
+        context.strokeStyle = "#fffdf8";
+        context.lineWidth = 2;
+        context.arc(xFor(index), yFor(value), index === values.length - 1 ? 5 : 3.5, 0, Math.PI * 2);
+        context.fill();
+        context.stroke();
+      });
     }
 
     function renderScatterPlot(item, insight) {
-      const comps = insight.comps;
+      const comps = insight.comps.filter((point) => Number.isFinite(point.rent) && Number.isFinite(point.size));
       const rents = comps.map((point) => point.rent).concat(item.price);
       const sizes = comps.map((point) => point.size).concat(72);
       const minRent = Math.min(...rents);
@@ -1944,21 +1990,38 @@
       const maxSize = Math.max(...sizes);
       const rentSpan = Math.max(1, maxRent - minRent);
       const sizeSpan = Math.max(1, maxSize - minSize);
-      const dot = (size, rent, current = false) => {
-        const x = 15 + ((size - minSize) / sizeSpan) * 74;
-        const y = 78 - ((rent - minRent) / rentSpan) * 56;
-        return `<i class="${current ? "current" : ""}" style="left:${x}%;top:${y}%" title="${moneyCompact(rent)} · ${Math.round(size)} sqm"></i>`;
-      };
       document.getElementById("scatterPlot").innerHTML = `
-        <span class="axis-label y">Rent / mo</span>
-        <span class="axis-label x">Comparable size / area band</span>
-        <span class="axis-tick y-max">${moneyCompact(maxRent)}</span>
-        <span class="axis-tick y-min">${moneyCompact(minRent)}</span>
-        <span class="axis-tick x-start">${Math.round(minSize)}sqm</span>
-        <span class="axis-tick x-end">${Math.round(maxSize)}sqm</span>
-        ${comps.map((point) => dot(point.size, point.rent)).join("")}
-        ${dot(72, item.price, true)}
+        <canvas aria-hidden="true"></canvas>
+        <div class="chart-caption"><span>${Math.round(minSize)}–${Math.round(maxSize)} sqm</span><span class="current">● current listing</span></div>
       `;
+      const canvas = document.querySelector("#scatterPlot canvas");
+      const { context, width, height } = prepareCanvas(canvas);
+      const margins = { top: 24, right: 24, bottom: 34, left: 58 };
+      const plotWidth = width - margins.left - margins.right;
+      const plotHeight = height - margins.top - margins.bottom;
+      const xFor = (size) => margins.left + ((size - minSize) / sizeSpan) * plotWidth;
+      const yFor = (rent) => margins.top + (1 - (rent - minRent) / rentSpan) * plotHeight;
+      drawAxis(context, width, height, margins, {
+        yMax: moneyCompact(maxRent),
+        yMin: moneyCompact(minRent),
+        yName: "Rent/mo",
+        xStart: `${Math.round(minSize)}sqm`,
+        xEnd: `${Math.round(maxSize)}sqm`,
+        xName: "Size"
+      });
+      comps.slice(0, 90).forEach((point) => {
+        context.beginPath();
+        context.fillStyle = "rgba(49, 80, 91, .34)";
+        context.arc(xFor(point.size), yFor(point.rent), 3, 0, Math.PI * 2);
+        context.fill();
+      });
+      context.beginPath();
+      context.fillStyle = "#ff735f";
+      context.strokeStyle = "#fffdf8";
+      context.lineWidth = 3;
+      context.arc(xFor(72), yFor(item.price), 6, 0, Math.PI * 2);
+      context.fill();
+      context.stroke();
     }
 
     function openChat(item) {
@@ -2196,6 +2259,11 @@
     renderListings();
     loadUraInsights();
     loadListings();
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>
