@@ -26,6 +26,8 @@
       --mint: #bbf1d1;
       --mint-deep: #1c6b57;
       --coral: #ff735f;
+      --good: #16845d;
+      --bad: #d9483f;
       --line: #dcd8cf;
       --muted: #687a80;
       --shadow: 0 18px 50px rgba(16, 43, 54, .12);
@@ -697,7 +699,7 @@
       right: 10px;
       bottom: 10px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 5px;
       padding: 6px;
       border: 1px solid var(--line);
@@ -712,7 +714,7 @@
       border-radius: 15px;
       background: transparent;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
     }
     .nav button.active { background: var(--mint); color: var(--ink); }
@@ -737,8 +739,9 @@
       z-index: 40;
       inset: 0;
       display: grid;
-      align-items: end;
-      background: rgba(8, 19, 24, .84);
+      align-items: center;
+      padding: 16px;
+      background: rgba(4, 13, 18, .9);
       opacity: 0;
       pointer-events: none;
       transition: opacity .18s ease;
@@ -748,13 +751,14 @@
       pointer-events: auto;
     }
     .detail-sheet {
-      width: min(100vw, 980px);
-      height: min(100dvh, 900px);
-      max-height: 100dvh;
+      width: min(90vw, 640px);
+      height: min(90dvh, 760px);
+      max-height: 90dvh;
+      margin: auto;
       overflow: auto;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
-      border-radius: 24px 24px 0 0;
+      border-radius: 24px;
       background: var(--paper);
       box-shadow: 0 -18px 50px rgba(16, 43, 54, .18);
       transform: translateY(18px);
@@ -830,8 +834,23 @@
       border-radius: 18px;
       background: var(--cream);
     }
-    .insight-head { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
-    .insight-head strong { font-size: 16px; letter-spacing: -.03em; }
+    .insight-head { display: flex; justify-content: flex-start; gap: 10px; align-items: start; }
+    .chip-label {
+      width: max-content;
+      display: inline-grid;
+      place-items: center;
+      min-height: 25px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--mint-deep);
+      color: var(--paper);
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: -.01em;
+    }
+    .chip-label.graph { margin: 4px 0 -2px; background: var(--ink); }
+    .signal-good { color: var(--good); font-weight: 950; }
+    .signal-bad { color: var(--bad); font-weight: 950; }
     .insight-list {
       margin: 0;
       padding-left: 18px;
@@ -854,25 +873,8 @@
       height: 184px;
       display: block;
     }
-    .chart-caption {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 7px;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 850;
-      line-height: 1.25;
-    }
-    .chart-caption span:first-child { padding-right: 8px; }
-    .chart-caption span:last-child { text-align: right; }
-    .chart-caption .current { color: var(--coral); }
-    .chart-title {
-      margin: 4px 0 -4px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 900;
-    }
+    .chart-caption { display: none; }
+    .chart-title { margin: 4px 0 -4px; }
     .insight-note { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.45; }
     .detail-actions {
       display: grid;
@@ -903,6 +905,11 @@
       box-shadow: var(--shadow);
       transform: translateY(14px);
       transition: transform .18s ease;
+    }
+    .task-window.viewing-window {
+      position: relative;
+      grid-template-rows: 1fr;
+      width: min(560px, 100%);
     }
     .window-backdrop.open .task-window { transform: translateY(0); }
     .window-head {
@@ -956,7 +963,22 @@
       display: grid;
       gap: 14px;
       overflow: auto;
-      padding: 16px;
+      padding: 18px;
+    }
+    .viewing-window .viewing-body { padding-top: 20px; }
+    .floating-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 1;
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, .9);
+      color: var(--ink);
+      font-size: 20px;
+      box-shadow: 0 8px 20px rgba(16, 43, 54, .1);
     }
     .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .slot {
@@ -979,6 +1001,65 @@
       line-height: 1.45;
     }
     .request-status strong { display: block; color: var(--ink); margin-bottom: 3px; }
+    .view-form {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 253, 248, .72);
+    }
+    .view-form.two { grid-template-columns: 1fr; }
+    .center-actions {
+      display: flex;
+      justify-content: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+    .center-actions .button { min-width: 190px; }
+    .confirm-card {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 20px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .confirm-card h3 { margin: 0; font-size: 20px; letter-spacing: -.04em; }
+    .confirm-card p { margin: 0; color: var(--ink-soft); line-height: 1.45; }
+    .view-card {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 20px;
+      background: var(--paper);
+      box-shadow: 0 9px 28px rgba(16, 43, 54, .07);
+    }
+    .view-card-head {
+      display: grid;
+      grid-template-columns: 62px 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .view-card img { width: 62px; height: 54px; border-radius: 14px; object-fit: cover; }
+    .view-card h3 { margin: 0; font-size: 15px; line-height: 1.22; letter-spacing: -.02em; }
+    .view-card p { margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.35; }
+    .status-chip {
+      width: max-content;
+      max-width: 110px;
+      border-radius: 999px;
+      padding: 6px 8px;
+      background: var(--cream);
+      color: var(--ink-soft);
+      font-size: 10px;
+      font-weight: 950;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .status-chip.confirmed { background: var(--mint); color: var(--mint-deep); }
+    .status-chip.cancelled { background: rgba(217, 72, 63, .12); color: var(--bad); }
+    .status-chip.countered { background: rgba(255, 115, 95, .14); color: var(--coral); }
+    .view-card-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .inline-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1005,9 +1086,9 @@
       .toast { left: auto; right: 24px; bottom: 24px; width: 320px; }
       .detail-backdrop { align-items: center; padding: 28px; }
       .detail-sheet {
-        width: min(94vw, 1040px);
-        height: min(92vh, 860px);
-        max-height: 92vh;
+        width: min(90vw, 860px);
+        height: min(90vh, 760px);
+        max-height: 90vh;
         margin: auto;
         display: grid;
         grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
@@ -1176,6 +1257,19 @@
         </div>
         <section id="chatList" class="conversation-list"></section>
       </div>
+
+      <div id="views" class="view">
+        <section class="hero">
+          <span class="eyebrow">Viewing desk</span>
+          <h1>Requests,<br>kept moving.</h1>
+          <p>Track every viewing request, see owner or agent replies, and keep changes/cancellations out of chat chaos.</p>
+        </section>
+        <div class="section-heading">
+          <div><span class="eyebrow" style="color:var(--mint-deep)">Viewing workflow</span><h2>Requested visits</h2></div>
+          <span id="viewsCount" class="count">0 views</span>
+        </div>
+        <section id="viewsList" class="conversation-list"></section>
+      </div>
     </section>
   </main>
 
@@ -1198,12 +1292,12 @@
         <p id="detailCopy" style="margin:0;color:var(--ink-soft);line-height:1.55"></p>
         <section class="insight-card" aria-label="AI insights">
           <div class="insight-head">
-            <strong>AI insights</strong>
+            <strong class="chip-label">AI Insights</strong>
           </div>
           <ul id="insightCopy" class="insight-list"></ul>
-          <div class="chart-title">Price trend</div>
+          <div class="chart-title"><span class="chip-label graph">Price trend</span></div>
           <div id="trendBars" class="chart-box trend-line" aria-label="Transaction price trend over 12 months"></div>
-          <div class="chart-title">Nearby listings</div>
+          <div class="chart-title"><span class="chip-label graph">Nearby listings</span></div>
           <div id="scatterPlot" class="chart-box scatter-plot" aria-label="Comparable offering prices in neighbourhood"></div>
         </section>
         <div class="detail-actions">
@@ -1229,25 +1323,32 @@
   </section>
 
   <section id="viewWindow" class="window-backdrop" aria-hidden="true">
-    <article class="task-window" role="dialog" aria-modal="true" aria-labelledby="viewTitle">
-      <header class="window-head">
-        <div><h3 id="viewTitle">Arrange viewing</h3><small id="viewSubtitle">Pick a slot that fits the owner preferences</small></div>
-        <button id="viewClose" class="window-close" type="button" aria-label="Close viewing request">×</button>
-      </header>
+    <article class="task-window viewing-window" role="dialog" aria-modal="true" aria-labelledby="viewTitle">
+      <button id="viewClose" class="floating-close" type="button" aria-label="Close viewing request">×</button>
       <div class="viewing-body">
+        <h3 id="viewTitle" class="hidden">Arrange viewing</h3>
         <div id="requestStatus" class="request-status hidden"></div>
         <div class="owner-note" id="ownerNote">Owner prefers weekday evenings or Saturday late morning. Agent-listed homes usually confirm within half a day.</div>
-        <div>
-          <span class="eyebrow" style="color:var(--mint-deep)">Choose date</span>
-          <div id="dateSlots" class="slot-grid" style="margin-top:8px"></div>
+        <div class="view-form two">
+          <label>Preferred date/time<input id="preferredSlot" type="datetime-local"></label>
+          <label>Alternative date/time<input id="alternativeSlot" type="datetime-local"></label>
         </div>
-        <div>
-          <span class="eyebrow" style="color:var(--mint-deep)">Choose time</span>
-          <div id="timeSlots" class="slot-grid" style="margin-top:8px"></div>
-        </div>
-        <div class="inline-actions">
+        <div class="center-actions">
           <button id="cancelViewing" class="button secondary hidden" type="button">Cancel request</button>
           <button id="requestViewing" class="button coral" type="button">Request viewing</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section id="confirmWindow" class="window-backdrop" aria-hidden="true">
+    <article class="task-window" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="confirm-card">
+        <h3 id="confirmTitle">Confirm viewing request?</h3>
+        <p id="confirmCopy"></p>
+        <div class="inline-actions">
+          <button id="confirmBack" class="button secondary" type="button">Edit</button>
+          <button id="confirmViewing" class="button coral" type="button">Confirm request</button>
         </div>
       </div>
     </article>
@@ -1257,6 +1358,7 @@
     <button class="active" type="button" data-view="browse"><span>⌂</span>Explore</button>
     <button type="button" data-view="liked"><span>♥</span>Liked</button>
     <button type="button" data-view="chats"><span>◐</span>Chats</button>
+    <button type="button" data-view="views"><span>◷</span>Views</button>
   </nav>
   <button id="toast" class="toast hidden" type="button" aria-label="Dismiss message"></button>
 
@@ -1313,10 +1415,14 @@
     const detailClose = document.getElementById("detailClose");
     const chatWindow = document.getElementById("chatWindow");
     const viewWindow = document.getElementById("viewWindow");
+    const confirmWindow = document.getElementById("confirmWindow");
+    const preferredSlotInput = document.getElementById("preferredSlot");
+    const alternativeSlotInput = document.getElementById("alternativeSlot");
     const publishButton = document.querySelector("[data-publish]");
     let selectedListing = null;
     let selectedViewDate = "";
     let selectedViewTime = "";
+    let pendingViewingDraft = null;
     let leafletMap = null;
     let leafletLayer = null;
     let navigationClosing = false;
@@ -1359,6 +1465,7 @@
       document.querySelectorAll(".nav button").forEach((button) => button.classList.toggle("active", button.dataset.view === name));
       if (name === "liked") renderLikedListings();
       if (name === "chats") renderChatList();
+      if (name === "views") renderViewsList();
       accountMenu.classList.remove("open");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -1375,7 +1482,7 @@
     window.addEventListener("popstate", closeTopLayerFromHistory);
     window.addEventListener("touchstart", (event) => {
       const touch = event.touches[0];
-      const openLayer = detailBackdrop.classList.contains("open") || chatWindow.classList.contains("open") || viewWindow.classList.contains("open");
+      const openLayer = detailBackdrop.classList.contains("open") || chatWindow.classList.contains("open") || viewWindow.classList.contains("open") || confirmWindow.classList.contains("open");
       if (!openLayer) {
         edgeSwipeStart = null;
         return;
@@ -1585,6 +1692,8 @@
 
     function closeTopLayerFromHistory() {
       navigationClosing = true;
+      if (confirmWindow.classList.contains("open")) closeConfirm(true);
+      else
       if (viewWindow.classList.contains("open")) closeViewing(true);
       else if (chatWindow.classList.contains("open")) closeChat(true);
       else if (detailBackdrop.classList.contains("open")) closeListingDetail(true);
@@ -1696,6 +1805,7 @@
       renderMap(visible, query);
       renderLikedListings();
       renderChatList();
+      renderViewsList();
     }
 
     function getVisibleListings(query = "") {
@@ -1999,9 +2109,24 @@
         `Asking rent is ${insight.label}; about ${comparison} the $${insight.average.toLocaleString()}/mo benchmark.`,
         `${forecast.label} expected over the next 3 months based on recent trend shape.`,
         `${insight.sampleCount ? `${insight.sampleCount.toLocaleString()} nearby URA rental records` : "Mock benchmark"} behind this estimate.`
-      ].map((line) => `<li>${escapeHtml(line)}</li>`).join("");
+      ].map((line) => `<li>${highlightInsightLine(line)}</li>`).join("");
       renderTrendLine(insight, forecast);
       renderScatterPlot(item, insight);
+    }
+
+    function highlightInsightLine(line) {
+      let safe = escapeHtml(line);
+      const replacements = [
+        [/near average/g, "signal-good"],
+        [/below average/g, "signal-good"],
+        [/\d+(?:\.\d+)?% drop expected/g, "signal-good"],
+        [/above average/g, "signal-bad"],
+        [/\d+(?:\.\d+)?% rise expected/g, "signal-bad"]
+      ];
+      replacements.forEach(([pattern, className]) => {
+        safe = safe.replace(pattern, (match) => `<span class="${className}">${match}</span>`);
+      });
+      return safe;
     }
 
     function moneyCompact(value) {
@@ -2092,7 +2217,7 @@
       const pct = ((predicted[predicted.length - 1].value - last.value) / last.value) * 100;
       const direction = Math.abs(pct) < 1 ? "stable" : pct > 0 ? "rise" : "drop";
       const label = direction === "stable" ? "Stable trend" : `${Math.abs(pct).toFixed(1)}% ${direction}`;
-      return { predicted, pct, label };
+      return { predicted, pct, label, direction };
     }
 
     function prepareCanvas(canvas) {
@@ -2158,6 +2283,17 @@
       }
     }
 
+    function roundedRect(context, x, y, width, height, radius) {
+      const r = Math.min(radius, width / 2, height / 2);
+      context.beginPath();
+      context.moveTo(x + r, y);
+      context.arcTo(x + width, y, x + width, y + height, r);
+      context.arcTo(x + width, y + height, x, y + height, r);
+      context.arcTo(x, y + height, x, y, r);
+      context.arcTo(x, y, x + width, y, r);
+      context.closePath();
+    }
+
     function renderTrendLine(insight, forecast = buildTrendForecast(insight.trend)) {
       const actualPoints = insight.trend.map((point, index) => ({
         month: typeof point === "number" ? "" : point.month,
@@ -2174,7 +2310,6 @@
       const finalPoint = allPoints[allPoints.length - 1];
       document.getElementById("trendBars").innerHTML = `
         <canvas aria-hidden="true"></canvas>
-        <div class="chart-caption"><span>${monthLabel(firstPoint?.month)} → ${monthLabel(finalPoint?.month)}</span><span>${forecast.label} expected</span></div>
       `;
       const canvas = document.querySelector("#trendBars canvas");
       const { context, width, height } = prepareCanvas(canvas);
@@ -2227,9 +2362,26 @@
         context.fill();
         context.stroke();
         context.font = "11px Inter, system-ui, sans-serif";
-        context.textAlign = "right";
-        context.fillStyle = "#ff735f";
-        context.fillText(forecast.label, Math.min(width - 8, x), Math.max(12, y - 10));
+        const labelText = `${forecast.label} expected`;
+        const labelWidth = Math.min(132, context.measureText(labelText).width + 18);
+        const labelHeight = 24;
+        const labelX = width - labelWidth - 10;
+        const labelY = margins.top + 8;
+        context.save();
+        context.strokeStyle = "rgba(16, 43, 54, .22)";
+        context.lineWidth = 1;
+        context.beginPath();
+        context.moveTo(x, y);
+        context.lineTo(labelX + labelWidth * .58, labelY + labelHeight);
+        context.stroke();
+        context.fillStyle = forecast.direction === "rise" ? "#d9483f" : "#16845d";
+        roundedRect(context, labelX, labelY, labelWidth, labelHeight, 12);
+        context.fill();
+        context.fillStyle = "#fffdf8";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(labelText, labelX + labelWidth / 2, labelY + labelHeight / 2);
+        context.restore();
       }
     }
 
@@ -2245,7 +2397,6 @@
       const sizeSpan = Math.max(1, maxSize - minSize);
       document.getElementById("scatterPlot").innerHTML = `
         <canvas aria-hidden="true"></canvas>
-        <div class="chart-caption"><span>${Math.round(minSize)}–${Math.round(maxSize)} sqm</span><span>${moneyAxis(minRent)}–${moneyAxis(maxRent)}</span></div>
       `;
       const canvas = document.querySelector("#scatterPlot canvas");
       const { context, width, height } = prepareCanvas(canvas);
@@ -2324,16 +2475,30 @@
       });
     }
 
+    function formatSlot(value) {
+      if (!value) return "Not provided";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return date.toLocaleString("en-SG", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+    }
+
+    function defaultPreferredSlot(offsetDays = 2, hour = 19) {
+      const date = new Date("2026-07-18T00:00:00+08:00");
+      date.setDate(date.getDate() + offsetDays);
+      date.setHours(hour, 0, 0, 0);
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 16);
+    }
+
     function openViewing(item) {
       selectedListing = item;
       const existing = viewingRequests[item.title];
-      selectedViewDate = existing?.date || "";
-      selectedViewTime = existing?.time || "";
+      selectedViewDate = existing?.preferred || existing?.date || "";
+      selectedViewTime = existing?.alternative || "";
       document.getElementById("viewTitle").textContent = `View: ${item.title}`;
-      document.getElementById("viewSubtitle").textContent = `${item.lister} · ${item.mode} · ${item.area}`;
       document.getElementById("ownerNote").textContent = item.lister === "Owner"
-        ? "Owner prefers weekday evenings and Saturday late morning. Pick a slot and they can confirm or suggest an alternative."
-        : "Agent can coordinate weekday lunch, evening, or Saturday slots. Request one clean slot first to keep the follow-up simple.";
+        ? "Owner prefers weekday evenings and Saturday late morning. Send one preferred slot and one alternative, so they can accept or propose a clean change."
+        : "Agent can coordinate weekday lunch, evening, or Saturday slots. Send a preferred slot plus a backup to reduce back-and-forth.";
       renderViewing();
       viewWindow.classList.add("open");
       viewWindow.setAttribute("aria-hidden", "false");
@@ -2345,10 +2510,9 @@
       const existing = viewingRequests[selectedListing?.title];
       const statusBox = document.getElementById("requestStatus");
       statusBox.classList.toggle("hidden", !existing);
-      if (existing) statusBox.innerHTML = `<strong>Viewing ${escapeHtml(existing.status)}</strong>${escapeHtml(existing.dateLabel)} at ${escapeHtml(existing.time)}. You can change the slot or cancel if plans move.`;
-      document.getElementById("dateSlots").innerHTML = nextDates().map((date) => `<button class="slot ${selectedViewDate === date.value ? "selected" : ""}" type="button" data-date="${date.value}" data-label="${date.label}, ${date.sub}">${date.label}<small>${date.sub}</small></button>`).join("");
-      const times = ["10:30 AM", "12:30 PM", "2:30 PM", "6:30 PM", "7:30 PM", "8:30 PM"];
-      document.getElementById("timeSlots").innerHTML = times.map((time) => `<button class="slot ${selectedViewTime === time ? "selected" : ""}" type="button" data-time="${time}">${time}<small>${time.includes("PM") && !time.startsWith("12") ? "Evening" : "Day"}</small></button>`).join("");
+      if (existing) statusBox.innerHTML = `<strong>Viewing ${escapeHtml(existing.status)}</strong>Preferred: ${escapeHtml(formatSlot(existing.preferred || existing.date))}. Alternative: ${escapeHtml(formatSlot(existing.alternative))}.`;
+      preferredSlotInput.value = existing?.preferred || defaultPreferredSlot(2, 19);
+      alternativeSlotInput.value = existing?.alternative || defaultPreferredSlot(4, 11);
       document.getElementById("cancelViewing").classList.toggle("hidden", !existing);
       document.getElementById("requestViewing").textContent = existing ? "Update request" : "Request viewing";
     }
@@ -2363,10 +2527,129 @@
       setBodyLock();
     }
 
+    function closeConfirm(fromHistory = false) {
+      if (!fromHistory && confirmWindow.classList.contains("open") && history.state?.leasekakiLayer === "confirm-viewing") {
+        history.back();
+        return;
+      }
+      confirmWindow.classList.remove("open");
+      confirmWindow.setAttribute("aria-hidden", "true");
+      setBodyLock();
+    }
+
     function setBodyLock() {
-      const locked = detailBackdrop.classList.contains("open") || chatWindow.classList.contains("open") || viewWindow.classList.contains("open");
+      const locked = detailBackdrop.classList.contains("open") || chatWindow.classList.contains("open") || viewWindow.classList.contains("open") || confirmWindow.classList.contains("open");
       document.documentElement.classList.toggle("modal-open", locked);
       document.body.classList.toggle("modal-open", locked);
+    }
+
+    function buildViewingDraft() {
+      if (!selectedListing) return null;
+      const preferred = preferredSlotInput.value;
+      const alternative = alternativeSlotInput.value;
+      if (!preferred || !alternative) {
+        showToast("Add both preferred and alternative slots");
+        return null;
+      }
+      return {
+        status: viewingRequests[selectedListing.title]?.status === "confirmed" ? "requested" : "requested",
+        preferred,
+        alternative,
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    function openViewingConfirm() {
+      pendingViewingDraft = buildViewingDraft();
+      if (!pendingViewingDraft || !selectedListing) return;
+      document.getElementById("confirmCopy").innerHTML = `Send request for <strong>${escapeHtml(selectedListing.title)}</strong>?<br>Preferred: <strong>${escapeHtml(formatSlot(pendingViewingDraft.preferred))}</strong><br>Alternative: <strong>${escapeHtml(formatSlot(pendingViewingDraft.alternative))}</strong>`;
+      confirmWindow.classList.add("open");
+      confirmWindow.setAttribute("aria-hidden", "false");
+      pushLayerState("confirm-viewing", selectedListing.title);
+      setBodyLock();
+    }
+
+    function saveViewingRequest(draft = pendingViewingDraft) {
+      if (!selectedListing || !draft) return;
+      viewingRequests[selectedListing.title] = {
+        ...viewingRequests[selectedListing.title],
+        ...draft,
+        listingTitle: selectedListing.title,
+        lister: selectedListing.lister,
+        ownerNote: selectedListing.lister === "Owner" ? "Awaiting owner confirmation" : "Awaiting agent confirmation"
+      };
+      writeStorage("leasekaki-viewings", viewingRequests);
+      renderViewing();
+      renderListings();
+      renderChatList();
+      renderViewsList();
+      confirmWindow.classList.remove("open");
+      confirmWindow.setAttribute("aria-hidden", "true");
+      closeViewing(true);
+      closeListingDetail(true);
+      history.replaceState({ leasekakiLayer: "root" }, "", window.location.pathname + window.location.search);
+      setView("views");
+      setBodyLock();
+      showToast("Viewing request sent");
+    }
+
+    function setViewingStatus(title, status) {
+      const request = viewingRequests[title];
+      if (!request) return;
+      request.status = status;
+      request.updatedAt = new Date().toISOString();
+      if (status === "countered") {
+        const fallback = request.alternative || defaultPreferredSlot(5, 18);
+        request.agentNote = `Suggested change: ${formatSlot(fallback)} works better.`;
+      }
+      if (status === "confirmed") request.agentNote = `Confirmed for ${formatSlot(request.preferred || request.date)}.`;
+      if (status === "cancelled") request.agentNote = "Viewing cancelled. Chat to reopen or suggest a new slot.";
+      writeStorage("leasekaki-viewings", viewingRequests);
+      renderViewsList();
+      renderListings();
+      renderChatList();
+      showToast(`Viewing ${status}`);
+    }
+
+    function renderViewsList() {
+      const rows = Object.entries(viewingRequests).map(([title, request]) => ({
+        item: listings.find((listing) => listing.title === title),
+        request
+      })).filter((row) => row.item);
+      document.getElementById("viewsCount").textContent = `${rows.length} ${rows.length === 1 ? "view" : "views"}`;
+      document.getElementById("viewsList").innerHTML = rows.length ? rows.map(({ item, request }) => {
+        const status = request.status || "requested";
+        return `<article class="view-card" data-title="${escapeHtml(item.title)}">
+          <div class="view-card-head">
+            <img src="${escapeHtml((item.images && item.images[0]) || item.image)}" alt="">
+            <span>
+              <h3>${escapeHtml(item.title)}</h3>
+              <p>Preferred: ${escapeHtml(formatSlot(request.preferred || request.date))}<br>Alternative: ${escapeHtml(formatSlot(request.alternative))}</p>
+            </span>
+            <strong class="status-chip ${escapeHtml(status)}">${escapeHtml(status)}</strong>
+          </div>
+          <p>${escapeHtml(request.agentNote || request.ownerNote || "Owner/agent can accept, suggest a change, or cancel from here.")}</p>
+          <div class="view-card-actions">
+            <button class="button secondary" type="button" data-view-action="chat">Chat</button>
+            <button class="button secondary" type="button" data-view-action="change">Change</button>
+            <button class="button" type="button" data-view-action="accept">Accept</button>
+            <button class="button secondary" type="button" data-view-action="counter">Suggest change</button>
+            <button class="button secondary" type="button" data-view-action="cancel">Cancel</button>
+          </div>
+        </article>`;
+      }).join("") : `<div class="empty-state"><strong>No viewings yet.</strong>Arrange a viewing from any listing details page. This tab becomes the shared request tracker.</div>`;
+      document.querySelectorAll(".view-card").forEach((card) => {
+        const item = listings.find((listing) => listing.title === card.dataset.title);
+        card.addEventListener("click", (event) => {
+          const action = event.target.closest("[data-view-action]")?.dataset.viewAction;
+          if (!action || !item) return;
+          if (action === "chat") openChat(item);
+          if (action === "change") openViewing(item);
+          if (action === "accept") setViewingStatus(item.title, "confirmed");
+          if (action === "counter") setViewingStatus(item.title, "countered");
+          if (action === "cancel") setViewingStatus(item.title, "cancelled");
+        });
+      });
     }
 
     chips.forEach((chip) => {
@@ -2467,57 +2750,37 @@
       input.value = "";
       renderChat();
       renderChatList();
+      renderViewsList();
       showToast("Message saved in chat");
     });
     document.getElementById("viewClose").addEventListener("click", closeViewing);
     viewWindow.addEventListener("click", (event) => {
       if (event.target === viewWindow) closeViewing();
     });
-    document.getElementById("dateSlots").addEventListener("click", (event) => {
-      const slot = event.target.closest("[data-date]");
-      if (!slot) return;
-      selectedViewDate = slot.dataset.date;
-      renderViewing();
-    });
-    document.getElementById("timeSlots").addEventListener("click", (event) => {
-      const slot = event.target.closest("[data-time]");
-      if (!slot) return;
-      selectedViewTime = slot.dataset.time;
-      renderViewing();
-    });
-    document.getElementById("requestViewing").addEventListener("click", () => {
-      if (!selectedListing) return;
-      if (!selectedViewDate || !selectedViewTime) {
-        showToast("Choose a date and time first");
-        return;
-      }
-      const selectedDate = nextDates().find((date) => date.value === selectedViewDate);
-      viewingRequests[selectedListing.title] = {
-        status: "requested",
-        date: selectedViewDate,
-        dateLabel: selectedDate ? `${selectedDate.label}, ${selectedDate.sub}` : selectedViewDate,
-        time: selectedViewTime,
-        updatedAt: new Date().toISOString()
-      };
-      writeStorage("leasekaki-viewings", viewingRequests);
-      renderViewing();
-      renderListings();
-      renderChatList();
-      showToast("Viewing requested");
+    document.getElementById("requestViewing").addEventListener("click", openViewingConfirm);
+    document.getElementById("confirmViewing").addEventListener("click", () => saveViewingRequest());
+    document.getElementById("confirmBack").addEventListener("click", closeConfirm);
+    confirmWindow.addEventListener("click", (event) => {
+      if (event.target === confirmWindow) closeConfirm();
     });
     document.getElementById("cancelViewing").addEventListener("click", () => {
       if (!selectedListing) return;
-      delete viewingRequests[selectedListing.title];
+      if (viewingRequests[selectedListing.title]) {
+        viewingRequests[selectedListing.title].status = "cancelled";
+        viewingRequests[selectedListing.title].agentNote = "Viewing cancelled. Chat to reopen or suggest a new slot.";
+      }
       writeStorage("leasekaki-viewings", viewingRequests);
       selectedViewDate = "";
       selectedViewTime = "";
       renderViewing();
       renderListings();
       renderChatList();
+      renderViewsList();
       showToast("Viewing request cancelled");
     });
 
     renderListings();
+    renderViewsList();
     loadUraInsights();
     loadListings();
     if ("serviceWorker" in navigator) {
