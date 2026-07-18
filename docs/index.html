@@ -148,48 +148,31 @@
       line-height: 1.55;
     }
 
-    .snap-card {
-      width: calc(100% - 32px);
-      margin: -28px 16px 0;
-      border: 0;
-      border-radius: 20px;
-      padding: 16px;
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 12px;
-      align-items: center;
-      background: var(--mint);
-      color: var(--ink);
-      text-align: left;
-      box-shadow: var(--shadow);
-    }
-    .snap-icon {
-      width: 46px;
-      height: 46px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: var(--ink);
-      color: var(--mint);
-      font-size: 24px;
-    }
-    .snap-card small { display: block; opacity: .62; }
-    .snap-card strong { display: block; }
-
     .search {
       margin: 16px;
-      min-height: 58px;
       display: grid;
-      grid-template-columns: auto 1fr;
-      align-items: center;
       gap: 10px;
       padding: 0 16px;
       border: 1px solid var(--line);
       border-radius: 16px;
       background: var(--paper);
       box-shadow: 0 10px 26px rgba(16, 43, 54, .07);
+      transition: border-color .16s ease, box-shadow .16s ease, padding .16s ease;
     }
-    .search span {
+    .search.expanded {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      border-color: rgba(28, 107, 87, .35);
+      box-shadow: 0 18px 42px rgba(16, 43, 54, .12);
+    }
+    .search-row {
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+    .search-row span {
       color: var(--ink-soft);
       font-size: 22px;
       font-weight: 900;
@@ -205,6 +188,28 @@
       font-weight: 700;
     }
     .search input::placeholder { color: rgba(49, 80, 91, .66); }
+    .search-suggestions {
+      display: none;
+      gap: 7px;
+      padding: 2px 0 4px;
+    }
+    .search.expanded .search-suggestions { display: grid; }
+    .suggestion {
+      min-height: 44px;
+      border: 0;
+      border-radius: 14px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 0 10px;
+      background: var(--cream);
+      color: var(--ink);
+      text-align: left;
+    }
+    .suggestion b { font-size: 13px; }
+    .suggestion small { color: var(--muted); font-size: 11px; font-weight: 850; }
+    .suggestion i { font-style: normal; color: var(--mint-deep); font-weight: 950; }
     .map-card {
       display: none;
       margin: 4px 16px 12px;
@@ -300,7 +305,7 @@
       gap: 8px;
       padding: 0 16px 10px;
     }
-    .tool-select {
+    .tool-select, .district-picker-button {
       min-height: 42px;
       border: 1px solid var(--line);
       border-radius: 14px;
@@ -311,6 +316,42 @@
       font-weight: 800;
       box-shadow: 0 8px 18px rgba(16, 43, 54, .05);
     }
+    .district-picker { position: relative; }
+    .district-picker-button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+    }
+    .district-menu {
+      position: absolute;
+      z-index: 18;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      max-height: 288px;
+      display: none;
+      overflow: auto;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .district-picker.open .district-menu { display: grid; gap: 5px; }
+    .district-option {
+      min-height: 38px;
+      border: 0;
+      border-radius: 12px;
+      padding: 0 10px;
+      background: transparent;
+      color: var(--ink-soft);
+      font-size: 13px;
+      font-weight: 850;
+      text-align: left;
+    }
+    .district-option.active, .district-option:hover { background: var(--cream); color: var(--ink); }
 
     .chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 6px; scrollbar-width: none; }
     .chip {
@@ -433,7 +474,9 @@
       border-radius: 999px;
       background: rgba(255, 253, 248, .9);
     }
-    .badge { left: 12px; padding: 6px 9px; font-size: 10px; font-weight: 800; }
+    .badge { left: 12px; padding: 6px 9px; font-size: 10px; font-weight: 900; }
+    .badge.agent { background: rgba(255, 115, 95, .94); color: var(--paper); }
+    .badge.owner { background: rgba(187, 241, 209, .96); color: var(--mint-deep); }
     .save {
       right: 12px;
       width: 34px;
@@ -453,6 +496,16 @@
     .price-row { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
     .price-row strong { font-size: 23px; letter-spacing: -.04em; }
     .price-row small, .meta { color: var(--muted); font-size: 12px; }
+    .type-chip {
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 10px;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+    .type-chip.hdb { background: rgba(187, 241, 209, .78); color: var(--mint-deep); }
+    .type-chip.condo { background: rgba(16, 43, 54, .10); color: var(--ink); }
+    .type-chip.landed { background: rgba(255, 115, 95, .18); color: var(--coral); }
     .mode-pill {
       width: max-content;
       margin-top: 7px;
@@ -699,7 +752,7 @@
       right: 10px;
       bottom: 10px;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 5px;
       padding: 6px;
       border: 1px solid var(--line);
@@ -878,8 +931,15 @@
     .insight-note { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.45; }
     .detail-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 9px;
+    }
+    .detail-map {
+      min-height: 190px;
+      border: 1px solid rgba(16, 43, 54, .08);
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--cream);
     }
     .window-backdrop {
       position: fixed;
@@ -959,6 +1019,24 @@
       padding: 12px;
       border-top: 1px solid var(--line);
     }
+    .chat-viewing-panel {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border-top: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .chat-viewing-card {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--cream);
+    }
+    .chat-viewing-card strong { font-size: 14px; }
+    .chat-viewing-card p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.4; }
+    .chat-viewing-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .viewing-body {
       display: grid;
       gap: 14px;
@@ -1070,7 +1148,6 @@
       .app { display: grid; grid-template-columns: 238px 1fr; padding-bottom: 0; }
       .topbar { position: sticky; height: 100vh; align-items: start; flex-direction: column; justify-content: start; padding: 28px 20px; }
       .hero { padding: 52px clamp(28px, 5vw, 76px) 110px; }
-      .snap-card { max-width: 380px; margin: -56px clamp(18px, 4vw, 62px) 0 auto; }
       .browse-content { margin: -56px clamp(18px, 4vw, 62px) 60px; padding: 24px; border-radius: 28px 28px 0 0; background: var(--cream); }
       .search, .section-heading, .listings, .chips, .explore-tools { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
       .listings { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
@@ -1107,7 +1184,6 @@
       <div class="top-actions">
         <button id="accountButton" class="account-button" type="button" aria-label="Open account menu">☰</button>
         <div id="accountMenu" class="account-menu" aria-label="Account menu">
-          <button type="button" data-view="list"><span>◎</span><span>List a place</span></button>
           <button type="button"><span>◌</span><span>Profile & verification</span></button>
           <button type="button"><span>⚙</span><span>Settings</span></button>
         </div>
@@ -1121,16 +1197,14 @@
           <h1>Find a place.<br>Skip the runaround.</h1>
           <p>Fresh owner and authorised-agent listings, with every next step handled in one place.</p>
         </section>
-        <button class="snap-card" type="button" data-view="list">
-          <span class="snap-icon">◎</span>
-          <span><small>Have a property?</small><strong>Snap to list in 60 sec</strong></span>
-          <span>→</span>
-        </button>
         <div class="browse-content">
-          <label class="search">
-            <span>⌕</span>
+          <div id="searchBox" class="search">
+            <label class="search-row">
+              <span>⌕</span>
             <input id="search" placeholder="Search postcode, address, district, MRT or project" aria-label="Search rentals">
-          </label>
+            </label>
+            <div id="searchSuggestions" class="search-suggestions" aria-label="Search suggestions"></div>
+          </div>
           <div class="explore-tools" aria-label="Sort and quick filters">
             <select id="sortSelect" class="tool-select" aria-label="Sort listings">
               <option value="newest">Sort: Newest</option>
@@ -1138,17 +1212,10 @@
               <option value="priceDesc">Rent: high to low</option>
               <option value="available">Available soonest</option>
             </select>
-            <select id="districtSelect" class="tool-select" aria-label="Filter by district">
-              <option value="All">All districts</option>
-              <option value="D03">D03 Queenstown / Tiong Bahru</option>
-              <option value="D05">D05 Clementi / Buona Vista</option>
-              <option value="D09">D09 River Valley</option>
-              <option value="D14">D14 Paya Lebar</option>
-              <option value="D18">D18 Tampines</option>
-              <option value="D19">D19 Serangoon</option>
-              <option value="D20">D20 Bishan</option>
-              <option value="D22">D22 Jurong East</option>
-            </select>
+            <div id="districtPicker" class="district-picker">
+              <button id="districtButton" class="district-picker-button" type="button" aria-expanded="false">All districts <span>⌄</span></button>
+              <div id="districtMenu" class="district-menu" aria-label="District filter"></div>
+            </div>
           </div>
           <section id="resultMap" class="map-card" aria-label="Map of available rentals">
             <div class="map-head">
@@ -1163,6 +1230,7 @@
             <button class="chip" type="button" data-filter="Room only">Room only</button>
             <button class="chip" type="button" data-filter="HDB">HDB</button>
             <button class="chip" type="button" data-filter="Condo">Condo</button>
+            <button class="chip" type="button" data-filter="Landed">Landed</button>
             <button class="chip" type="button" data-filter="Owner">Owner</button>
             <button class="chip" type="button" data-filter="Agent">Agent</button>
           </div>
@@ -1258,18 +1326,6 @@
         <section id="chatList" class="conversation-list"></section>
       </div>
 
-      <div id="views" class="view">
-        <section class="hero">
-          <span class="eyebrow">Viewing desk</span>
-          <h1>Requests,<br>kept moving.</h1>
-          <p>Track every viewing request, see owner or agent replies, and keep changes/cancellations out of chat chaos.</p>
-        </section>
-        <div class="section-heading">
-          <div><span class="eyebrow" style="color:var(--mint-deep)">Viewing workflow</span><h2>Requested visits</h2></div>
-          <span id="viewsCount" class="count">0 views</span>
-        </div>
-        <section id="viewsList" class="conversation-list"></section>
-      </div>
     </section>
   </main>
 
@@ -1300,9 +1356,12 @@
           <div class="chart-title"><span class="chip-label graph">Nearby listings</span></div>
           <div id="scatterPlot" class="chart-box scatter-plot" aria-label="Comparable offering prices in neighbourhood"></div>
         </section>
+        <section class="insight-card" aria-label="Listing map">
+          <div class="chart-title"><span class="chip-label graph">Map</span></div>
+          <div id="detailMap" class="detail-map"></div>
+        </section>
         <div class="detail-actions">
           <button id="detailChat" class="button secondary" type="button">Chat</button>
-          <button id="detailView" class="button coral" type="button">Arrange viewing</button>
         </div>
       </div>
     </article>
@@ -1315,6 +1374,7 @@
         <button id="chatClose" class="window-close" type="button" aria-label="Close chat">×</button>
       </header>
       <div id="messages" class="messages"></div>
+      <div id="chatViewingPanel" class="chat-viewing-panel"></div>
       <form id="chatForm" class="chat-compose">
         <input id="chatInput" autocomplete="off" aria-label="Message" placeholder="Type a quick question...">
         <button class="button coral" type="submit">Send</button>
@@ -1322,43 +1382,10 @@
     </article>
   </section>
 
-  <section id="viewWindow" class="window-backdrop" aria-hidden="true">
-    <article class="task-window viewing-window" role="dialog" aria-modal="true" aria-labelledby="viewTitle">
-      <button id="viewClose" class="floating-close" type="button" aria-label="Close viewing request">×</button>
-      <div class="viewing-body">
-        <h3 id="viewTitle" class="hidden">Arrange viewing</h3>
-        <div id="requestStatus" class="request-status hidden"></div>
-        <div class="owner-note" id="ownerNote">Owner prefers weekday evenings or Saturday late morning. Agent-listed homes usually confirm within half a day.</div>
-        <div class="view-form two">
-          <label>Preferred date/time<input id="preferredSlot" type="datetime-local"></label>
-          <label>Alternative date/time<input id="alternativeSlot" type="datetime-local"></label>
-        </div>
-        <div class="center-actions">
-          <button id="cancelViewing" class="button secondary hidden" type="button">Cancel request</button>
-          <button id="requestViewing" class="button coral" type="button">Request viewing</button>
-        </div>
-      </div>
-    </article>
-  </section>
-
-  <section id="confirmWindow" class="window-backdrop" aria-hidden="true">
-    <article class="task-window" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
-      <div class="confirm-card">
-        <h3 id="confirmTitle">Confirm viewing request?</h3>
-        <p id="confirmCopy"></p>
-        <div class="inline-actions">
-          <button id="confirmBack" class="button secondary" type="button">Edit</button>
-          <button id="confirmViewing" class="button coral" type="button">Confirm request</button>
-        </div>
-      </div>
-    </article>
-  </section>
-
   <nav class="nav" aria-label="Primary navigation">
     <button class="active" type="button" data-view="browse"><span>⌂</span>Explore</button>
     <button type="button" data-view="liked"><span>♥</span>Liked</button>
     <button type="button" data-view="chats"><span>◐</span>Chats</button>
-    <button type="button" data-view="views"><span>◷</span>Views</button>
   </nav>
   <button id="toast" class="toast hidden" type="button" aria-label="Dismiss message"></button>
 
@@ -1402,9 +1429,13 @@
     const views = document.querySelectorAll(".view");
     const navButtons = document.querySelectorAll("[data-view]");
     const chips = document.querySelectorAll(".chip");
+    const searchBox = document.getElementById("searchBox");
+    const searchSuggestions = document.getElementById("searchSuggestions");
     const search = document.getElementById("search");
     const sortSelect = document.getElementById("sortSelect");
-    const districtSelect = document.getElementById("districtSelect");
+    const districtPicker = document.getElementById("districtPicker");
+    const districtButton = document.getElementById("districtButton");
+    const districtMenu = document.getElementById("districtMenu");
     const resultMap = document.getElementById("resultMap");
     const mapCanvas = document.getElementById("mapCanvas");
     const accountButton = document.getElementById("accountButton");
@@ -1414,17 +1445,14 @@
     const detailBackdrop = document.getElementById("detailBackdrop");
     const detailClose = document.getElementById("detailClose");
     const chatWindow = document.getElementById("chatWindow");
-    const viewWindow = document.getElementById("viewWindow");
-    const confirmWindow = document.getElementById("confirmWindow");
-    const preferredSlotInput = document.getElementById("preferredSlot");
-    const alternativeSlotInput = document.getElementById("alternativeSlot");
+    const chatViewingPanel = document.getElementById("chatViewingPanel");
+    const detailMap = document.getElementById("detailMap");
     const publishButton = document.querySelector("[data-publish]");
     let selectedListing = null;
-    let selectedViewDate = "";
-    let selectedViewTime = "";
-    let pendingViewingDraft = null;
     let leafletMap = null;
     let leafletLayer = null;
+    let detailLeafletMap = null;
+    let detailLeafletLayer = null;
     let navigationClosing = false;
     let edgeSwipeStart = null;
     const likedListings = new Set(readStorage("leasekaki-liked", []));
@@ -1432,6 +1460,37 @@
     const viewingRequests = readStorage("leasekaki-viewings", {});
     const chatThreads = readStorage("leasekaki-chats", {});
     let uraRentalSummary = null;
+    const districtOptions = [
+      ["All", "All districts"],
+      ["D01", "D01 Raffles Place / Marina"],
+      ["D02", "D02 Tanjong Pagar / Chinatown"],
+      ["D03", "D03 Queenstown / Tiong Bahru"],
+      ["D04", "D04 Sentosa / HarbourFront"],
+      ["D05", "D05 Clementi / Buona Vista"],
+      ["D06", "D06 City Hall / Clarke Quay"],
+      ["D07", "D07 Bugis / Beach Road"],
+      ["D08", "D08 Farrer Park / Serangoon Rd"],
+      ["D09", "D09 Orchard / River Valley"],
+      ["D10", "D10 Tanglin / Holland"],
+      ["D11", "D11 Newton / Novena"],
+      ["D12", "D12 Balestier / Toa Payoh"],
+      ["D13", "D13 MacPherson / Potong Pasir"],
+      ["D14", "D14 Paya Lebar / Geylang"],
+      ["D15", "D15 Katong / East Coast"],
+      ["D16", "D16 Bedok / Upper East Coast"],
+      ["D17", "D17 Changi / Loyang"],
+      ["D18", "D18 Tampines / Pasir Ris"],
+      ["D19", "D19 Serangoon / Hougang"],
+      ["D20", "D20 Bishan / Ang Mo Kio"],
+      ["D21", "D21 Upper Bukit Timah"],
+      ["D22", "D22 Jurong East / Boon Lay"],
+      ["D23", "D23 Bukit Batok / Choa Chu Kang"],
+      ["D24", "D24 Lim Chu Kang / Tengah"],
+      ["D25", "D25 Woodlands / Admiralty"],
+      ["D26", "D26 Mandai / Upper Thomson"],
+      ["D27", "D27 Sembawang / Yishun"],
+      ["D28", "D28 Seletar / Yio Chu Kang"]
+    ];
     const postalDistricts = [
       ["01 02 03 04 05 06", "D01"], ["07 08", "D02"], ["14 15 16", "D03"], ["09 10", "D04"],
       ["11 12 13", "D05"], ["17", "D06"], ["18 19", "D07"], ["20 21", "D08"], ["22 23", "D09"],
@@ -1465,7 +1524,6 @@
       document.querySelectorAll(".nav button").forEach((button) => button.classList.toggle("active", button.dataset.view === name));
       if (name === "liked") renderLikedListings();
       if (name === "chats") renderChatList();
-      if (name === "views") renderViewsList();
       accountMenu.classList.remove("open");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -1482,7 +1540,7 @@
     window.addEventListener("popstate", closeTopLayerFromHistory);
     window.addEventListener("touchstart", (event) => {
       const touch = event.touches[0];
-      const openLayer = detailBackdrop.classList.contains("open") || chatWindow.classList.contains("open") || viewWindow.classList.contains("open") || confirmWindow.classList.contains("open");
+      const openLayer = detailBackdrop.classList.contains("open") || chatWindow.classList.contains("open");
       if (!openLayer) {
         edgeSwipeStart = null;
         return;
@@ -1506,6 +1564,39 @@
       resultMap.classList.toggle("expanded");
       document.getElementById("mapToggle").textContent = resultMap.classList.contains("expanded") ? "Shrink map" : "Enlarge map";
       window.setTimeout(() => leafletMap?.invalidateSize(), 180);
+    });
+    districtButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      districtPicker.classList.toggle("open");
+      districtButton.setAttribute("aria-expanded", String(districtPicker.classList.contains("open")));
+    });
+    document.addEventListener("click", (event) => {
+      if (!districtPicker.contains(event.target)) {
+        districtPicker.classList.remove("open");
+        districtButton.setAttribute("aria-expanded", "false");
+      }
+    });
+    search.addEventListener("focus", () => {
+      searchBox.classList.add("expanded");
+      renderSearchSuggestions();
+    });
+    search.addEventListener("input", () => {
+      searchBox.classList.add("expanded");
+      renderSearchSuggestions();
+      renderListings();
+    });
+    searchSuggestions.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-suggestion]");
+      if (!button) return;
+      const value = button.dataset.value || "";
+      if (button.dataset.kind === "district") {
+        setDistrict(value);
+        search.value = "";
+      } else {
+        search.value = value;
+      }
+      searchBox.classList.remove("expanded");
+      renderListings();
     });
 
     function escapeHtml(value) {
@@ -1536,6 +1627,44 @@
 
     function modeFromKind(kind) {
       return kind === "hdb_room" || kind === "private_room" ? "Room only" : "Whole unit";
+    }
+
+    function classToken(value) {
+      return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "default";
+    }
+
+    function populateDistrictMenu() {
+      districtMenu.innerHTML = districtOptions.map(([value, label]) => `<button class="district-option ${value === activeDistrict ? "active" : ""}" type="button" data-district="${value}">${escapeHtml(label)}</button>`).join("");
+      districtMenu.querySelectorAll("[data-district]").forEach((button) => {
+        button.addEventListener("click", () => setDistrict(button.dataset.district));
+      });
+    }
+
+    function setDistrict(value) {
+      activeDistrict = value || "All";
+      const selected = districtOptions.find(([district]) => district === activeDistrict) || districtOptions[0];
+      districtButton.innerHTML = `${escapeHtml(selected[1])} <span>⌄</span>`;
+      districtPicker.classList.remove("open");
+      districtButton.setAttribute("aria-expanded", "false");
+      populateDistrictMenu();
+      renderListings();
+    }
+
+    function renderSearchSuggestions() {
+      const query = search.value.trim().toLowerCase();
+      const suggestions = [];
+      const matchedDistricts = districtOptions
+        .filter(([value, label]) => value !== "All" && (!query || label.toLowerCase().includes(query) || value.toLowerCase().includes(query)))
+        .slice(0, 3)
+        .map(([value, label]) => ({ kind: "district", value, title: label, meta: "District", icon: "◎" }));
+      const matchedListings = listings
+        .filter((item) => !query || searchableText(item).includes(query) || matchesPostalSearch(item, query))
+        .slice(0, 5)
+        .map((item) => ({ kind: "listing", value: item.postcode || item.area, title: item.area, meta: `${item.district} · ${item.mrt}`, icon: "⌂" }));
+      suggestions.push(...matchedDistricts, ...matchedListings);
+      const fallback = query ? [{ kind: "search", value: search.value.trim(), title: `Search “${search.value.trim()}”`, meta: "Address, MRT, project or postal code", icon: "⌕" }] : [];
+      const visible = suggestions.length ? suggestions : fallback;
+      searchSuggestions.innerHTML = visible.map((item) => `<button class="suggestion" type="button" data-suggestion data-kind="${escapeHtml(item.kind)}" data-value="${escapeHtml(item.value)}"><i>${escapeHtml(item.icon)}</i><span><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.meta)}</small></span><small>Tap</small></button>`).join("");
     }
 
     function imagesForListing(title, index = 0, apiImages = []) {
@@ -1647,6 +1776,7 @@
         ["Rent guide", item.rentRange || "Guide pending"]
       ].map(([label, value]) => `<span><strong>${escapeHtml(label)}</strong><br>${escapeHtml(value)}</span>`).join("");
       renderPriceInsights(item);
+      renderDetailMap(item);
       detailBackdrop.classList.add("open");
       detailBackdrop.setAttribute("aria-hidden", "false");
       pushLayerState("detail", item.title);
@@ -1659,17 +1789,17 @@
       photo.ontouchstart = (event) => { touchStartX = event.touches[0].clientX; };
       photo.ontouchend = (event) => {
         const delta = event.changedTouches[0].clientX - touchStartX;
-        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
+        if (Math.abs(delta) > 32) movePhoto(item, delta < 0 ? 1 : -1);
       };
       photo.onpointerdown = (event) => { pointerStartX = event.clientX; };
       photo.onpointerup = (event) => {
         const delta = event.clientX - pointerStartX;
-        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
+        if (Math.abs(delta) > 32) movePhoto(item, delta < 0 ? 1 : -1);
       };
       photo.onmousedown = (event) => { mouseStartX = event.clientX; };
       photo.onmouseup = (event) => {
         const delta = event.clientX - mouseStartX;
-        if (Math.abs(delta) > 32) movePhoto(item, delta > 0 ? 1 : -1);
+        if (Math.abs(delta) > 32) movePhoto(item, delta < 0 ? 1 : -1);
       };
     }
 
@@ -1692,10 +1822,7 @@
 
     function closeTopLayerFromHistory() {
       navigationClosing = true;
-      if (confirmWindow.classList.contains("open")) closeConfirm(true);
-      else
-      if (viewWindow.classList.contains("open")) closeViewing(true);
-      else if (chatWindow.classList.contains("open")) closeChat(true);
+      if (chatWindow.classList.contains("open")) closeChat(true);
       else if (detailBackdrop.classList.contains("open")) closeListingDetail(true);
       navigationClosing = false;
     }
@@ -1805,7 +1932,6 @@
       renderMap(visible, query);
       renderLikedListings();
       renderChatList();
-      renderViewsList();
     }
 
     function getVisibleListings(query = "") {
@@ -1841,13 +1967,13 @@
         <article class="listing" role="button" tabindex="0" data-index="${index}" data-title="${escapeHtml(item.title)}">
           <span class="photo ${escapeHtml(item.tone)}">
             ${renderPhotoTrack(item)}
-            <span class="badge">${escapeHtml(item.lister)}</span>
+            <span class="badge ${classToken(item.lister)}">${escapeHtml(item.lister)}</span>
             <button class="save ${likedListings.has(item.title) ? "liked" : ""}" type="button" data-action="like" aria-label="Save listing">${likedListings.has(item.title) ? "♥" : "♡"}</button>
             ${renderPhotoDots(item)}
             ${item.image ? "" : `<span class="building"><i></i><i></i><i></i><i></i><i></i><i></i></span>`}
           </span>
           <span class="listing-body">
-            <span class="price-row"><strong>$${Number(item.price).toLocaleString()}<small>/mo</small></strong><small>${escapeHtml(item.type)}</small></span>
+            <span class="price-row"><strong>$${Number(item.price).toLocaleString()}<small>/mo</small></strong><small class="type-chip ${classToken(item.type)}">${escapeHtml(item.type)}</small></span>
             <span class="mode-pill">${escapeHtml(item.mode)}</span>
             <strong class="title">${escapeHtml(item.title)}</strong>
             <span class="meta">${escapeHtml(item.area)} · ${escapeHtml(item.district)}${item.postcode ? ` · ${escapeHtml(item.postcode)}` : ""}</span>
@@ -1888,7 +2014,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta > 0 ? 1 : -1);
+            movePhoto(item, delta < 0 ? 1 : -1);
           }
         });
         photo.addEventListener("pointerdown", (event) => { pointerStartX = event.clientX; });
@@ -1899,7 +2025,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta > 0 ? 1 : -1);
+            movePhoto(item, delta < 0 ? 1 : -1);
           }
         });
         photo.addEventListener("mousedown", (event) => { mouseStartX = event.clientX; });
@@ -1910,7 +2036,7 @@
             event.stopPropagation();
             suppressCardOpen = true;
             window.setTimeout(() => { suppressCardOpen = false; }, 280);
-            movePhoto(item, delta > 0 ? 1 : -1);
+            movePhoto(item, delta < 0 ? 1 : -1);
           }
         });
       });
@@ -1984,13 +2110,51 @@
       }, 80);
     }
 
+    function renderDetailMap(item) {
+      if (!detailMap || !item) return;
+      if (!window.L) {
+        detailMap.innerHTML = `<div class="map-canvas" style="height:190px;margin:0;border-radius:0"><button class="map-pin" type="button" style="left:50%;top:50%">$${Math.round(item.price / 100) / 10}k</button></div>`;
+        return;
+      }
+      const latLng = latLngForItem(item);
+      if (!detailLeafletMap) {
+        detailLeafletMap = L.map(detailMap, {
+          center: latLng,
+          zoom: 15,
+          minZoom: 10,
+          maxZoom: 18,
+          scrollWheelZoom: false,
+          touchZoom: true,
+          dragging: true,
+          zoomControl: false
+        });
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(detailLeafletMap);
+        detailLeafletLayer = L.layerGroup().addTo(detailLeafletMap);
+      }
+      detailLeafletLayer.clearLayers();
+      const icon = L.divIcon({
+        className: "",
+        html: `<button class="map-price-marker ${item.mode === "Room only" ? "room" : ""}" type="button">$${Math.round(item.price / 100) / 10}k</button>`,
+        iconSize: [58, 30],
+        iconAnchor: [29, 15]
+      });
+      L.marker(latLng, { icon, title: item.title }).addTo(detailLeafletLayer);
+      window.setTimeout(() => {
+        detailLeafletMap.invalidateSize();
+        detailLeafletMap.setView(latLng, 15);
+      }, 120);
+    }
+
     function renderChatList() {
       const rows = Object.keys(chatThreads).map((title) => ({ item: listings.find((listing) => listing.title === title), thread: chatThreads[title] }))
         .filter((row) => row.item && row.thread?.length);
       Object.keys(viewingRequests).forEach((title) => {
         if (!rows.some((row) => row.item.title === title)) {
           const item = listings.find((listing) => listing.title === title);
-          if (item) rows.push({ item, thread: [{ who: "them", text: `Viewing ${viewingRequests[title].status}: ${viewingRequests[title].dateLabel} at ${viewingRequests[title].time}` }] });
+          if (item) rows.push({ item, thread: [{ who: "them", text: `Viewing ${viewingRequests[title].status}: ${formatSlot(viewingRequests[title].preferred || viewingRequests[title].date)}` }] });
         }
       });
       document.getElementById("chatCount").textContent = `${rows.length} chats`;
@@ -2438,6 +2602,7 @@
         writeStorage("leasekaki-chats", chatThreads);
       }
       renderChat();
+      renderChatViewingPanel();
       renderChatList();
       chatWindow.classList.add("open");
       chatWindow.setAttribute("aria-hidden", "false");
@@ -2450,6 +2615,112 @@
       const thread = chatThreads[selectedListing?.title] || [];
       document.getElementById("messages").innerHTML = thread.map((message) => `<div class="bubble ${message.who}">${escapeHtml(message.text)}</div>`).join("");
       document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+    }
+
+    function renderChatViewingPanel() {
+      if (!selectedListing) {
+        chatViewingPanel.innerHTML = "";
+        return;
+      }
+      const request = viewingRequests[selectedListing.title];
+      if (!request) {
+        chatViewingPanel.innerHTML = `<div class="chat-viewing-card">
+          <strong>Ready to view?</strong>
+          <p>Request a viewing inside chat, then the owner/agent can accept or suggest a change.</p>
+          <button class="button coral" type="button" data-chat-view-action="start">Request to view</button>
+        </div>`;
+      } else {
+        const status = request.status || "requested";
+        chatViewingPanel.innerHTML = `<div class="chat-viewing-card">
+          <strong>Viewing ${escapeHtml(status)}</strong>
+          <p>Preferred: ${escapeHtml(formatSlot(request.preferred))}<br>Alternative: ${escapeHtml(formatSlot(request.alternative))}${request.agentNote ? `<br>${escapeHtml(request.agentNote)}` : ""}</p>
+          <div class="chat-viewing-actions">
+            <button class="button secondary" type="button" data-chat-view-action="edit">Change</button>
+            <button class="button" type="button" data-chat-view-action="accept">Accept</button>
+            <button class="button secondary" type="button" data-chat-view-action="counter">Suggest change</button>
+            <button class="button secondary" type="button" data-chat-view-action="cancel">Cancel</button>
+          </div>
+        </div>`;
+      }
+      chatViewingPanel.querySelectorAll("[data-chat-view-action]").forEach((button) => {
+        button.addEventListener("click", () => handleChatViewingAction(button.dataset.chatViewAction));
+      });
+    }
+
+    function handleChatViewingAction(action) {
+      if (!selectedListing) return;
+      if (action === "start" || action === "edit") {
+        viewingRequests[selectedListing.title] = {
+          ...viewingRequests[selectedListing.title],
+          status: "draft",
+          preferred: viewingRequests[selectedListing.title]?.preferred || defaultPreferredSlot(2, 19),
+          alternative: viewingRequests[selectedListing.title]?.alternative || defaultPreferredSlot(4, 11)
+        };
+        renderChatViewingForm();
+        return;
+      }
+      if (action === "accept") setChatViewingStatus("confirmed");
+      if (action === "counter") setChatViewingStatus("countered");
+      if (action === "cancel") setChatViewingStatus("cancelled");
+    }
+
+    function renderChatViewingForm() {
+      const request = viewingRequests[selectedListing.title];
+      chatViewingPanel.innerHTML = `<div class="chat-viewing-card">
+        <strong>Request to view</strong>
+        <label>Preferred date/time<input id="chatPreferredSlot" type="datetime-local" value="${escapeHtml(request.preferred)}"></label>
+        <label>Alternative date/time<input id="chatAlternativeSlot" type="datetime-local" value="${escapeHtml(request.alternative)}"></label>
+        <div class="chat-viewing-actions">
+          <button class="button secondary" type="button" data-chat-view-action="close-form">Back</button>
+          <button class="button coral" type="button" data-chat-view-action="send-request">Send request</button>
+        </div>
+      </div>`;
+      chatViewingPanel.querySelector("[data-chat-view-action='close-form']").addEventListener("click", renderChatViewingPanel);
+      chatViewingPanel.querySelector("[data-chat-view-action='send-request']").addEventListener("click", sendChatViewingRequest);
+    }
+
+    function sendChatViewingRequest() {
+      const preferred = document.getElementById("chatPreferredSlot").value;
+      const alternative = document.getElementById("chatAlternativeSlot").value;
+      if (!preferred || !alternative) {
+        showToast("Add preferred and alternative slots");
+        return;
+      }
+      viewingRequests[selectedListing.title] = {
+        status: "requested",
+        preferred,
+        alternative,
+        updatedAt: new Date().toISOString(),
+        ownerNote: selectedListing.lister === "Owner" ? "Awaiting owner confirmation" : "Awaiting agent confirmation"
+      };
+      chatThreads[selectedListing.title] = chatThreads[selectedListing.title] || [];
+      chatThreads[selectedListing.title].push({ who: "me", text: `Viewing request: preferred ${formatSlot(preferred)}, alternative ${formatSlot(alternative)}.` });
+      writeStorage("leasekaki-viewings", viewingRequests);
+      writeStorage("leasekaki-chats", chatThreads);
+      renderChat();
+      renderChatViewingPanel();
+      renderChatList();
+      renderListings();
+      showToast("Viewing request sent in chat");
+    }
+
+    function setChatViewingStatus(status) {
+      const request = viewingRequests[selectedListing.title];
+      if (!request) return;
+      request.status = status;
+      request.updatedAt = new Date().toISOString();
+      if (status === "confirmed") request.agentNote = `Confirmed for ${formatSlot(request.preferred)}.`;
+      if (status === "countered") request.agentNote = `Suggested change: ${formatSlot(request.alternative)} works better.`;
+      if (status === "cancelled") request.agentNote = "Viewing cancelled. Chat to reopen or suggest a new slot.";
+      chatThreads[selectedListing.title] = chatThreads[selectedListing.title] || [];
+      chatThreads[selectedListing.title].push({ who: "them", text: status === "confirmed" ? `Viewing confirmed for ${formatSlot(request.preferred)}.` : status === "countered" ? `Can we use the alternative slot instead: ${formatSlot(request.alternative)}?` : "Viewing request cancelled for now." });
+      writeStorage("leasekaki-viewings", viewingRequests);
+      writeStorage("leasekaki-chats", chatThreads);
+      renderChat();
+      renderChatViewingPanel();
+      renderChatList();
+      renderListings();
+      showToast(`Viewing ${status}`);
     }
 
     function closeChat(fromHistory = false) {
@@ -2490,166 +2761,10 @@
       return local.toISOString().slice(0, 16);
     }
 
-    function openViewing(item) {
-      selectedListing = item;
-      const existing = viewingRequests[item.title];
-      selectedViewDate = existing?.preferred || existing?.date || "";
-      selectedViewTime = existing?.alternative || "";
-      document.getElementById("viewTitle").textContent = `View: ${item.title}`;
-      document.getElementById("ownerNote").textContent = item.lister === "Owner"
-        ? "Owner prefers weekday evenings and Saturday late morning. Send one preferred slot and one alternative, so they can accept or propose a clean change."
-        : "Agent can coordinate weekday lunch, evening, or Saturday slots. Send a preferred slot plus a backup to reduce back-and-forth.";
-      renderViewing();
-      viewWindow.classList.add("open");
-      viewWindow.setAttribute("aria-hidden", "false");
-      pushLayerState("view", item.title);
-      setBodyLock();
-    }
-
-    function renderViewing() {
-      const existing = viewingRequests[selectedListing?.title];
-      const statusBox = document.getElementById("requestStatus");
-      statusBox.classList.toggle("hidden", !existing);
-      if (existing) statusBox.innerHTML = `<strong>Viewing ${escapeHtml(existing.status)}</strong>Preferred: ${escapeHtml(formatSlot(existing.preferred || existing.date))}. Alternative: ${escapeHtml(formatSlot(existing.alternative))}.`;
-      preferredSlotInput.value = existing?.preferred || defaultPreferredSlot(2, 19);
-      alternativeSlotInput.value = existing?.alternative || defaultPreferredSlot(4, 11);
-      document.getElementById("cancelViewing").classList.toggle("hidden", !existing);
-      document.getElementById("requestViewing").textContent = existing ? "Update request" : "Request viewing";
-    }
-
-    function closeViewing(fromHistory = false) {
-      if (!fromHistory && viewWindow.classList.contains("open") && history.state?.leasekakiLayer === "view") {
-        history.back();
-        return;
-      }
-      viewWindow.classList.remove("open");
-      viewWindow.setAttribute("aria-hidden", "true");
-      setBodyLock();
-    }
-
-    function closeConfirm(fromHistory = false) {
-      if (!fromHistory && confirmWindow.classList.contains("open") && history.state?.leasekakiLayer === "confirm-viewing") {
-        history.back();
-        return;
-      }
-      confirmWindow.classList.remove("open");
-      confirmWindow.setAttribute("aria-hidden", "true");
-      setBodyLock();
-    }
-
     function setBodyLock() {
-      const locked = detailBackdrop.classList.contains("open") || chatWindow.classList.contains("open") || viewWindow.classList.contains("open") || confirmWindow.classList.contains("open");
+      const locked = detailBackdrop.classList.contains("open") || chatWindow.classList.contains("open");
       document.documentElement.classList.toggle("modal-open", locked);
       document.body.classList.toggle("modal-open", locked);
-    }
-
-    function buildViewingDraft() {
-      if (!selectedListing) return null;
-      const preferred = preferredSlotInput.value;
-      const alternative = alternativeSlotInput.value;
-      if (!preferred || !alternative) {
-        showToast("Add both preferred and alternative slots");
-        return null;
-      }
-      return {
-        status: viewingRequests[selectedListing.title]?.status === "confirmed" ? "requested" : "requested",
-        preferred,
-        alternative,
-        updatedAt: new Date().toISOString()
-      };
-    }
-
-    function openViewingConfirm() {
-      pendingViewingDraft = buildViewingDraft();
-      if (!pendingViewingDraft || !selectedListing) return;
-      document.getElementById("confirmCopy").innerHTML = `Send request for <strong>${escapeHtml(selectedListing.title)}</strong>?<br>Preferred: <strong>${escapeHtml(formatSlot(pendingViewingDraft.preferred))}</strong><br>Alternative: <strong>${escapeHtml(formatSlot(pendingViewingDraft.alternative))}</strong>`;
-      confirmWindow.classList.add("open");
-      confirmWindow.setAttribute("aria-hidden", "false");
-      pushLayerState("confirm-viewing", selectedListing.title);
-      setBodyLock();
-    }
-
-    function saveViewingRequest(draft = pendingViewingDraft) {
-      if (!selectedListing || !draft) return;
-      viewingRequests[selectedListing.title] = {
-        ...viewingRequests[selectedListing.title],
-        ...draft,
-        listingTitle: selectedListing.title,
-        lister: selectedListing.lister,
-        ownerNote: selectedListing.lister === "Owner" ? "Awaiting owner confirmation" : "Awaiting agent confirmation"
-      };
-      writeStorage("leasekaki-viewings", viewingRequests);
-      renderViewing();
-      renderListings();
-      renderChatList();
-      renderViewsList();
-      confirmWindow.classList.remove("open");
-      confirmWindow.setAttribute("aria-hidden", "true");
-      closeViewing(true);
-      closeListingDetail(true);
-      history.replaceState({ leasekakiLayer: "root" }, "", window.location.pathname + window.location.search);
-      setView("views");
-      setBodyLock();
-      showToast("Viewing request sent");
-    }
-
-    function setViewingStatus(title, status) {
-      const request = viewingRequests[title];
-      if (!request) return;
-      request.status = status;
-      request.updatedAt = new Date().toISOString();
-      if (status === "countered") {
-        const fallback = request.alternative || defaultPreferredSlot(5, 18);
-        request.agentNote = `Suggested change: ${formatSlot(fallback)} works better.`;
-      }
-      if (status === "confirmed") request.agentNote = `Confirmed for ${formatSlot(request.preferred || request.date)}.`;
-      if (status === "cancelled") request.agentNote = "Viewing cancelled. Chat to reopen or suggest a new slot.";
-      writeStorage("leasekaki-viewings", viewingRequests);
-      renderViewsList();
-      renderListings();
-      renderChatList();
-      showToast(`Viewing ${status}`);
-    }
-
-    function renderViewsList() {
-      const rows = Object.entries(viewingRequests).map(([title, request]) => ({
-        item: listings.find((listing) => listing.title === title),
-        request
-      })).filter((row) => row.item);
-      document.getElementById("viewsCount").textContent = `${rows.length} ${rows.length === 1 ? "view" : "views"}`;
-      document.getElementById("viewsList").innerHTML = rows.length ? rows.map(({ item, request }) => {
-        const status = request.status || "requested";
-        return `<article class="view-card" data-title="${escapeHtml(item.title)}">
-          <div class="view-card-head">
-            <img src="${escapeHtml((item.images && item.images[0]) || item.image)}" alt="">
-            <span>
-              <h3>${escapeHtml(item.title)}</h3>
-              <p>Preferred: ${escapeHtml(formatSlot(request.preferred || request.date))}<br>Alternative: ${escapeHtml(formatSlot(request.alternative))}</p>
-            </span>
-            <strong class="status-chip ${escapeHtml(status)}">${escapeHtml(status)}</strong>
-          </div>
-          <p>${escapeHtml(request.agentNote || request.ownerNote || "Owner/agent can accept, suggest a change, or cancel from here.")}</p>
-          <div class="view-card-actions">
-            <button class="button secondary" type="button" data-view-action="chat">Chat</button>
-            <button class="button secondary" type="button" data-view-action="change">Change</button>
-            <button class="button" type="button" data-view-action="accept">Accept</button>
-            <button class="button secondary" type="button" data-view-action="counter">Suggest change</button>
-            <button class="button secondary" type="button" data-view-action="cancel">Cancel</button>
-          </div>
-        </article>`;
-      }).join("") : `<div class="empty-state"><strong>No viewings yet.</strong>Arrange a viewing from any listing details page. This tab becomes the shared request tracker.</div>`;
-      document.querySelectorAll(".view-card").forEach((card) => {
-        const item = listings.find((listing) => listing.title === card.dataset.title);
-        card.addEventListener("click", (event) => {
-          const action = event.target.closest("[data-view-action]")?.dataset.viewAction;
-          if (!action || !item) return;
-          if (action === "chat") openChat(item);
-          if (action === "change") openViewing(item);
-          if (action === "accept") setViewingStatus(item.title, "confirmed");
-          if (action === "counter") setViewingStatus(item.title, "countered");
-          if (action === "cancel") setViewingStatus(item.title, "cancelled");
-        });
-      });
     }
 
     chips.forEach((chip) => {
@@ -2659,13 +2774,8 @@
         renderListings();
       });
     });
-    search.addEventListener("input", renderListings);
     sortSelect.addEventListener("change", () => {
       activeSort = sortSelect.value;
-      renderListings();
-    });
-    districtSelect.addEventListener("change", () => {
-      activeDistrict = districtSelect.value;
       renderListings();
     });
 
@@ -2726,13 +2836,9 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && detailBackdrop.classList.contains("open")) closeListingDetail();
       if (event.key === "Escape" && chatWindow.classList.contains("open")) closeChat();
-      if (event.key === "Escape" && viewWindow.classList.contains("open")) closeViewing();
     });
     document.getElementById("detailChat").addEventListener("click", () => {
       if (selectedListing) openChat(selectedListing);
-    });
-    document.getElementById("detailView").addEventListener("click", () => {
-      if (selectedListing) openViewing(selectedListing);
     });
     document.getElementById("chatClose").addEventListener("click", closeChat);
     chatWindow.addEventListener("click", (event) => {
@@ -2750,37 +2856,13 @@
       input.value = "";
       renderChat();
       renderChatList();
-      renderViewsList();
+      renderChatViewingPanel();
       showToast("Message saved in chat");
-    });
-    document.getElementById("viewClose").addEventListener("click", closeViewing);
-    viewWindow.addEventListener("click", (event) => {
-      if (event.target === viewWindow) closeViewing();
-    });
-    document.getElementById("requestViewing").addEventListener("click", openViewingConfirm);
-    document.getElementById("confirmViewing").addEventListener("click", () => saveViewingRequest());
-    document.getElementById("confirmBack").addEventListener("click", closeConfirm);
-    confirmWindow.addEventListener("click", (event) => {
-      if (event.target === confirmWindow) closeConfirm();
-    });
-    document.getElementById("cancelViewing").addEventListener("click", () => {
-      if (!selectedListing) return;
-      if (viewingRequests[selectedListing.title]) {
-        viewingRequests[selectedListing.title].status = "cancelled";
-        viewingRequests[selectedListing.title].agentNote = "Viewing cancelled. Chat to reopen or suggest a new slot.";
-      }
-      writeStorage("leasekaki-viewings", viewingRequests);
-      selectedViewDate = "";
-      selectedViewTime = "";
-      renderViewing();
-      renderListings();
-      renderChatList();
-      renderViewsList();
-      showToast("Viewing request cancelled");
     });
 
     renderListings();
-    renderViewsList();
+    populateDistrictMenu();
+    renderSearchSuggestions();
     loadUraInsights();
     loadListings();
     if ("serviceWorker" in navigator) {
