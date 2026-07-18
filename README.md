@@ -72,14 +72,16 @@ LeaseKaki keeps OneMap credentials out of the public GitHub Pages frontend. The 
 GET /api/postal?postal=569788
 ```
 
-Store a OneMap token as a Worker secret, then redeploy:
+Store either a temporary OneMap token, or the OneMap email/password pair for automatic token refresh, then redeploy:
 
 ```bash
 npx wrangler secret put ONEMAP_TOKEN --config wrangler.api.toml
+npx wrangler secret put ONEMAP_EMAIL --config wrangler.api.toml
+npx wrangler secret put ONEMAP_PASSWORD --config wrangler.api.toml
 npx wrangler deploy --config wrangler.api.toml
 ```
 
-OneMap tokens expire periodically, so the production version should either refresh this secret or add an auth-refresh flow in the Worker.
+OneMap tokens expire periodically. If `ONEMAP_EMAIL` and `ONEMAP_PASSWORD` are configured, the Worker can generate a fresh token and retry postal lookups when the temporary token expires.
 
 ## ImageKit Setup
 

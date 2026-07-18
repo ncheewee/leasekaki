@@ -11,6 +11,8 @@ type Env = {
   IMAGEKIT_PUBLIC_KEY?: string;
   IMAGEKIT_URL_ENDPOINT?: string;
   ONEMAP_TOKEN?: string;
+  ONEMAP_EMAIL?: string;
+  ONEMAP_PASSWORD?: string;
 };
 
 type ListingPayload = Record<string, unknown>;
@@ -174,6 +176,45 @@ async function handleListings(request: Request, env: Env) {
   return json(request, env, { error: "Method not allowed." }, { status: 405 });
 }
 
+async function fetchOneMapToken(env: Env) {
+  if (!env.ONEMAP_EMAIL || !env.ONEMAP_PASSWORD) {
+    throw new Error("OneMap credentials are not configured.");
+  }
+
+  const response = await fetch("https://www.onemap.gov.sg/api/auth/post/getToken", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: env.ONEMAP_EMAIL,
+      password: env.ONEMAP_PASSWORD,
+    }),
+  });
+
+  const body = (await response.json().catch(() => ({}))) as { access_token?: string; error?: string };
+  if (!response.ok || !body.access_token) {
+    throw new Error(body.error || `OneMap authentication returned ${response.status}.`);
+  }
+
+  return body.access_token;
+}
+
+async function searchOneMapPostal(postal: string, token: string) {
+  const oneMapUrl = new URL("https://www.onemap.gov.sg/api/common/elastic/search");
+  oneMapUrl.searchParams.set("searchVal", postal);
+  oneMapUrl.searchParams.set("returnGeom", "Y");
+  oneMapUrl.searchParams.set("getAddrDetails", "Y");
+  oneMapUrl.searchParams.set("pageNum", "1");
+
+  const response = await fetch(oneMapUrl, {
+    headers: { Authorization: token },
+  });
+
+  return {
+    response,
+    body: (await response.json().catch(() => ({}))) as { results?: Array<Record<string, string>>; error?: string },
+  };
+}
+
 async function handlePostalLookup(request: Request, env: Env) {
   if (request.method !== "GET") {
     return json(request, env, { error: "Method not allowed." }, { status: 405 });
@@ -185,25 +226,22 @@ async function handlePostalLookup(request: Request, env: Env) {
     return json(request, env, { error: "Postal code must be 6 digits.", code: "invalid_postal" }, { status: 400 });
   }
 
-  if (!env.ONEMAP_TOKEN) {
-    return json(request, env, { error: "ONEMAP_TOKEN is not configured.", code: "not_configured" }, { status: 503 });
+  if (!env.ONEMAP_TOKEN && (!env.ONEMAP_EMAIL || !env.ONEMAP_PASSWORD)) {
+    return json(request, env, { error: "OneMap token or credentials are not configured.", code: "not_configured" }, { status: 503 });
   }
 
-  const oneMapUrl = new URL("https://www.onemap.gov.sg/api/common/elastic/search");
-  oneMapUrl.searchParams.set("searchVal", postal);
-  oneMapUrl.searchParams.set("returnGeom", "Y");
-  oneMapUrl.searchParams.set("getAddrDetails", "Y");
-  oneMapUrl.searchParams.set("pageNum", "1");
+  let token = env.ONEMAP_TOKEN || await fetchOneMapToken(env);
+  let { response, body } = await searchOneMapPostal(postal, token);
 
-  const response = await fetch(oneMapUrl, {
-    headers: { Authorization: env.ONEMAP_TOKEN },
-  });
+  if ((response.status === 401 || response.status === 403) && env.ONEMAP_EMAIL && env.ONEMAP_PASSWORD) {
+    token = await fetchOneMapToken(env);
+    ({ response, body } = await searchOneMapPostal(postal, token));
+  }
 
   if (!response.ok) {
-    return json(request, env, { error: `OneMap returned ${response.status}.`, code: "onemap_error" }, { status: response.status === 404 ? 404 : 502 });
+    return json(request, env, { error: body.error || `OneMap returned ${response.status}.`, code: "onemap_error" }, { status: response.status === 404 ? 404 : 502 });
   }
 
-  const body = (await response.json()) as { results?: Array<Record<string, string>> };
   const result = body.results?.find((entry) => String(entry.POSTAL) === postal) ?? body.results?.[0];
   if (!result) {
     return json(request, env, { error: "Postal code not found.", code: "not_found", postal }, { status: 404 });
@@ -236,7 +274,8 @@ const apiWorker = {
           service: "leasekaki-api",
           databaseConfigured: Boolean(env.DATABASE_URL),
           imageKitConfigured: Boolean(env.IMAGEKIT_PRIVATE_KEY && env.IMAGEKIT_PUBLIC_KEY && env.IMAGEKIT_URL_ENDPOINT),
-          oneMapConfigured: Boolean(env.ONEMAP_TOKEN),
+          oneMapConfigured: Boolean(env.ONEMAP_TOKEN || (env.ONEMAP_EMAIL && env.ONEMAP_PASSWORD)),
+          oneMapAutoRefreshConfigured: Boolean(env.ONEMAP_EMAIL && env.ONEMAP_PASSWORD),
         });
       }
 
