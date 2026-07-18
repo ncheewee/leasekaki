@@ -781,6 +781,11 @@
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
     }
+    .conversation-card .conversation-desc {
+      color: var(--ink-soft);
+      font-weight: 800;
+      -webkit-line-clamp: 1;
+    }
     .conversation-card small {
       color: var(--muted);
       font-size: 10px;
@@ -1136,17 +1141,96 @@
       border-top: 0;
       background: transparent;
     }
-    .chat-viewing-card {
+    .chat-listing-summary {
       display: grid;
+      grid-template-columns: 58px 1fr;
       gap: 10px;
-      padding: 12px;
+      align-items: center;
+      padding: 10px;
       border: 1px solid var(--line);
       border-radius: 17px;
       background: var(--cream);
     }
-    .chat-viewing-card strong { font-size: 14px; }
+    .chat-listing-summary img {
+      width: 58px;
+      height: 52px;
+      border-radius: 14px;
+      object-fit: cover;
+    }
+    .chat-listing-summary strong {
+      display: -webkit-box;
+      overflow: hidden;
+      font-size: 13px;
+      line-height: 1.2;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+    }
+    .chat-listing-summary p {
+      display: -webkit-box;
+      margin: 3px 0 0;
+      overflow: hidden;
+      color: var(--ink-soft);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+    .chat-viewing-card {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--cream);
+    }
+    .chat-viewing-card.form { display: grid; gap: 12px; }
+    .chat-viewing-card strong { font-size: 12px; letter-spacing: .05em; text-transform: uppercase; }
     .chat-viewing-card p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.4; }
-    .chat-viewing-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .chat-viewing-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+    .chat-viewing-chip {
+      min-height: 34px;
+      border: 0;
+      border-radius: 999px;
+      padding: 0 12px;
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .chat-viewing-chip.edit { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+    .slot-picker { display: grid; gap: 8px; }
+    .slot-picker > strong {
+      font-size: 12px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+    .slot-row {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+    .slot-row::-webkit-scrollbar { display: none; }
+    .slot-choice {
+      flex: 0 0 auto;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 12px;
+      background: var(--paper);
+      color: var(--ink-soft);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .slot-choice.active { border-color: var(--ink); background: var(--ink); color: var(--paper); }
     .viewing-body {
       display: grid;
       gap: 14px;
@@ -1356,13 +1440,7 @@
       </div>
 
       <div id="liked" class="view">
-        <section class="hero">
-          <span class="eyebrow">Shortlist</span>
-          <h1>Your liked<br>homes.</h1>
-          <p>Everything you heart from Explore lands here, so comparison feels less like browser-tab archaeology.</p>
-        </section>
         <div class="section-heading">
-          <div><span class="eyebrow" style="color:var(--mint-deep)">Saved listings</span><h2>Worth comparing</h2></div>
           <span id="likedCount" class="count">0 liked</span>
         </div>
         <div id="likedListings" class="listings"></div>
@@ -1441,13 +1519,7 @@
       </div>
 
       <div id="chats" class="view">
-        <section class="hero">
-          <span class="eyebrow">Messages</span>
-          <h1>Chats and<br>viewings.</h1>
-          <p>Pick up each conversation where you left off, with viewing status surfaced beside the thread.</p>
-        </section>
         <div class="section-heading">
-          <div><span class="eyebrow" style="color:var(--mint-deep)">Conversation summary</span><h2>Active threads</h2></div>
           <span id="chatCount" class="count">0 chats</span>
         </div>
         <section id="chatList" class="conversation-list"></section>
@@ -1500,6 +1572,7 @@
           <div><h3 id="chatTitle">Chat</h3><small id="chatSubtitle">Message owner or authorised agent</small></div>
           <button id="chatClose" class="window-close" type="button" aria-label="Close chat">×</button>
         </div>
+        <div id="chatListingSummary" class="chat-listing-summary"></div>
         <div id="chatViewingPanel" class="chat-viewing-panel"></div>
       </header>
       <div id="messages" class="messages"></div>
@@ -2362,7 +2435,7 @@
             <strong class="title">${escapeHtml(item.title)}</strong>
             <span class="meta">${escapeHtml(item.area)} · ${escapeHtml(item.district)}${item.postcode ? ` · ${escapeHtml(item.postcode)}` : ""}</span>
             <span class="meta">${escapeHtml(item.beds)} · ${escapeHtml(item.available)}</span>
-            ${viewingRequests[item.title] ? `<span class="status-pill">Viewing ${escapeHtml(viewingRequests[item.title].status)}</span>` : ""}
+            ${viewingRequests[item.title] ? `<span class="status-pill">REQUESTED</span>` : ""}
           </span>
         </article>
       `).join("");
@@ -2653,8 +2726,8 @@
         const viewing = viewingRequests[item.title];
         return `<button class="conversation-card" type="button" data-title="${escapeHtml(item.title)}">
           <img src="${escapeHtml((item.images && item.images[0]) || item.image)}" alt="">
-          <span><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(last.text)}</p></span>
-          <small>${viewing ? "Viewing" : item.lister}</small>
+          <span><strong>${escapeHtml(item.title)}</strong><p class="conversation-desc">${escapeHtml(detailCopy(item))}</p><p>${escapeHtml(last.text)}</p></span>
+          <small>${viewing ? "Requested" : item.lister}</small>
         </button>`;
       }).join("") : `<div class="empty-state"><strong>No chats yet.</strong>Open a listing, tap Chat, and the conversation will appear here.</div>`;
       document.querySelectorAll(".conversation-card").forEach((card) => {
@@ -3094,6 +3167,7 @@
       document.getElementById("chatTitle").textContent = `Chat: ${item.title}`;
       document.getElementById("chatSubtitle").textContent = `${item.lister} · ${item.mode} · ${item.area}`;
       if (!chatThreads[item.title]) chatThreads[item.title] = [];
+      renderChatListingSummary();
       renderChat();
       renderChatViewingPanel();
       renderChatList();
@@ -3101,6 +3175,13 @@
       chatWindow.setAttribute("aria-hidden", "false");
       pushLayerState("chat", item.title);
       setBodyLock();
+    }
+
+    function renderChatListingSummary() {
+      const target = document.getElementById("chatListingSummary");
+      if (!target || !selectedListing) return;
+      target.innerHTML = `<img src="${escapeHtml((selectedListing.images && selectedListing.images[0]) || selectedListing.image)}" alt="">
+        <span><strong>${escapeHtml(selectedListing.title)}</strong><p>${escapeHtml(detailCopy(selectedListing))}</p></span>`;
     }
 
     function renderChat() {
@@ -3120,21 +3201,12 @@
       const request = viewingRequests[selectedListing.title];
       if (!request) {
         chatViewingPanel.innerHTML = `<div class="chat-viewing-card">
-          <strong>Ready to view?</strong>
-          <p>Request a viewing inside chat, then the owner/agent can accept or suggest a change.</p>
           <button class="button coral" type="button" data-chat-view-action="start">Request to view</button>
         </div>`;
       } else {
-        const status = request.status || "requested";
         chatViewingPanel.innerHTML = `<div class="chat-viewing-card">
-          <strong>Viewing ${escapeHtml(status)}</strong>
-          <p>Preferred: ${escapeHtml(formatSlot(request.preferred))}<br>Alternative: ${escapeHtml(formatSlot(request.alternative))}${request.agentNote ? `<br>${escapeHtml(request.agentNote)}` : ""}</p>
-          <div class="chat-viewing-actions">
-            <button class="button secondary" type="button" data-chat-view-action="edit">Change</button>
-            <button class="button" type="button" data-chat-view-action="accept">Accept</button>
-            <button class="button secondary" type="button" data-chat-view-action="counter">Suggest change</button>
-            <button class="button secondary" type="button" data-chat-view-action="cancel">Cancel</button>
-          </div>
+          <span class="chat-viewing-chip">Requested</span>
+          <button class="chat-viewing-chip edit" type="button" data-chat-view-action="edit">Edit</button>
         </div>`;
       }
       chatViewingPanel.querySelectorAll("[data-chat-view-action]").forEach((button) => {
@@ -3153,28 +3225,65 @@
         renderChatViewingForm(draft);
         return;
       }
-      if (action === "accept") setChatViewingStatus("confirmed");
-      if (action === "counter") setChatViewingStatus("countered");
-      if (action === "cancel") setChatViewingStatus("cancelled");
+      if (action === "cancel") cancelChatViewingRequest();
     }
 
     function renderChatViewingForm(request) {
-      chatViewingPanel.innerHTML = `<div class="chat-viewing-card">
+      chatViewingPanel.innerHTML = `<div class="chat-viewing-card form">
         <strong>Request to view</strong>
-        <label>Preferred date/time<input id="chatPreferredSlot" type="datetime-local" value="${escapeHtml(request.preferred)}"></label>
-        <label>Alternative date/time<input id="chatAlternativeSlot" type="datetime-local" value="${escapeHtml(request.alternative)}"></label>
+        ${renderChatSlotPicker("preferred", "Preferred", request.preferred)}
+        ${renderChatSlotPicker("alternative", "Alternative", request.alternative)}
         <div class="chat-viewing-actions">
+          ${viewingRequests[selectedListing.title] ? `<button class="button secondary" type="button" data-chat-view-action="cancel">Cancel request</button>` : ""}
           <button class="button secondary" type="button" data-chat-view-action="close-form">Back</button>
-          <button class="button coral" type="button" data-chat-view-action="send-request">Send request</button>
+          <button class="button coral" type="button" data-chat-view-action="send-request">Save request</button>
         </div>
       </div>`;
+      chatViewingPanel.querySelectorAll("[data-slot-kind][data-slot-value]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const kind = button.dataset.slotKind;
+          const group = button.dataset.slotGroup;
+          chatViewingPanel.querySelectorAll(`[data-slot-kind="${cssEscape(kind)}"][data-slot-group="${cssEscape(group)}"]`).forEach((item) => item.classList.toggle("active", item === button));
+        });
+      });
       chatViewingPanel.querySelector("[data-chat-view-action='close-form']").addEventListener("click", renderChatViewingPanel);
       chatViewingPanel.querySelector("[data-chat-view-action='send-request']").addEventListener("click", sendChatViewingRequest);
+      chatViewingPanel.querySelector("[data-chat-view-action='cancel']")?.addEventListener("click", cancelChatViewingRequest);
+    }
+
+    function renderChatSlotPicker(kind, label, value) {
+      const selected = parseSlot(value);
+      return `<div class="slot-picker" data-slot-picker="${escapeHtml(kind)}">
+        <strong>${escapeHtml(label)}</strong>
+        <div class="slot-row" aria-label="${escapeHtml(label)} date">
+          ${nextDates().map((date) => `<button class="slot-choice ${date.value === selected.date ? "active" : ""}" type="button" data-slot-kind="${escapeHtml(kind)}" data-slot-group="date" data-slot-value="${escapeHtml(date.value)}">${escapeHtml(date.label)} <small>${escapeHtml(date.sub)}</small></button>`).join("")}
+        </div>
+        <div class="slot-row" aria-label="${escapeHtml(label)} time">
+          ${["10:00", "12:30", "15:00", "17:30", "19:30"].map((time) => `<button class="slot-choice ${time === selected.time ? "active" : ""}" type="button" data-slot-kind="${escapeHtml(kind)}" data-slot-group="time" data-slot-value="${escapeHtml(time)}">${escapeHtml(formatTimeLabel(time))}</button>`).join("")}
+        </div>
+      </div>`;
+    }
+
+    function parseSlot(value) {
+      const slot = String(value || defaultPreferredSlot(2, 19));
+      const [date, time = "19:30"] = slot.split("T");
+      const normalizedTime = time.slice(0, 5);
+      return { date, time: ["10:00", "12:30", "15:00", "17:30", "19:30"].includes(normalizedTime) ? normalizedTime : "19:30" };
+    }
+
+    function formatTimeLabel(time) {
+      return new Date(`2026-07-18T${time}:00+08:00`).toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" });
+    }
+
+    function selectedChatSlot(kind) {
+      const date = chatViewingPanel.querySelector(`[data-slot-kind="${cssEscape(kind)}"][data-slot-group="date"].active`)?.dataset.slotValue;
+      const time = chatViewingPanel.querySelector(`[data-slot-kind="${cssEscape(kind)}"][data-slot-group="time"].active`)?.dataset.slotValue;
+      return date && time ? `${date}T${time}` : "";
     }
 
     function sendChatViewingRequest() {
-      const preferred = document.getElementById("chatPreferredSlot").value;
-      const alternative = document.getElementById("chatAlternativeSlot").value;
+      const preferred = selectedChatSlot("preferred");
+      const alternative = selectedChatSlot("alternative");
       if (!preferred || !alternative) {
         showToast("Add preferred and alternative slots");
         return;
@@ -3187,7 +3296,8 @@
         ownerNote: selectedListing.lister === "Owner" ? "Awaiting owner confirmation" : "Awaiting agent confirmation"
       };
       chatThreads[selectedListing.title] = chatThreads[selectedListing.title] || [];
-      chatThreads[selectedListing.title].push({ who: "me", text: `Viewing request: preferred ${formatSlot(preferred)}, alternative ${formatSlot(alternative)}.` });
+      const existingRequest = chatThreads[selectedListing.title].some((message) => String(message?.text || "").startsWith("Viewing request:"));
+      if (!existingRequest) chatThreads[selectedListing.title].push({ who: "me", text: `Viewing request: preferred ${formatSlot(preferred)}, alternative ${formatSlot(alternative)}.` });
       writeStorage("leasekaki-viewings", viewingRequests);
       writeStorage("leasekaki-chats", chatThreads);
       renderChat();
@@ -3197,27 +3307,17 @@
       showToast("Viewing request sent in chat");
     }
 
-    function setChatViewingStatus(status) {
-      const request = viewingRequests[selectedListing.title];
-      if (!request) return;
-      chatThreads[selectedListing.title] = chatThreads[selectedListing.title] || [];
-      if (status === "cancelled") {
-        delete viewingRequests[selectedListing.title];
-        chatThreads[selectedListing.title].push({ who: "them", text: "Viewing request cancelled. Send a new request anytime." });
-      } else {
-        request.status = status;
-        request.updatedAt = new Date().toISOString();
-        if (status === "confirmed") request.agentNote = `Confirmed for ${formatSlot(request.preferred)}.`;
-        if (status === "countered") request.agentNote = `Suggested change: ${formatSlot(request.alternative)} works better.`;
-        chatThreads[selectedListing.title].push({ who: "them", text: status === "confirmed" ? `Viewing confirmed for ${formatSlot(request.preferred)}.` : `Can we use the alternative slot instead: ${formatSlot(request.alternative)}?` });
-      }
+    function cancelChatViewingRequest() {
+      if (!selectedListing) return;
+      delete viewingRequests[selectedListing.title];
+      chatThreads[selectedListing.title] = (chatThreads[selectedListing.title] || []).filter((message) => !String(message?.text || "").startsWith("Viewing request:"));
       writeStorage("leasekaki-viewings", viewingRequests);
       writeStorage("leasekaki-chats", chatThreads);
       renderChat();
       renderChatViewingPanel();
       renderChatList();
       renderListings();
-      showToast(`Viewing ${status}`);
+      showToast("Viewing request cancelled");
     }
 
     function closeChat(fromHistory = false) {
