@@ -801,10 +801,15 @@
       font-size: 19px;
       font-weight: 650;
       line-height: 1;
-      padding: 0 0 1px;
+      padding: 0;
     }
-    .save:not(.liked) { transform: scaleX(1.08) scaleY(.82); }
-    .save.liked { transform: scaleX(1.06) scaleY(.86); }
+    .save-heart {
+      display: block;
+      line-height: 1;
+      transform-origin: center;
+      transform: translateY(1px) scaleX(1.08) scaleY(.82);
+    }
+    .save.liked .save-heart { transform: translateY(1px) scaleX(1.06) scaleY(.86); }
     .save.liked { background: var(--coral); color: var(--paper); }
     body.dark .save:not(.liked) {
       background: rgba(244, 246, 243, .9);
@@ -3233,7 +3238,7 @@
           <span class="photo ${escapeHtml(item.tone)}">
             ${renderPhotoTrack(item)}
             <span class="badge ${classToken(item.lister)}">${escapeHtml(item.lister)}</span>
-            <button class="save ${likedListings.has(item.title) ? "liked" : ""}" type="button" data-action="like" aria-label="Save listing">${likedListings.has(item.title) ? "♥" : "♡"}</button>
+            <button class="save ${likedListings.has(item.title) ? "liked" : ""}" type="button" data-action="like" aria-label="Save listing"><span class="save-heart">${likedListings.has(item.title) ? "♥" : "♡"}</span></button>
             ${renderPhotoDots(item)}
             ${item.image ? "" : `<span class="building"><i></i><i></i><i></i><i></i><i></i><i></i></span>`}
           </span>
