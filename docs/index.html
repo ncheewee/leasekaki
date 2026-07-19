@@ -2896,7 +2896,7 @@
     }
 
     function detailRichCopy(item) {
-      const summary = capWords(detailCopy(item), 250);
+      const summary = capWords(detailCopy(item), 150);
       const fitLine = item.mode === "Room only"
         ? "Best for a tenant who wants a straightforward room search, clear house expectations and a lighter monthly commitment."
         : "Best for tenants who want the privacy of a whole home, a clear move-in timeline and enough space for daily routines.";
@@ -2904,13 +2904,9 @@
       const bullets = [
         `${item.beds}`,
         `${item.available}`,
-        `${item.lister === "Owner" ? "Listed by owner" : "Listed by agent"}`
+        `${item.type} · ${item.mode}`
       ];
       return `
-        <section class="detail-section">
-          <i>⌂</i>
-          <div><strong>Home snapshot</strong><p>${escapeHtml(summary)}</p></div>
-        </section>
         <section class="detail-section">
           <i>⌖</i>
           <div><strong>Location</strong><p>${escapeHtml(locationLine)}</p></div>
@@ -2922,6 +2918,10 @@
         <section class="detail-section">
           <i>✨</i>
           <div><strong>Who this suits</strong><p>${escapeHtml(fitLine)}</p></div>
+        </section>
+        <section class="detail-section detail-long-copy">
+          <i>⌂</i>
+          <div><strong>Description</strong><p>${escapeHtml(summary)}</p></div>
         </section>
       `;
     }
