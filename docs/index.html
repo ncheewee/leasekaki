@@ -52,7 +52,11 @@
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 120%;
+      text-size-adjust: 120%;
+    }
     html.modal-open,
     body.modal-open { overflow: hidden; }
     body.auth-loading,
@@ -62,6 +66,7 @@
       background: var(--cream);
       color: var(--ink);
       font-family: var(--font-sans);
+      font-size: 120%;
       letter-spacing: -.01em;
     }
 
@@ -178,12 +183,12 @@
       overflow: hidden;
     }
     .account-button img {
-      width: 100%;
-      height: 100%;
+      width: 118%;
+      height: 118%;
       display: block;
       object-fit: cover;
       border-radius: inherit;
-      transform: scale(1.14);
+      transform: scale(1.22);
     }
     .account-button .avatar-fallback {
       width: 100%;
@@ -365,6 +370,7 @@
     .suggestion small { color: var(--muted); font-size: 11px; font-weight: 850; }
     .suggestion i { font-style: normal; color: var(--mint-deep); font-weight: 950; }
     .map-card {
+      position: relative;
       display: none;
       margin: 4px 16px 12px;
       overflow: hidden;
@@ -422,6 +428,23 @@
     .map-canvas::before { left: -18%; right: 12%; top: 46%; height: 14px; }
     .map-canvas::after { left: 18%; right: -20%; top: 30%; height: 10px; transform: rotate(24deg); }
     .map-card.expanded .map-canvas { height: min(58vh, 520px); }
+    .search-area-button {
+      position: absolute;
+      z-index: 502;
+      left: 50%;
+      top: 72px;
+      transform: translateX(-50%);
+      min-height: 38px;
+      border: 0;
+      border-radius: 999px;
+      padding: 0 15px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 950;
+      box-shadow: 0 10px 26px rgba(16, 43, 54, .20);
+    }
+    .search-area-button.hidden { display: none; }
     .map-pin {
       position: absolute;
       z-index: 1;
@@ -704,7 +727,7 @@
       padding: 15px;
     }
     .price-row { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
-    .price-row strong { font-size: 22px; line-height: 1.05; letter-spacing: -.035em; }
+    .price-row strong { font-size: 22px; line-height: 1.05; letter-spacing: .012em; }
     .price-row small, .meta { color: var(--muted); font-size: 12px; }
     .type-chip {
       border-radius: 999px;
@@ -1095,7 +1118,7 @@
     }
     .detail-body { display: grid; gap: 14px; padding: 18px 16px 22px; }
     .detail-topline { display: flex; align-items: start; justify-content: space-between; gap: 14px; }
-    .detail-price { font-size: 28px; font-weight: 900; letter-spacing: -.05em; }
+    .detail-price { font-size: 28px; font-weight: 900; letter-spacing: .012em; }
     .detail-price small { color: var(--muted); font-size: 13px; font-weight: 800; letter-spacing: 0; }
     .detail-title { margin: 0; font-size: 24px; line-height: 1.08; letter-spacing: -.04em; }
     .detail-pill {
@@ -1135,14 +1158,15 @@
       place-items: center;
       min-height: 25px;
       padding: 0 10px;
+      border: 1px solid rgba(255, 253, 248, .22);
       border-radius: 999px;
-      background: var(--mint-deep);
+      background: rgba(28, 107, 87, .68);
       color: var(--paper);
       font-size: 12px;
       font-weight: 950;
       letter-spacing: -.01em;
     }
-    .chip-label.graph { margin: 4px 0 -2px; background: var(--ink); }
+    .chip-label.graph { margin: 4px 0 -2px; background: rgba(16, 43, 54, .72); }
     .signal-good { color: var(--good); font-weight: 950; }
     .signal-bad { color: var(--bad); font-weight: 950; }
     .insight-list {
@@ -1187,7 +1211,7 @@
       padding: 0 20px;
       background: var(--coral);
       color: var(--paper);
-      box-shadow: 0 14px 34px rgba(255, 115, 95, .36);
+      box-shadow: 0 14px 30px rgba(16, 43, 54, .24);
       pointer-events: auto;
     }
     .detail-map {
@@ -1699,6 +1723,7 @@
               <div><strong id="mapTitle">Map results</strong><small id="mapSubtitle">Showing available units near your search</small></div>
             </div>
             <div id="mapCanvas" class="map-canvas"></div>
+            <button id="searchAreaButton" class="search-area-button hidden" type="button">Search this area</button>
           </section>
           <div class="filter-stack" aria-label="Listing filters">
             <div class="toggle-row">
@@ -1993,6 +2018,7 @@
     const districtMenu = document.getElementById("districtMenu");
     const resultMap = document.getElementById("resultMap");
     const mapCanvas = document.getElementById("mapCanvas");
+    const searchAreaButton = document.getElementById("searchAreaButton");
     const loginGoogleButton = document.getElementById("loginGoogleButton");
     const accountButton = document.getElementById("accountButton");
     const accountMenu = document.getElementById("accountMenu");
@@ -2011,6 +2037,8 @@
     let selectedListing = null;
     let leafletMap = null;
     let leafletLayer = null;
+    let mapAreaBounds = null;
+    let suppressMapMovePrompt = false;
     let detailLeafletMap = null;
     let detailLeafletLayer = null;
     let navigationClosing = false;
@@ -2430,6 +2458,7 @@
       renderSearchSuggestions();
     });
     search.addEventListener("input", () => {
+      clearMapAreaFilter();
       searchBox.classList.add("expanded");
       schedulePostalLookup();
       renderSearchSuggestions();
@@ -2437,12 +2466,14 @@
     });
     searchClear.addEventListener("click", (event) => {
       event.preventDefault();
+      clearMapAreaFilter();
       search.value = "";
       searchBox.classList.remove("expanded");
       search.blur();
       renderSearchSuggestions();
       renderListings();
     });
+    searchAreaButton.addEventListener("click", applyCurrentMapArea);
     searchSuggestions.addEventListener("click", (event) => {
       const button = event.target.closest("[data-suggestion]");
       if (!button) return;
@@ -2527,6 +2558,7 @@
     }
 
     function setDistrict(value) {
+      clearMapAreaFilter();
       activeDistrict = value || "All";
       const selected = districtOptions.find(([district]) => district === activeDistrict) || districtOptions[0];
       districtButton.innerHTML = `${escapeHtml(selected[1])} <span>⌄</span>`;
@@ -2859,17 +2891,25 @@
         const direct = filtered.filter((item) => matchesPostalSearch(item, query, false));
         const nearby = nearbyPostalListings(postalTarget, filtered);
         const seen = new Set();
-        return [...direct, ...nearby]
+        return applyMapAreaFilter([...direct, ...nearby]
           .filter((item) => {
             if (seen.has(item.title)) return false;
             seen.add(item.title);
             return true;
           })
-          .sort((a, b) => postalSortScore(a, postalTarget) - postalSortScore(b, postalTarget) || sortListings(a, b));
+          .sort((a, b) => postalSortScore(a, postalTarget) - postalSortScore(b, postalTarget) || sortListings(a, b)));
       }
-      return filtered.filter((item) => {
+      return applyMapAreaFilter(filtered.filter((item) => {
         return !query || searchableText(item).includes(query) || matchesPostalSearch(item, query, hasDirectPostalMatch);
-      }).sort(sortListings);
+      }).sort(sortListings));
+    }
+
+    function applyMapAreaFilter(items) {
+      if (!mapAreaBounds) return items;
+      return items.filter((item) => {
+        const [lat, lng] = latLngForItem(item);
+        return mapAreaBounds.contains([lat, lng]);
+      });
     }
 
     function matchesActiveFilters(item) {
@@ -3000,10 +3040,32 @@
       renderListingCards(liked, document.getElementById("likedListings"), "No liked homes yet.", "Tap the heart on any listing to build your shortlist.");
     }
 
+    function clearMapAreaFilter() {
+      mapAreaBounds = null;
+      searchAreaButton?.classList.add("hidden");
+    }
+
+    function canSearchMapArea() {
+      return resultMap.classList.contains("open") && Boolean(search.value.trim() || activeDistrict !== "All");
+    }
+
+    function showSearchAreaPrompt() {
+      if (suppressMapMovePrompt || !canSearchMapArea()) return;
+      searchAreaButton.classList.remove("hidden");
+    }
+
+    function applyCurrentMapArea() {
+      if (!leafletMap) return;
+      mapAreaBounds = leafletMap.getBounds();
+      searchAreaButton.classList.add("hidden");
+      renderListings();
+    }
+
     function renderMap(items, query) {
       const postalTarget = /^\d{6}$/.test(query) ? cachedPostalLookup(query) : null;
       const showMap = Boolean(query || activeDistrict !== "All" || postalTarget?.address);
       resultMap.classList.toggle("open", showMap);
+      if (!showMap) clearMapAreaFilter();
       if (!showMap) return;
       document.getElementById("mapTitle").textContent = postalTarget?.address
         ? `${items.length} nearby ${items.length === 1 ? "unit" : "units"}`
@@ -3087,6 +3149,7 @@
           attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
         }).addTo(leafletMap);
         leafletLayer = L.layerGroup().addTo(leafletMap);
+        leafletMap.on("moveend zoomend", showSearchAreaPrompt);
       }
       leafletLayer.clearLayers();
       const bounds = [];
@@ -3115,8 +3178,10 @@
       });
       window.setTimeout(() => {
         leafletMap.invalidateSize();
+        suppressMapMovePrompt = true;
         if (bounds.length > 1) leafletMap.fitBounds(bounds, { padding: [32, 32], maxZoom: postalTarget?.address ? 15 : 14 });
         else if (bounds.length === 1) leafletMap.setView(bounds[0], 15);
+        window.setTimeout(() => { suppressMapMovePrompt = false; }, 240);
       }, 80);
     }
 
