@@ -46,6 +46,8 @@
       --mint: #58c995;
       --mint-deep: #bbf1d1;
       --coral: #ff8b7b;
+      --good: #79d9a4;
+      --bad: #ff9a8e;
       --line: #2d424a;
       --muted: #9fb0b6;
       --shadow: 0 18px 50px rgba(0, 0, 0, .28);
@@ -154,6 +156,11 @@
       padding: 14px 16px;
       background: var(--ink);
       color: var(--paper);
+    }
+    body.dark .topbar {
+      background: #0b1418;
+      color: var(--ink);
+      border-bottom: 1px solid var(--line);
     }
 
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.03em; }
@@ -303,6 +310,20 @@
       box-shadow: 0 10px 26px rgba(16, 43, 54, .07);
       transition: border-color .16s ease, box-shadow .16s ease, padding .16s ease;
     }
+    body.dark .search,
+    body.dark .sort-picker-button,
+    body.dark .district-picker-button,
+    body.dark .sort-menu,
+    body.dark .district-menu,
+    body.dark .toggle-group,
+    body.dark .listing,
+    body.dark .conversation-card,
+    body.dark .task-window {
+      background: var(--paper);
+      border-color: var(--line);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .26);
+    }
+    body.dark .search input::placeholder { color: rgba(214, 223, 220, .62); }
     .search.expanded {
       padding-top: 12px;
       padding-bottom: 12px;
@@ -706,6 +727,8 @@
     }
     .badge.agent { background: rgba(255, 115, 95, .96); color: var(--paper); }
     .badge.owner { background: rgba(187, 241, 209, .96); color: var(--mint-deep); }
+    body.dark .badge.agent { background: rgba(255, 139, 123, .95); color: #101a1f; }
+    body.dark .badge.owner { background: rgba(88, 201, 149, .95); color: #101a1f; }
     .save {
       right: 12px;
       width: 34px;
@@ -739,6 +762,7 @@
       line-height: 1;
       text-transform: uppercase;
     }
+    body.dark .type-chip { background: rgba(244, 246, 243, .10); color: var(--ink-soft); }
     .mode-pill {
       width: max-content;
       margin-top: 7px;
@@ -752,6 +776,8 @@
     }
     .mode-pill.room { background: var(--ink); }
     .mode-pill.whole { background: #2364d8; }
+    body.dark .mode-pill.room { background: #050b0d; color: var(--ink); }
+    body.dark .mode-pill.whole { background: #5f91ff; color: #07131a; }
     .status-pill {
       width: max-content;
       margin-top: 7px;
@@ -762,6 +788,10 @@
       font-size: 11px;
       font-weight: 900;
       line-height: 1;
+    }
+    body.dark .status-pill {
+      background: rgba(255, 139, 123, .18);
+      color: #ffb1a6;
     }
     .title {
       display: -webkit-box;
@@ -1024,6 +1054,10 @@
       box-shadow: 0 14px 32px rgba(16, 43, 54, .14);
       backdrop-filter: blur(14px);
     }
+    body.dark .nav {
+      background: rgba(15, 25, 30, .94);
+      border-color: var(--line);
+    }
     .nav button {
       min-height: 48px;
       border: 0;
@@ -1083,20 +1117,20 @@
     .detail-backdrop.open .detail-sheet { transform: translateY(0); }
     .detail-photo {
       position: relative;
-      min-height: 235px;
+      min-height: 168px;
       background: var(--cream);
       overflow: hidden;
       touch-action: pan-y;
       user-select: none;
     }
     .detail-photo .photo-track {
-      min-height: 235px;
+      min-height: 168px;
     }
     .detail-photo img {
       flex: 0 0 100%;
       width: 100%;
       height: 100%;
-      min-height: 235px;
+      min-height: 168px;
       object-fit: cover;
       display: block;
     }
@@ -1116,11 +1150,34 @@
       line-height: 1;
       box-shadow: 0 0 0 1px rgba(16, 43, 54, .08), 0 8px 22px rgba(16, 43, 54, .28), 0 0 18px rgba(255, 253, 248, .95);
     }
-    .detail-body { display: grid; gap: 14px; padding: 18px 16px 22px; }
+    body.dark .detail-close,
+    body.dark .window-close,
+    body.dark .inline-close {
+      background: rgba(244, 246, 243, .94);
+      color: #101a1f;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.16), 0 10px 24px rgba(0,0,0,.45);
+    }
+    .detail-body { display: grid; gap: 9px; padding: 13px 14px 20px; font-size: .78rem; }
     .detail-topline { display: flex; align-items: start; justify-content: space-between; gap: 14px; }
-    .detail-price { font-size: 28px; font-weight: 900; letter-spacing: .012em; }
-    .detail-price small { color: var(--muted); font-size: 13px; font-weight: 800; letter-spacing: 0; }
-    .detail-title { margin: 0; font-size: 24px; line-height: 1.08; letter-spacing: -.04em; }
+    .detail-price { font-size: 21px; font-weight: 900; letter-spacing: .012em; }
+    .detail-price small { color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 0; }
+    .detail-title { margin: 2px 0 0; font-size: 14px; line-height: 1.15; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .detail-description {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 12px;
+      line-height: 1.38;
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+    }
+    .detail-copy-limit {
+      margin-top: -3px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+    }
     .detail-pill {
       flex: 0 0 auto;
       border-radius: 999px;
@@ -1133,20 +1190,20 @@
     .detail-facts {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 9px;
+      gap: 6px;
     }
     .detail-facts span {
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px;
+      border-radius: 12px;
+      padding: 7px;
       color: var(--ink-soft);
-      font-size: 12px;
-      line-height: 1.35;
+      font-size: 10px;
+      line-height: 1.28;
     }
     .insight-card {
       display: grid;
-      gap: 12px;
-      padding: 14px;
+      gap: 8px;
+      padding: 10px;
       border: 1px solid var(--line);
       border-radius: 18px;
       background: var(--cream);
@@ -1167,28 +1224,43 @@
       letter-spacing: -.01em;
     }
     .chip-label.graph { margin: 4px 0 -2px; background: rgba(16, 43, 54, .72); }
+    body.dark .chip-label {
+      border-color: rgba(121, 217, 164, .22);
+      background: rgba(121, 217, 164, .18);
+      color: #dff8e8;
+    }
+    body.dark .chip-label.graph {
+      background: rgba(244, 246, 243, .13);
+      color: var(--ink);
+    }
     .signal-good { color: var(--good); font-weight: 950; }
     .signal-bad { color: var(--bad); font-weight: 950; }
     .insight-list {
       margin: 0;
       padding-left: 18px;
       color: var(--ink-soft);
-      font-size: 13px;
-      line-height: 1.42;
+      font-size: 11px;
+      line-height: 1.35;
     }
     .insight-list li + li { margin-top: 5px; }
     .chart-box {
       position: relative;
-      min-height: 226px;
+      min-height: 198px;
       padding: 12px 10px;
       border: 1px solid rgba(16, 43, 54, .08);
       border-radius: 15px;
       background: rgba(255, 253, 248, .72);
       overflow: hidden;
     }
+    body.dark .insight-card,
+    body.dark .chart-box,
+    body.dark .view-form {
+      background: rgba(244, 246, 243, .055);
+      border-color: var(--line);
+    }
     .chart-box canvas {
       width: 100%;
-      height: 184px;
+      height: 164px;
       display: block;
     }
     .chart-caption { display: none; }
@@ -1259,6 +1331,7 @@
       pointer-events: none;
       transition: opacity .18s ease;
     }
+    body.dark .window-backdrop { background: rgba(0, 0, 0, .62); }
     .window-backdrop.open { opacity: 1; pointer-events: auto; }
     .task-window {
       width: min(520px, 100%);
@@ -1268,6 +1341,7 @@
       overflow: hidden;
       border-radius: 24px;
       background: var(--paper);
+      font-size: .833rem;
       box-shadow: var(--shadow);
       transform: translateY(14px);
       transition: transform .18s ease;
@@ -1690,7 +1764,6 @@
             <strong>Signed in</strong>
             <span>LeaseKaki profile</span>
           </div>
-          <button id="aboutButton" type="button"><span>◌</span><span>About LeaseKaki</span></button>
           <button id="themeToggle" class="theme-menu-item" type="button" aria-pressed="false"><span>☾</span><span>Dark theme</span><i class="theme-switch" aria-hidden="true"></i></button>
           <button id="signOutButton" class="sign-out" type="button"><span>↩</span><span>Log out</span></button>
         </div>
@@ -1855,7 +1928,8 @@
           <span id="detailLister" class="detail-pill">Owner</span>
         </div>
         <div id="detailFacts" class="detail-facts"></div>
-        <p id="detailCopy" style="margin:0;color:var(--ink-soft);line-height:1.55"></p>
+        <p id="detailCopy" class="detail-description"></p>
+        <div class="detail-copy-limit">Description preview capped at about 55 words.</div>
         <section class="insight-card" aria-label="AI insights">
           <div class="insight-head">
             <strong class="chip-label">AI Insights</strong>
@@ -2023,7 +2097,6 @@
     const accountButton = document.getElementById("accountButton");
     const accountMenu = document.getElementById("accountMenu");
     const accountStatus = document.getElementById("accountStatus");
-    const aboutButton = document.getElementById("aboutButton");
     const themeToggle = document.getElementById("themeToggle");
     const signOutButton = document.getElementById("signOutButton");
     const toast = document.getElementById("toast");
@@ -2385,10 +2458,6 @@
     history.replaceState({ leasekakiLayer: "root" }, "", window.location.pathname + window.location.search);
     navButtons.forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
     loginGoogleButton.addEventListener("click", () => startSso("google"));
-    aboutButton.addEventListener("click", () => {
-      accountMenu.classList.remove("open");
-      showToast("LeaseKaki is a Singapore rentals MVP for snap-to-list, search, chat and viewing flow.");
-    });
     themeToggle.addEventListener("click", () => {
       const nextTheme = document.body.classList.contains("dark") ? "light" : "dark";
       setTheme(nextTheme);
@@ -2698,6 +2767,11 @@
       return item.description || `${item.title} is available from ${item.available.toLowerCase()} at ${item.area}. The mock transaction lane would next help confirm viewing, offer terms and paperwork.`;
     }
 
+    function capWords(value, limit = 55) {
+      const words = String(value || "").trim().split(/\s+/).filter(Boolean);
+      return words.length > limit ? `${words.slice(0, limit).join(" ")}…` : words.join(" ");
+    }
+
     function resetDetailScroll() {
       if (!detailSheet) return;
       detailSheet.scrollTop = 0;
@@ -2715,14 +2789,12 @@
       document.getElementById("detailPrice").innerHTML = `$${Number(item.price).toLocaleString()}<small>/mo</small>`;
       document.getElementById("detailTitle").textContent = item.title;
       document.getElementById("detailLister").textContent = `${item.lister} · ${item.mode}`;
-      document.getElementById("detailCopy").textContent = detailCopy(item);
+      document.getElementById("detailCopy").textContent = capWords(detailCopy(item));
       document.getElementById("detailFacts").innerHTML = [
         ["Listing", `${item.mode} · ${item.type}`],
-        ["Location", `${item.area}${item.postcode ? ` · ${item.postcode}` : ""}`],
-        ["District", `${item.district} · ${item.mrt}`],
-        ["Home", item.beds],
-        ["Timing", item.available],
-        ["Rent guide", item.rentRange || "Guide pending"]
+        ["Location", `${item.area} · ${item.district}`],
+        ["Rooms", item.beds],
+        ["Available", item.available]
       ].map(([label, value]) => `<span><strong>${escapeHtml(label)}</strong><br>${escapeHtml(value)}</span>`).join("");
       renderPriceInsights(item);
       renderDetailMap(item);
