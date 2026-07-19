@@ -1200,6 +1200,9 @@
       display: block;
     }
     .detail-photo .photo-dots { bottom: 14px; }
+    .detail-photo .badge {
+      z-index: 2;
+    }
     .detail-close {
       position: fixed;
       top: calc(5dvh + 10px);
@@ -1223,44 +1226,63 @@
       box-shadow: 0 0 0 1px rgba(255,255,255,.16), 0 10px 24px rgba(0,0,0,.45);
     }
     .detail-body { display: grid; gap: 10px; padding: 13px 14px 20px; font-size: .78rem; }
-    .detail-topline { display: flex; align-items: start; justify-content: space-between; gap: 14px; min-width: 0; }
+    .detail-topline { display: block; min-width: 0; }
     .detail-topline > div { min-width: 0; }
+    .detail-price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      min-width: 0;
+    }
     .detail-price { font-size: 21px; font-weight: 900; letter-spacing: .012em; }
     .detail-price small { color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 0; }
     .detail-title { margin: 2px 0 0; font-size: 14px; line-height: 1.15; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: clip; }
     .detail-description {
-      margin: 7px 0 9px;
+      display: grid;
+      gap: 10px;
+      margin: 10px 0 12px;
       color: var(--ink-soft);
       font-size: 12px;
-      line-height: 1.55;
-      display: -webkit-box;
-      overflow: hidden;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 6;
+      line-height: 1.5;
     }
-    .detail-pill {
-      flex: 0 0 auto;
-      border-radius: 999px;
-      padding: 7px 10px;
-      background: var(--mint);
-      color: var(--mint-deep);
-      font-size: 11px;
-      font-weight: 900;
-    }
-    .detail-facts {
+    .detail-description p { margin: 0; }
+    .detail-section {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 5px 12px;
+      grid-template-columns: 20px minmax(0, 1fr);
+      gap: 7px;
+      align-items: start;
     }
-    .detail-fact {
-      min-width: 0;
+    .detail-section i {
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(255, 115, 95, .12);
       color: var(--coral);
+      font-style: normal;
       font-size: 11px;
-      font-weight: 500;
-      line-height: 1.32;
-      overflow-wrap: anywhere;
     }
-    .detail-fact.full { grid-column: 1 / -1; }
+    .detail-section strong {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 850;
+    }
+    .detail-description ul {
+      display: grid;
+      gap: 3px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .detail-description li::before {
+      content: "•";
+      margin-right: 6px;
+      color: var(--coral);
+    }
     .detail-mode-row {
       display: flex;
       justify-content: flex-start;
@@ -1990,19 +2012,21 @@
     <article class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
       <div id="detailPhoto" class="detail-photo">
         <div id="detailCarousel"></div>
+        <span id="detailRibbon" class="badge owner">Owner</span>
         <div id="detailPhotoDots"></div>
       </div>
       <div class="detail-body">
         <div class="detail-topline">
           <div>
-            <div id="detailPrice" class="detail-price">$3,750<small>/mo</small></div>
+            <div class="detail-price-row">
+              <div id="detailPrice" class="detail-price">$3,750<small>/mo</small></div>
+              <small id="detailTypeChip" class="type-chip">HDB</small>
+            </div>
             <h2 id="detailTitle" class="detail-title">Sunny 4-room near Bishan MRT</h2>
           </div>
-          <span id="detailLister" class="detail-pill">Owner</span>
         </div>
         <div id="detailModeRow" class="detail-mode-row"></div>
-        <div id="detailFacts" class="detail-facts"></div>
-        <p id="detailCopy" class="detail-description"></p>
+        <div id="detailCopy" class="detail-description"></div>
         <section class="insight-card" aria-label="AI insights">
           <div class="insight-head">
             <strong class="chip-label">AI Insights</strong>
@@ -2076,7 +2100,7 @@
       { title: "Master room beside Buona Vista", area: "North Buona Vista Road", type: "Condo", mode: "Room only", price: 1850, beds: "Master room · Ensuite", available: "Available now", availableDate: "2026-07-21", lister: "Agent", district: "D05", postcode: "139345", mrt: "Buona Vista MRT", lat: 1.3067, lng: 103.7906, map: { x: 25, y: 51 }, tone: "sunset", description: "Master room with ensuite, strong one-north access and flexible lease start. Best fit for a tenant who wants privacy without taking a whole unit." },
       { title: "Quiet 3-bed family condo in Serangoon", area: "Serangoon Avenue 3", type: "Condo", mode: "Whole unit", price: 5200, beds: "3 bed · 2 bath", available: "Available 15 Sep", availableDate: "2026-09-15", lister: "Owner", district: "D19", postcode: "550303", mrt: "Serangoon MRT", lat: 1.3506, lng: 103.8728, map: { x: 61, y: 32 }, tone: "sky", description: "Low-density family condo with proper bedrooms, a calmer residential feel and quick access to NEX, Serangoon MRT and neighbourhood schools." },
       { title: "Whole unit minutes from Jurong East", area: "Jurong East Street 21", type: "HDB", mode: "Whole unit", price: 3900, beds: "3 bed · Furnished", available: "Available 1 Oct", availableDate: "2026-10-01", lister: "Agent", district: "D22", postcode: "600021", mrt: "Jurong East MRT", lat: 1.3331, lng: 103.7423, map: { x: 13, y: 42 }, tone: "lilac", description: "Furnished whole HDB unit near Jurong East transport and malls, convenient for tenants working around Jurong Lake District or the west side." },
-      { title: "25 Ang Mo Kio family unit", area: "25 Ang Mo Kio Ave 9", type: "HDB", mode: "Whole unit", price: 4100, beds: "3 bed · Furnished", available: "Available 1 Sep", availableDate: "2026-09-01", lister: "Owner", district: "D20", postcode: "569788", mrt: "Yio Chu Kang MRT", lat: 1.3850, lng: 103.8450, map: { x: 54, y: 29 }, tone: "mint", description: "Full 3-bedroom HDB family unit at 25 Ang Mo Kio Ave 9, mocked for postcode search and details-card testing. The flat is positioned for tenants who want a quieter northern estate, convenient access to Yio Chu Kang MRT, nearby schools and daily amenities. Furnishing is kept practical rather than decorative, with enough living and bedroom flexibility for a small family or shared household. This longer description deliberately approaches the MVP word limit so spacing, scanning and the AI insights section can be judged properly on mobile." }
+      { title: "25 Ang Mo Kio family unit", area: "25 Ang Mo Kio Ave 9", type: "HDB", mode: "Whole unit", price: 4100, beds: "3 bed · Furnished", available: "Available 1 Sep", availableDate: "2026-09-01", lister: "Owner", district: "D20", postcode: "569788", mrt: "Yio Chu Kang MRT", lat: 1.3850, lng: 103.8450, map: { x: 54, y: 29 }, tone: "mint", description: "Full 3-bedroom HDB family unit at 25 Ang Mo Kio Ave 9, mocked for postcode search and details-card testing. The flat is positioned for tenants who want a quieter northern estate, convenient access to Yio Chu Kang MRT, nearby schools and daily amenities. Furnishing is kept practical rather than decorative, with enough living and bedroom flexibility for a small family or shared household. The living area is staged as a simple family zone, while the bedrooms are intentionally described in plain tenant language instead of agent brochure-speak. Kitchen and storage assumptions are realistic for a mature-estate HDB, so the write-up can test how longer listing copy feels when it includes practical trade-offs. Suitable for viewers comparing north-central value against Bishan or Serangoon, and useful for checking whether AI-generated listing descriptions remain readable, scannable and credible on mobile before the owner workflow is implemented." }
     ].map((item, index) => ({ ...item, image: listingPhotos[item.title], images: imagesForListing(item.title, index), postedAt: 200 - index }));
     const mockAreas = [
       ["D01", "Raffles Place", "048624", "Raffles Place MRT", 44, 70, 1.2830, 103.8510],
@@ -2871,6 +2895,37 @@
       return item.description || `${item.title} is available from ${item.available.toLowerCase()} at ${item.area}. The mock transaction lane would next help confirm viewing, offer terms and paperwork.`;
     }
 
+    function detailRichCopy(item) {
+      const summary = capWords(detailCopy(item), 250);
+      const fitLine = item.mode === "Room only"
+        ? "Best for a tenant who wants a straightforward room search, clear house expectations and a lighter monthly commitment."
+        : "Best for tenants who want the privacy of a whole home, a clear move-in timeline and enough space for daily routines.";
+      const locationLine = `${item.area} · ${item.mrt} · ${item.district}${item.postcode ? ` · ${item.postcode}` : ""}.`;
+      const bullets = [
+        `${item.beds}`,
+        `${item.available}`,
+        `${item.lister === "Owner" ? "Listed by owner" : "Listed by agent"}`
+      ];
+      return `
+        <section class="detail-section">
+          <i>⌂</i>
+          <div><strong>Home snapshot</strong><p>${escapeHtml(summary)}</p></div>
+        </section>
+        <section class="detail-section">
+          <i>⌖</i>
+          <div><strong>Location</strong><p>${escapeHtml(locationLine)}</p></div>
+        </section>
+        <section class="detail-section">
+          <i>✓</i>
+          <div><strong>Good to know</strong><ul>${bullets.map((itemText) => `<li>${escapeHtml(itemText)}</li>`).join("")}</ul></div>
+        </section>
+        <section class="detail-section">
+          <i>✨</i>
+          <div><strong>Who this suits</strong><p>${escapeHtml(fitLine)}</p></div>
+        </section>
+      `;
+    }
+
     function shortListingMeta(item) {
       return `${item.mode} · ${item.type} · ${item.area}`;
     }
@@ -2895,17 +2950,13 @@
       document.getElementById("detailPhotoDots").innerHTML = renderPhotoDots(item);
       wireDetailCarousel(item);
       document.getElementById("detailPrice").innerHTML = `$${Number(item.price).toLocaleString()}<small>/mo</small>`;
+      document.getElementById("detailTypeChip").textContent = item.type;
       document.getElementById("detailTitle").textContent = item.title;
-      document.getElementById("detailLister").textContent = item.lister;
+      const detailRibbon = document.getElementById("detailRibbon");
+      detailRibbon.textContent = item.lister;
+      detailRibbon.className = `badge ${classToken(item.lister)}`;
       document.getElementById("detailModeRow").innerHTML = `<span class="mode-pill ${modeClass(item)}">${escapeHtml(item.mode)}</span>`;
-      document.getElementById("detailCopy").textContent = capWords(detailCopy(item), 100);
-      document.getElementById("detailFacts").innerHTML = `
-        <span class="detail-fact full">${escapeHtml(item.area)} · ${escapeHtml(item.district)}${item.postcode ? ` · ${escapeHtml(item.postcode)}` : ""}</span>
-        <span class="detail-fact">${escapeHtml(item.beds)}</span>
-        <span class="detail-fact">${escapeHtml(item.type)}</span>
-        <span class="detail-fact">${escapeHtml(item.available)}</span>
-        <span class="detail-fact">${escapeHtml(item.mrt)}</span>
-      `;
+      document.getElementById("detailCopy").innerHTML = detailRichCopy(item);
       renderPriceInsights(item);
       renderDetailMap(item);
       detailBackdrop.classList.add("open");
