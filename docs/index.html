@@ -16,6 +16,9 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png">
   <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800;6..12,900&display=swap">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <style>
     :root {
@@ -31,8 +34,21 @@
       --line: #dcd8cf;
       --muted: #687a80;
       --shadow: 0 18px 50px rgba(16, 43, 54, .12);
-      --font-sans: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-sans: "Nunito Sans", "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, sans-serif;
       --font-google: Roboto, Arial, sans-serif;
+    }
+
+    body.dark {
+      --ink: #f4f6f3;
+      --ink-soft: #d6dfdc;
+      --cream: #101a1f;
+      --paper: #17262d;
+      --mint: #58c995;
+      --mint-deep: #bbf1d1;
+      --coral: #ff8b7b;
+      --line: #2d424a;
+      --muted: #9fb0b6;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .28);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -49,7 +65,7 @@
       letter-spacing: -.01em;
     }
 
-    button, input, select { font: inherit; -webkit-appearance: none; appearance: none; }
+    button, input, select, textarea { font: inherit; -webkit-appearance: none; appearance: none; }
     button { color: inherit; cursor: pointer; touch-action: manipulation; }
     button:focus-visible, input:focus-visible, select:focus-visible {
       outline: 3px solid rgba(255, 115, 95, .35);
@@ -218,6 +234,32 @@
     }
     .account-menu button:hover { background: var(--cream); color: var(--ink); }
     .account-menu .sign-out { color: var(--coral); }
+    .theme-menu-item {
+      grid-template-columns: auto 1fr auto !important;
+    }
+    .theme-switch {
+      width: 44px;
+      height: 26px;
+      padding: 3px;
+      border-radius: 999px;
+      background: var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      transition: background .18s ease, justify-content .18s ease;
+    }
+    .theme-switch::before {
+      content: "";
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--paper);
+      box-shadow: 0 2px 8px rgba(16, 43, 54, .18);
+    }
+    body.dark .theme-switch {
+      justify-content: flex-end;
+      background: var(--mint);
+    }
     .view { display: none; }
     .view.active { display: block; }
     .hero {
@@ -265,7 +307,7 @@
     .search-row {
       min-height: 58px;
       display: grid;
-      grid-template-columns: auto 1fr;
+      grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 10px;
     }
@@ -285,6 +327,20 @@
       font-weight: 700;
     }
     .search input::placeholder { color: rgba(49, 80, 91, .56); font-weight: 750; }
+    .search-clear {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 999px;
+      display: none;
+      place-items: center;
+      background: var(--cream);
+      color: var(--ink-soft);
+      font-size: 19px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .search.expanded .search-clear { display: grid; }
     .search-suggestions {
       display: none;
       gap: 7px;
@@ -1264,6 +1320,7 @@
     }
     .bubble {
       max-width: 82%;
+      align-self: flex-start;
       padding: 10px 12px;
       border-radius: 16px;
       background: var(--paper);
@@ -1272,8 +1329,8 @@
       font-size: 14px;
       line-height: 1.4;
     }
-    .bubble.me { justify-self: end; background: var(--ink); color: var(--paper); border-bottom-right-radius: 5px; }
-    .bubble.them { justify-self: start; border-bottom-left-radius: 5px; }
+    .bubble.me { align-self: flex-end; background: var(--ink); color: var(--paper); border-bottom-right-radius: 5px; }
+    .bubble.them { align-self: flex-start; border-bottom-left-radius: 5px; }
     .chat-compose {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -1610,6 +1667,7 @@
             <span>LeaseKaki profile</span>
           </div>
           <button id="aboutButton" type="button"><span>◌</span><span>About LeaseKaki</span></button>
+          <button id="themeToggle" class="theme-menu-item" type="button" aria-pressed="false"><span>☾</span><span>Dark theme</span><i class="theme-switch" aria-hidden="true"></i></button>
           <button id="signOutButton" class="sign-out" type="button"><span>↩</span><span>Log out</span></button>
         </div>
       </div>
@@ -1621,7 +1679,8 @@
           <div id="searchBox" class="search">
             <label class="search-row">
               <span>⌕</span>
-            <input id="search" placeholder="Search listings" aria-label="Search rentals">
+              <input id="search" placeholder="Search listings" aria-label="Search rentals">
+              <button id="searchClear" class="search-clear" type="button" aria-label="Cancel search">×</button>
             </label>
             <div id="searchSuggestions" class="search-suggestions" aria-label="Search suggestions"></div>
           </div>
@@ -1925,6 +1984,7 @@
     const searchBox = document.getElementById("searchBox");
     const searchSuggestions = document.getElementById("searchSuggestions");
     const search = document.getElementById("search");
+    const searchClear = document.getElementById("searchClear");
     const sortPicker = document.getElementById("sortPicker");
     const sortButton = document.getElementById("sortButton");
     const sortMenu = document.getElementById("sortMenu");
@@ -1938,6 +1998,7 @@
     const accountMenu = document.getElementById("accountMenu");
     const accountStatus = document.getElementById("accountStatus");
     const aboutButton = document.getElementById("aboutButton");
+    const themeToggle = document.getElementById("themeToggle");
     const signOutButton = document.getElementById("signOutButton");
     const toast = document.getElementById("toast");
     const detailBackdrop = document.getElementById("detailBackdrop");
@@ -2031,6 +2092,30 @@
       try {
         localStorage.setItem(key, JSON.stringify(value));
       } catch (error) {}
+    }
+
+    function readTheme() {
+      try {
+        return localStorage.getItem("leasekaki-theme") === "dark" ? "dark" : "light";
+      } catch (error) {
+        return "light";
+      }
+    }
+
+    function applyTheme(theme) {
+      const isDark = theme === "dark";
+      document.body.classList.toggle("dark", isDark);
+      themeToggle?.setAttribute("aria-pressed", String(isDark));
+      const label = themeToggle?.querySelector("span:nth-child(2)");
+      if (label) label.textContent = isDark ? "Light theme" : "Dark theme";
+      document.querySelector("meta[name='theme-color']")?.setAttribute("content", isDark ? "#101a1f" : "#102b36");
+    }
+
+    function setTheme(theme) {
+      try {
+        localStorage.setItem("leasekaki-theme", theme);
+      } catch (error) {}
+      applyTheme(theme);
     }
 
     function authMode(mode) {
@@ -2266,6 +2351,7 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    applyTheme(readTheme());
     handleAuthReturn();
     refreshAccount();
     history.replaceState({ leasekakiLayer: "root" }, "", window.location.pathname + window.location.search);
@@ -2274,6 +2360,10 @@
     aboutButton.addEventListener("click", () => {
       accountMenu.classList.remove("open");
       showToast("LeaseKaki is a Singapore rentals MVP for snap-to-list, search, chat and viewing flow.");
+    });
+    themeToggle.addEventListener("click", () => {
+      const nextTheme = document.body.classList.contains("dark") ? "light" : "dark";
+      setTheme(nextTheme);
     });
     signOutButton.addEventListener("click", () => {
       setAuthToken("");
@@ -2342,6 +2432,14 @@
     search.addEventListener("input", () => {
       searchBox.classList.add("expanded");
       schedulePostalLookup();
+      renderSearchSuggestions();
+      renderListings();
+    });
+    searchClear.addEventListener("click", (event) => {
+      event.preventDefault();
+      search.value = "";
+      searchBox.classList.remove("expanded");
+      search.blur();
       renderSearchSuggestions();
       renderListings();
     });
@@ -3367,7 +3465,7 @@
       const plotWidth = width - margins.left - margins.right;
       const plotHeight = height - margins.top - margins.bottom;
       context.clearRect(0, 0, width, height);
-      context.font = "10px Avenir Next, Helvetica Neue, Arial, sans-serif";
+      context.font = "10px Nunito Sans, Avenir Next, Helvetica Neue, Arial, sans-serif";
       context.lineWidth = 1;
       context.strokeStyle = "rgba(16, 43, 54, .10)";
       context.fillStyle = "rgba(49, 80, 91, .72)";
@@ -3494,7 +3592,7 @@
         context.arc(x, y, 5, 0, Math.PI * 2);
         context.fill();
         context.stroke();
-        context.font = "11px Avenir Next, Helvetica Neue, Arial, sans-serif";
+        context.font = "11px Nunito Sans, Avenir Next, Helvetica Neue, Arial, sans-serif";
         const labelText = `${forecast.label} expected`;
         const labelWidth = Math.min(132, context.measureText(labelText).width + 18);
         const labelHeight = 24;
