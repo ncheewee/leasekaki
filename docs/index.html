@@ -529,7 +529,7 @@
       background: var(--paper);
       color: var(--ink);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 500;
       box-shadow: 0 8px 18px rgba(16, 43, 54, .05);
     }
     .sort-picker-button, .district-picker-button {
@@ -576,7 +576,7 @@
       background: transparent;
       color: var(--ink-soft);
       font-size: 12px;
-      font-weight: 850;
+      font-weight: 500;
       text-align: left;
     }
     .sort-option.active, .sort-option:hover,
@@ -608,8 +608,8 @@
       border-radius: 13px;
       background: transparent;
       color: var(--ink-soft);
-      font-size: 11px;
-      font-weight: 900;
+      font-size: 12px;
+      font-weight: 500;
     }
     .toggle-group button.active { background: var(--mint); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(28, 107, 87, .12); }
     .chips {
@@ -628,7 +628,7 @@
       background: transparent;
       color: var(--ink-soft);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 500;
     }
     .chip.active { border-color: rgba(255, 115, 95, .5); background: rgba(255, 115, 95, .16); color: #9d4639; }
 
@@ -2904,7 +2904,7 @@
       const bullets = [
         `${item.beds}`,
         `${item.available}`,
-        `${item.type} · ${item.mode}`
+        item.mode === "Room only" ? "House rules and viewing to confirm in chat" : "Viewing request and next steps handled in chat"
       ];
       return `
         <section class="detail-section">
@@ -3514,13 +3514,10 @@
         }
       });
       document.getElementById("chatCount").textContent = `${rows.length} chats`;
-      document.getElementById("chatList").innerHTML = rows.length ? rows.map(({ item, thread }) => {
-        const last = thread[thread.length - 1];
-        const viewing = viewingRequests[item.title];
+      document.getElementById("chatList").innerHTML = rows.length ? rows.map(({ item }) => {
         return `<button class="conversation-card" type="button" data-title="${escapeHtml(item.title)}">
-          ${viewing ? `<span class="conversation-requested-chip">REQUESTED</span>` : ""}
           <img src="${escapeHtml((item.images && item.images[0]) || item.image)}" alt="">
-          <span><strong>${escapeHtml(item.title)}</strong><p class="conversation-desc">${escapeHtml(shortListingMeta(item))}</p><p>${escapeHtml(last.text)}</p></span>
+          <span><strong>${escapeHtml(item.title)}</strong></span>
         </button>`;
       }).join("") : `<div class="empty-state"><strong>No chats yet.</strong>Open a listing, tap Chat, and the conversation will appear here.</div>`;
       document.querySelectorAll(".conversation-card").forEach((card) => {
@@ -3895,8 +3892,8 @@
         context.fill();
         context.stroke();
         context.font = "11px Nunito Sans, Avenir Next, Helvetica Neue, Arial, sans-serif";
-        const labelText = `${forecast.label} expected`;
-        const labelWidth = Math.min(132, context.measureText(labelText).width + 18);
+        const labelText = `${forecast.label} expected next 3 months`;
+        const labelWidth = Math.min(188, context.measureText(labelText).width + 18);
         const labelHeight = 24;
         const labelX = width - labelWidth - 10;
         const labelY = margins.top + 8;
