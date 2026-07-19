@@ -99,6 +99,12 @@
     }
     body.auth-loading .login-screen,
     body.signed-out .login-screen { display: grid; }
+    body.dark .login-screen {
+      background:
+        radial-gradient(circle at 16% 14%, rgba(88, 201, 149, .32), transparent 30%),
+        radial-gradient(circle at 86% 20%, rgba(255, 139, 123, .24), transparent 28%),
+        linear-gradient(145deg, #07131a 0%, #10262f 58%, #17262d 58%);
+    }
     .login-card {
       width: min(100%, 420px);
       display: grid;
@@ -110,6 +116,11 @@
       color: var(--ink);
       box-shadow: 0 28px 80px rgba(5, 20, 26, .28);
     }
+    body.dark .login-card {
+      border-color: rgba(244, 246, 243, .16);
+      background: rgba(255, 253, 248, .96);
+      color: #102b36;
+    }
     .login-brand { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: -.04em; }
     .login-card h1 {
       margin: 4px 0 0;
@@ -118,6 +129,7 @@
       letter-spacing: -.07em;
     }
     .login-card p { margin: 0; color: var(--ink-soft); line-height: 1.5; font-weight: 650; }
+    body.dark .login-card p { color: #49636b; }
     .google-login-button {
       min-height: 44px;
       border: 1px solid #dadce0;
@@ -527,6 +539,18 @@
       justify-content: space-between;
       text-align: left;
     }
+    .select-caret {
+      display: inline-grid;
+      place-items: center;
+      align-self: center;
+      width: 16px;
+      height: 16px;
+      margin-left: 8px;
+      color: var(--ink-soft);
+      font-size: 9px;
+      line-height: 1;
+      transform: translateY(.5px);
+    }
     .sort-menu, .district-menu {
       position: absolute;
       z-index: 18;
@@ -758,8 +782,10 @@
     }
     .listing-body {
       min-height: 0;
+      min-width: 0;
       display: grid;
       padding: 15px;
+      overflow: hidden;
     }
     .price-row { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
     .price-row strong { font-size: 22px; line-height: 1.05; letter-spacing: .012em; }
@@ -777,6 +803,9 @@
     body.dark .type-chip { background: rgba(244, 246, 243, .10); color: var(--ink-soft); }
     .mode-pill {
       width: max-content;
+      max-width: 100%;
+      display: inline-grid;
+      place-items: center;
       margin-top: 7px;
       padding: 5px 8px;
       border-radius: 999px;
@@ -785,6 +814,7 @@
       font-size: 11px;
       font-weight: 900;
       line-height: 1;
+      white-space: nowrap;
     }
     .mode-pill.room { background: var(--ink); }
     .mode-pill.whole { background: #2364d8; }
@@ -1135,7 +1165,8 @@
       height: min(90dvh, 760px);
       max-height: 90dvh;
       margin: auto;
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
       border-radius: 24px;
@@ -1192,7 +1223,8 @@
       box-shadow: 0 0 0 1px rgba(255,255,255,.16), 0 10px 24px rgba(0,0,0,.45);
     }
     .detail-body { display: grid; gap: 9px; padding: 13px 14px 20px; font-size: .78rem; }
-    .detail-topline { display: flex; align-items: start; justify-content: space-between; gap: 14px; }
+    .detail-topline { display: flex; align-items: start; justify-content: space-between; gap: 14px; min-width: 0; }
+    .detail-topline > div { min-width: 0; }
     .detail-price { font-size: 21px; font-weight: 900; letter-spacing: .012em; }
     .detail-price small { color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 0; }
     .detail-title { margin: 2px 0 0; font-size: 14px; line-height: 1.15; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1222,21 +1254,13 @@
     }
     .detail-fact {
       min-width: 0;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 7px;
-      color: var(--ink-soft);
-      font-size: 10px;
-      line-height: 1.28;
+      color: var(--coral);
+      font-size: 11px;
+      font-weight: 850;
+      line-height: 1.32;
+      overflow-wrap: anywhere;
     }
     .detail-fact.full { grid-column: 1 / -1; }
-    .detail-fact strong {
-      color: var(--coral);
-      font-size: 10px;
-      font-weight: 950;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-    }
     .detail-fact .mode-pill {
       margin-top: 2px;
       font-size: 11px;
@@ -1827,11 +1851,11 @@
           </div>
           <div class="explore-tools" aria-label="Sort and quick filters">
             <div id="sortPicker" class="sort-picker">
-              <button id="sortButton" class="sort-picker-button" type="button" aria-expanded="false">Sort: Newest <span>⌄</span></button>
+              <button id="sortButton" class="sort-picker-button" type="button" aria-expanded="false">Sort: Newest <span class="select-caret">▼</span></button>
               <div id="sortMenu" class="sort-menu" aria-label="Sort listings"></div>
             </div>
             <div id="districtPicker" class="district-picker">
-              <button id="districtButton" class="district-picker-button" type="button" aria-expanded="false">All districts <span>⌄</span></button>
+              <button id="districtButton" class="district-picker-button" type="button" aria-expanded="false">All districts <span class="select-caret">▼</span></button>
               <div id="districtMenu" class="district-menu" aria-label="District filter"></div>
             </div>
           </div>
@@ -2499,7 +2523,8 @@
         chatWindow.setAttribute("aria-hidden", "true");
         closed = true;
       }
-      if (viewingWindow.classList.contains("open")) {
+      const viewingWindow = document.getElementById("viewingWindow");
+      if (viewingWindow?.classList.contains("open")) {
         viewingWindow.classList.remove("open");
         viewingWindow.setAttribute("aria-hidden", "true");
         closed = true;
@@ -2685,7 +2710,7 @@
     function setSort(value) {
       activeSort = value || "newest";
       const selected = sortOptions.find(([sort]) => sort === activeSort) || sortOptions[0];
-      sortButton.innerHTML = `${escapeHtml(selected[1])} <span>⌄</span>`;
+      sortButton.innerHTML = `${escapeHtml(selected[1])} <span class="select-caret">▼</span>`;
       sortPicker.classList.remove("open");
       sortButton.setAttribute("aria-expanded", "false");
       populateSortMenu();
@@ -2703,7 +2728,7 @@
       clearMapAreaFilter();
       activeDistrict = value || "All";
       const selected = districtOptions.find(([district]) => district === activeDistrict) || districtOptions[0];
-      districtButton.innerHTML = `${escapeHtml(selected[1])} <span>⌄</span>`;
+      districtButton.innerHTML = `${escapeHtml(selected[1])} <span class="select-caret">▼</span>`;
       districtPicker.classList.remove("open");
       districtButton.setAttribute("aria-expanded", "false");
       populateDistrictMenu();
@@ -2868,11 +2893,11 @@
       document.getElementById("detailLister").textContent = `${item.lister} · ${item.mode}`;
       document.getElementById("detailCopy").textContent = capWords(detailCopy(item), 100);
       document.getElementById("detailFacts").innerHTML = `
-        <span class="detail-fact full"><strong>Address</strong><br>${escapeHtml(item.area)} · ${escapeHtml(item.district)}${item.postcode ? ` · ${escapeHtml(item.postcode)}` : ""}</span>
-        <span class="detail-fact"><strong>Listing</strong><br><span class="mode-pill ${modeClass(item)}">${escapeHtml(item.mode)}</span></span>
-        <span class="detail-fact"><strong>Rooms</strong><br>${escapeHtml(item.beds)}</span>
-        <span class="detail-fact"><strong>Type</strong><br>${escapeHtml(item.type)}</span>
-        <span class="detail-fact"><strong>Available</strong><br>${escapeHtml(item.available)}</span>
+        <span class="detail-fact full">${escapeHtml(item.area)} · ${escapeHtml(item.district)}${item.postcode ? ` · ${escapeHtml(item.postcode)}` : ""}</span>
+        <span class="detail-fact"><span class="mode-pill ${modeClass(item)}">${escapeHtml(item.mode)}</span></span>
+        <span class="detail-fact">${escapeHtml(item.beds)}</span>
+        <span class="detail-fact">${escapeHtml(item.type)}</span>
+        <span class="detail-fact">${escapeHtml(item.available)}</span>
       `;
       renderPriceInsights(item);
       renderDetailMap(item);
