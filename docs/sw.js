@@ -1,8 +1,9 @@
-const CACHE_NAME = "leasekaki-pwa-v13";
+const CACHE_NAME = "leasekaki-pwa-v14";
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
+  "./assets/brand/google-g.svg",
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png",
   "./assets/ura-rentals-summary.json"
