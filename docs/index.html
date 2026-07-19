@@ -1222,21 +1222,21 @@
       color: #101a1f;
       box-shadow: 0 0 0 1px rgba(255,255,255,.16), 0 10px 24px rgba(0,0,0,.45);
     }
-    .detail-body { display: grid; gap: 9px; padding: 13px 14px 20px; font-size: .78rem; }
+    .detail-body { display: grid; gap: 10px; padding: 13px 14px 20px; font-size: .78rem; }
     .detail-topline { display: flex; align-items: start; justify-content: space-between; gap: 14px; min-width: 0; }
     .detail-topline > div { min-width: 0; }
     .detail-price { font-size: 21px; font-weight: 900; letter-spacing: .012em; }
     .detail-price small { color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 0; }
-    .detail-title { margin: 2px 0 0; font-size: 14px; line-height: 1.15; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .detail-title { margin: 2px 0 0; font-size: 14px; line-height: 1.15; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: clip; }
     .detail-description {
-      margin: 0;
+      margin: 7px 0 9px;
       color: var(--ink-soft);
       font-size: 12px;
-      line-height: 1.38;
+      line-height: 1.55;
       display: -webkit-box;
       overflow: hidden;
       -webkit-box-orient: vertical;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 6;
     }
     .detail-pill {
       flex: 0 0 auto;
@@ -1250,19 +1250,24 @@
     .detail-facts {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 6px;
+      gap: 5px 12px;
     }
     .detail-fact {
       min-width: 0;
       color: var(--coral);
       font-size: 11px;
-      font-weight: 850;
+      font-weight: 500;
       line-height: 1.32;
       overflow-wrap: anywhere;
     }
     .detail-fact.full { grid-column: 1 / -1; }
-    .detail-fact .mode-pill {
-      margin-top: 2px;
+    .detail-mode-row {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: -2px;
+    }
+    .detail-mode-row .mode-pill {
+      margin-top: 0;
       font-size: 11px;
     }
     .insight-card {
@@ -1995,6 +2000,7 @@
           </div>
           <span id="detailLister" class="detail-pill">Owner</span>
         </div>
+        <div id="detailModeRow" class="detail-mode-row"></div>
         <div id="detailFacts" class="detail-facts"></div>
         <p id="detailCopy" class="detail-description"></p>
         <section class="insight-card" aria-label="AI insights">
@@ -2070,7 +2076,7 @@
       { title: "Master room beside Buona Vista", area: "North Buona Vista Road", type: "Condo", mode: "Room only", price: 1850, beds: "Master room · Ensuite", available: "Available now", availableDate: "2026-07-21", lister: "Agent", district: "D05", postcode: "139345", mrt: "Buona Vista MRT", lat: 1.3067, lng: 103.7906, map: { x: 25, y: 51 }, tone: "sunset", description: "Master room with ensuite, strong one-north access and flexible lease start. Best fit for a tenant who wants privacy without taking a whole unit." },
       { title: "Quiet 3-bed family condo in Serangoon", area: "Serangoon Avenue 3", type: "Condo", mode: "Whole unit", price: 5200, beds: "3 bed · 2 bath", available: "Available 15 Sep", availableDate: "2026-09-15", lister: "Owner", district: "D19", postcode: "550303", mrt: "Serangoon MRT", lat: 1.3506, lng: 103.8728, map: { x: 61, y: 32 }, tone: "sky", description: "Low-density family condo with proper bedrooms, a calmer residential feel and quick access to NEX, Serangoon MRT and neighbourhood schools." },
       { title: "Whole unit minutes from Jurong East", area: "Jurong East Street 21", type: "HDB", mode: "Whole unit", price: 3900, beds: "3 bed · Furnished", available: "Available 1 Oct", availableDate: "2026-10-01", lister: "Agent", district: "D22", postcode: "600021", mrt: "Jurong East MRT", lat: 1.3331, lng: 103.7423, map: { x: 13, y: 42 }, tone: "lilac", description: "Furnished whole HDB unit near Jurong East transport and malls, convenient for tenants working around Jurong Lake District or the west side." },
-      { title: "Family unit at 25 Ang Mo Kio Ave 9", area: "25 Ang Mo Kio Ave 9", type: "HDB", mode: "Whole unit", price: 4100, beds: "3 bed · Furnished", available: "Available 1 Sep", availableDate: "2026-09-01", lister: "Owner", district: "D20", postcode: "569788", mrt: "Yio Chu Kang MRT", lat: 1.3850, lng: 103.8450, map: { x: 54, y: 29 }, tone: "mint", description: "Mock listing pinned to postal code 569788 at 25 Ang Mo Kio Ave 9, so postcode search can land on a specific mapped address for MVP testing." }
+      { title: "25 Ang Mo Kio family unit", area: "25 Ang Mo Kio Ave 9", type: "HDB", mode: "Whole unit", price: 4100, beds: "3 bed · Furnished", available: "Available 1 Sep", availableDate: "2026-09-01", lister: "Owner", district: "D20", postcode: "569788", mrt: "Yio Chu Kang MRT", lat: 1.3850, lng: 103.8450, map: { x: 54, y: 29 }, tone: "mint", description: "Full 3-bedroom HDB family unit at 25 Ang Mo Kio Ave 9, mocked for postcode search and details-card testing. The flat is positioned for tenants who want a quieter northern estate, convenient access to Yio Chu Kang MRT, nearby schools and daily amenities. Furnishing is kept practical rather than decorative, with enough living and bedroom flexibility for a small family or shared household. This longer description deliberately approaches the MVP word limit so spacing, scanning and the AI insights section can be judged properly on mobile." }
     ].map((item, index) => ({ ...item, image: listingPhotos[item.title], images: imagesForListing(item.title, index), postedAt: 200 - index }));
     const mockAreas = [
       ["D01", "Raffles Place", "048624", "Raffles Place MRT", 44, 70, 1.2830, 103.8510],
@@ -2890,14 +2896,15 @@
       wireDetailCarousel(item);
       document.getElementById("detailPrice").innerHTML = `$${Number(item.price).toLocaleString()}<small>/mo</small>`;
       document.getElementById("detailTitle").textContent = item.title;
-      document.getElementById("detailLister").textContent = `${item.lister} · ${item.mode}`;
+      document.getElementById("detailLister").textContent = item.lister;
+      document.getElementById("detailModeRow").innerHTML = `<span class="mode-pill ${modeClass(item)}">${escapeHtml(item.mode)}</span>`;
       document.getElementById("detailCopy").textContent = capWords(detailCopy(item), 100);
       document.getElementById("detailFacts").innerHTML = `
         <span class="detail-fact full">${escapeHtml(item.area)} · ${escapeHtml(item.district)}${item.postcode ? ` · ${escapeHtml(item.postcode)}` : ""}</span>
-        <span class="detail-fact"><span class="mode-pill ${modeClass(item)}">${escapeHtml(item.mode)}</span></span>
         <span class="detail-fact">${escapeHtml(item.beds)}</span>
         <span class="detail-fact">${escapeHtml(item.type)}</span>
         <span class="detail-fact">${escapeHtml(item.available)}</span>
+        <span class="detail-fact">${escapeHtml(item.mrt)}</span>
       `;
       renderPriceInsights(item);
       renderDetailMap(item);
