@@ -518,7 +518,7 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr);
       gap: 8px;
-      width: calc(50% - 4px);
+      width: min(72%, 270px);
       padding: 0 16px 10px;
     }
     .district-picker[hidden] { display: none; }
@@ -532,6 +532,7 @@
       color: var(--ink);
       font-size: 12px;
       font-weight: 500;
+      white-space: nowrap;
       box-shadow: 0 8px 18px rgba(16, 43, 54, .05);
     }
     .sort-picker-button, .district-picker-button {
@@ -633,8 +634,11 @@
       display: grid;
       place-items: center;
       text-align: center;
+      line-height: 1;
+      padding: 0;
     }
     .toggle-group button.active { color: var(--ink); }
+    body.dark .toggle-group button.active { color: #4b5f5c; }
     .chips {
       display: flex;
       flex-wrap: wrap;
@@ -794,10 +798,13 @@
       place-items: center;
       color: #8b989d;
       font-family: var(--font-sans);
-      font-size: 21px;
+      font-size: 19px;
       font-weight: 650;
       line-height: 1;
+      padding: 0 0 1px;
     }
+    .save:not(.liked) { transform: scaleX(1.08) scaleY(.82); }
+    .save.liked { transform: scaleX(1.06) scaleY(.86); }
     .save.liked { background: var(--coral); color: var(--paper); }
     body.dark .save:not(.liked) {
       background: rgba(244, 246, 243, .9);
@@ -1048,10 +1055,11 @@
     .conversation-card strong {
       display: -webkit-box;
       overflow: hidden;
-      font-size: 14px;
-      line-height: 1.25;
+      font-size: 13px;
+      line-height: 1.28;
+      font-weight: 650;
       -webkit-box-orient: vertical;
-      -webkit-line-clamp: 1;
+      -webkit-line-clamp: 2;
     }
     .conversation-card p {
       display: -webkit-box;
@@ -1065,8 +1073,8 @@
     }
     .conversation-card .conversation-desc {
       color: var(--ink-soft);
-      font-weight: 800;
-      -webkit-line-clamp: 1;
+      font-weight: 650;
+      -webkit-line-clamp: 2;
     }
     .conversation-card small {
       color: var(--muted);
@@ -1150,7 +1158,9 @@
       font-weight: 800;
     }
     .nav button.active { background: var(--mint); color: var(--ink); }
+    body.dark .nav button.active { color: #4b5f5c; }
     .nav span { display: block; font-size: 21px; line-height: 1; }
+    .nav button[data-view="liked"] span { transform: scaleX(1.04) scaleY(.84); transform-origin: center; }
     .toast {
       position: fixed;
       z-index: 30;
@@ -1499,11 +1509,13 @@
     .chat-title-row h3 {
       display: -webkit-box;
       overflow: hidden;
+      font-size: 17px;
+      line-height: 1.18;
       -webkit-box-orient: vertical;
-      -webkit-line-clamp: 1;
+      -webkit-line-clamp: 2;
     }
     .chat-title-row small {
-      display: -webkit-box;
+      display: none;
       margin-top: 3px;
       overflow: hidden;
       line-height: 1.35;
@@ -2287,6 +2299,7 @@
     ];
     const sortOptions = [
       ["newest", "Sort: Newest"],
+      ["oldest", "Sort: Oldest"],
       ["priceAsc", "Rent: low to high"],
       ["priceDesc", "Rent: high to low"]
     ];
@@ -3564,6 +3577,7 @@
     function sortListings(a, b) {
       if (activeSort === "priceAsc") return a.price - b.price;
       if (activeSort === "priceDesc") return b.price - a.price;
+      if (activeSort === "oldest") return (a.postedAt || 0) - (b.postedAt || 0);
       return (b.postedAt || 0) - (a.postedAt || 0);
     }
 
