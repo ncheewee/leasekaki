@@ -37,6 +37,8 @@
     html { scroll-behavior: smooth; }
     html.modal-open,
     body.modal-open { overflow: hidden; }
+    body.auth-loading,
+    body.signed-out { overflow: hidden; }
     body {
       margin: 0;
       background: var(--cream);
@@ -53,6 +55,75 @@
     button:focus:not(:focus-visible), input:focus:not(:focus-visible), select:focus:not(:focus-visible) { outline: none; }
 
     .app { min-height: 100vh; padding-bottom: 86px; }
+    body.auth-loading .app,
+    body.signed-out .app,
+    body.auth-loading .nav,
+    body.signed-out .nav { display: none; }
+
+    .login-screen {
+      min-height: 100vh;
+      display: none;
+      place-items: center;
+      padding: 28px 18px;
+      background:
+        radial-gradient(circle at 16% 14%, rgba(187, 241, 209, .58), transparent 30%),
+        radial-gradient(circle at 86% 20%, rgba(255, 115, 95, .26), transparent 28%),
+        linear-gradient(145deg, #102b36 0%, #173c49 54%, #f7f3eb 54%);
+    }
+    body.auth-loading .login-screen,
+    body.signed-out .login-screen { display: grid; }
+    .login-card {
+      width: min(100%, 420px);
+      display: grid;
+      gap: 18px;
+      padding: 22px;
+      border: 1px solid rgba(255, 253, 248, .28);
+      border-radius: 30px;
+      background: rgba(255, 253, 248, .94);
+      color: var(--ink);
+      box-shadow: 0 28px 80px rgba(5, 20, 26, .28);
+    }
+    .login-brand { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: -.04em; }
+    .login-card h1 {
+      margin: 4px 0 0;
+      font-size: clamp(38px, 12vw, 58px);
+      line-height: .92;
+      letter-spacing: -.07em;
+    }
+    .login-card p { margin: 0; color: var(--ink-soft); line-height: 1.5; font-weight: 650; }
+    .google-login-button {
+      min-height: 54px;
+      border: 0;
+      border-radius: 18px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      background: var(--ink);
+      color: var(--paper);
+      font-weight: 900;
+      text-align: left;
+      box-shadow: 0 12px 30px rgba(16, 43, 54, .18);
+    }
+    .google-login-button span:first-child {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: white;
+      color: #4285f4;
+      font-weight: 950;
+    }
+    .login-footnote {
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(187, 241, 209, .55);
+      color: var(--mint-deep);
+      font-size: 12px;
+      font-weight: 800;
+    }
     .topbar {
       position: sticky;
       top: 0;
@@ -90,6 +161,18 @@
       color: var(--paper);
       font-size: 20px;
       font-weight: 900;
+      overflow: hidden;
+    }
+    .account-button img { width: 100%; height: 100%; object-fit: cover; }
+    .account-button .avatar-fallback {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      background: var(--mint);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 950;
     }
     .account-menu {
       position: absolute;
@@ -129,15 +212,6 @@
       text-align: left;
     }
     .account-menu button:hover { background: var(--cream); color: var(--ink); }
-    .account-menu .auth-provider {
-      min-height: 46px;
-      border: 1px solid var(--line);
-      background: white;
-      color: var(--ink);
-    }
-    .account-menu .auth-provider.google span:first-child { color: #4285f4; }
-    .account-menu .auth-provider.apple { background: var(--ink); color: var(--paper); }
-    .account-menu .auth-provider.apple:hover { background: #08171d; color: var(--paper); }
     .account-menu .sign-out { color: var(--coral); }
     .view { display: none; }
     .view.active { display: block; }
@@ -1508,7 +1582,19 @@
     }
   </style>
 </head>
-<body>
+<body class="auth-loading">
+  <section id="loginScreen" class="login-screen" aria-label="LeaseKaki sign in">
+    <div class="login-card">
+      <div class="login-brand"><span class="mark">LK</span><span>Lease<span>Kaki</span></span></div>
+      <h1>Find rentals like a kaki.</h1>
+      <p>Sign in once to see listings, save homes, chat, and keep viewing requests tied to your profile.</p>
+      <button id="loginGoogleButton" class="google-login-button" type="button">
+        <span>G</span>
+        <span>Continue with Google</span>
+      </button>
+      <div class="login-footnote">Google SSO only for now. Apple can come later once the core flow feels right.</div>
+    </div>
+  </section>
   <main class="app">
     <header class="topbar">
       <div class="brand"><span class="mark">LK</span><span>Lease<span>Kaki</span></span></div>
@@ -1516,14 +1602,11 @@
         <button id="accountButton" class="account-button" type="button" aria-label="Open account menu">☰</button>
         <div id="accountMenu" class="account-menu" aria-label="Account menu">
           <div id="accountStatus" class="account-status">
-            <strong>Sign in</strong>
-            <span>Save chats, listings and future paperwork.</span>
+            <strong>Signed in</strong>
+            <span>LeaseKaki profile</span>
           </div>
-          <button id="googleSignIn" class="auth-provider google" type="button"><span>G</span><span>Continue with Google</span></button>
-          <button id="appleSignIn" class="auth-provider apple" type="button"><span></span><span>Continue with Apple</span></button>
-          <button type="button"><span>◌</span><span>Profile & verification</span></button>
-          <button type="button"><span>⚙</span><span>Settings</span></button>
-          <button id="signOutButton" class="sign-out" type="button" hidden><span>↩</span><span>Sign out</span></button>
+          <button id="aboutButton" type="button"><span>◌</span><span>About LeaseKaki</span></button>
+          <button id="signOutButton" class="sign-out" type="button"><span>↩</span><span>Log out</span></button>
         </div>
       </div>
     </header>
@@ -1846,11 +1929,11 @@
     const districtMenu = document.getElementById("districtMenu");
     const resultMap = document.getElementById("resultMap");
     const mapCanvas = document.getElementById("mapCanvas");
+    const loginGoogleButton = document.getElementById("loginGoogleButton");
     const accountButton = document.getElementById("accountButton");
     const accountMenu = document.getElementById("accountMenu");
     const accountStatus = document.getElementById("accountStatus");
-    const googleSignIn = document.getElementById("googleSignIn");
-    const appleSignIn = document.getElementById("appleSignIn");
+    const aboutButton = document.getElementById("aboutButton");
     const signOutButton = document.getElementById("signOutButton");
     const toast = document.getElementById("toast");
     const detailBackdrop = document.getElementById("detailBackdrop");
@@ -1867,11 +1950,12 @@
     let detailLeafletLayer = null;
     let navigationClosing = false;
     let edgeSwipeStart = null;
-    const likedListings = new Set(readStorage("leasekaki-liked", []));
+    let currentUser = null;
+    let hasLoadedAppData = false;
+    const likedListings = new Set();
     const photoIndexes = {};
-    const viewingRequests = readStorage("leasekaki-viewings", {});
-    const chatThreads = readStorage("leasekaki-chats", {});
-    cleanupLegacyConversationState();
+    const viewingRequests = {};
+    const chatThreads = {};
     let uraRentalSummary = null;
     const postalLookupCache = {};
     let postalLookupTimer = null;
@@ -1945,6 +2029,58 @@
       } catch (error) {}
     }
 
+    function authMode(mode) {
+      document.body.classList.remove("auth-loading", "signed-out", "signed-in");
+      document.body.classList.add(mode);
+    }
+
+    function clearObject(target) {
+      Object.keys(target).forEach((key) => delete target[key]);
+    }
+
+    function replaceObject(target, source) {
+      clearObject(target);
+      Object.entries(source || {}).forEach(([key, value]) => {
+        target[key] = value;
+      });
+    }
+
+    function userStorageSlug() {
+      return String(currentUser?.email || currentUser?.id || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9@._-]+/g, "_");
+    }
+
+    function userStorageKey(key) {
+      const slug = userStorageSlug();
+      return slug ? `leasekaki:${slug}:${key}` : "";
+    }
+
+    function readUserStorage(key, fallback) {
+      const scopedKey = userStorageKey(key);
+      return scopedKey ? readStorage(scopedKey, fallback) : fallback;
+    }
+
+    function writeUserStorage(key, value) {
+      const scopedKey = userStorageKey(key);
+      if (scopedKey) writeStorage(scopedKey, value);
+    }
+
+    function clearUserState() {
+      likedListings.clear();
+      clearObject(viewingRequests);
+      clearObject(chatThreads);
+      hasLoadedAppData = false;
+    }
+
+    function loadUserState() {
+      likedListings.clear();
+      readUserStorage("liked", []).forEach((title) => likedListings.add(title));
+      replaceObject(viewingRequests, readUserStorage("viewings", {}));
+      replaceObject(chatThreads, readUserStorage("chats", {}));
+      cleanupLegacyConversationState();
+    }
+
     function getAuthToken() {
       try {
         return localStorage.getItem(AUTH_STORAGE_KEY) || "";
@@ -1960,32 +2096,44 @@
       } catch (error) {}
     }
 
-    function setSignedOutAccount(message = "Save chats, listings and future paperwork.") {
-      accountStatus.innerHTML = `<strong>Sign in</strong><span>${message}</span>`;
-      googleSignIn.hidden = false;
-      appleSignIn.hidden = false;
-      signOutButton.hidden = true;
-      accountButton.textContent = "☰";
-      accountButton.setAttribute("aria-label", "Open account menu");
+    function userInitials(user) {
+      const source = user?.name || user?.email || "LK";
+      const parts = source.split(/[\s@._-]+/).filter(Boolean);
+      return (parts[0]?.[0] || "L").toUpperCase() + (parts[1]?.[0] || "K").toUpperCase();
+    }
+
+    function setSignedOutAccount() {
+      currentUser = null;
+      clearUserState();
+      selectedListing = null;
+      detailBackdrop.classList.remove("open");
+      detailBackdrop.setAttribute("aria-hidden", "true");
+      chatWindow.classList.remove("open");
+      chatWindow.setAttribute("aria-hidden", "true");
+      chatViewingPanel.innerHTML = "";
+      document.documentElement.classList.remove("modal-open");
+      document.body.classList.remove("modal-open");
+      accountMenu.classList.remove("open");
+      authMode("signed-out");
     }
 
     function setSignedInAccount(user) {
-      const provider = user?.provider === "apple" ? "Apple" : "Google";
+      currentUser = user;
       const name = user?.name || user?.email || "Signed in";
-      const email = user?.email ? `${provider} · ${user.email}` : provider;
+      const email = user?.email ? `Google · ${user.email}` : "Google";
       accountStatus.innerHTML = `<strong>${name}</strong><span>${email}</span>`;
-      googleSignIn.hidden = true;
-      appleSignIn.hidden = true;
-      signOutButton.hidden = false;
-      accountButton.textContent = "✓";
-      accountButton.setAttribute("aria-label", "Open signed-in account menu");
+      accountButton.innerHTML = user?.picture
+        ? `<img src="${escapeHtml(user.picture)}" alt="${escapeHtml(name)} avatar">`
+        : `<span class="avatar-fallback">${escapeHtml(userInitials(user))}</span>`;
+      accountButton.setAttribute("aria-label", "Open account menu");
+      authMode("signed-in");
     }
 
     async function refreshAccount() {
       const token = getAuthToken();
       if (!token) {
         setSignedOutAccount();
-        return;
+        return false;
       }
       try {
         const response = await fetch(`${API_BASE}/api/auth/me`, {
@@ -1994,9 +2142,21 @@
         const body = await response.json();
         if (!response.ok || !body.user) throw new Error(body.error || "Session expired");
         setSignedInAccount(body.user);
+        loadUserState();
+        if (!hasLoadedAppData) {
+          hasLoadedAppData = true;
+          renderListings();
+          renderLikedListings();
+          renderChatList();
+          loadUraInsights();
+          loadListings();
+        }
+        return true;
       } catch (error) {
         setAuthToken("");
-        setSignedOutAccount("Session expired. Please sign in again.");
+        setSignedOutAccount();
+        showToast("Session expired. Please log in again.");
+        return false;
       }
     }
 
@@ -2006,9 +2166,9 @@
       const authError = hash.get("auth_error");
       if (token) {
         setAuthToken(token);
-        toastMessage("Signed in to LeaseKaki.");
+        showToast("Signed in to LeaseKaki.");
       } else if (authError) {
-        toastMessage(authError);
+        showToast(authError);
       }
       if (token || authError) {
         history.replaceState({ leasekakiLayer: "root" }, "", window.location.pathname + window.location.search);
@@ -2083,8 +2243,8 @@
           changedChats = true;
         }
       });
-      if (changedViewings) writeStorage("leasekaki-viewings", viewingRequests);
-      if (changedChats) writeStorage("leasekaki-chats", chatThreads);
+      if (changedViewings) writeUserStorage("viewings", viewingRequests);
+      if (changedChats) writeUserStorage("chats", chatThreads);
     }
 
     function showToast(message) {
@@ -2106,13 +2266,16 @@
     refreshAccount();
     history.replaceState({ leasekakiLayer: "root" }, "", window.location.pathname + window.location.search);
     navButtons.forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
-    googleSignIn.addEventListener("click", () => startSso("google"));
-    appleSignIn.addEventListener("click", () => startSso("apple"));
+    loginGoogleButton.addEventListener("click", () => startSso("google"));
+    aboutButton.addEventListener("click", () => {
+      accountMenu.classList.remove("open");
+      showToast("LeaseKaki is a Singapore rentals MVP for snap-to-list, search, chat and viewing flow.");
+    });
     signOutButton.addEventListener("click", () => {
       setAuthToken("");
       setSignedOutAccount();
       accountMenu.classList.remove("open");
-      toastMessage("Signed out.");
+      showToast("Logged out.");
     });
     accountButton.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -3019,7 +3182,7 @@
         likedListings.add(item.title);
         showToast("Saved to Liked");
       }
-      writeStorage("leasekaki-liked", Array.from(likedListings));
+      writeUserStorage("liked", Array.from(likedListings));
       renderListings();
     }
 
@@ -3571,8 +3734,8 @@
       chatThreads[selectedListing.title] = chatThreads[selectedListing.title] || [];
       const existingRequest = chatThreads[selectedListing.title].some((message) => String(message?.text || "").startsWith("Viewing request:"));
       if (!existingRequest) chatThreads[selectedListing.title].push({ who: "me", text: `Viewing request: preferred ${formatSlot(preferred)}, alternative ${formatSlot(alternative)}.` });
-      writeStorage("leasekaki-viewings", viewingRequests);
-      writeStorage("leasekaki-chats", chatThreads);
+      writeUserStorage("viewings", viewingRequests);
+      writeUserStorage("chats", chatThreads);
       renderChat();
       renderChatViewingPanel();
       renderChatList();
@@ -3584,8 +3747,8 @@
       if (!selectedListing) return;
       delete viewingRequests[selectedListing.title];
       chatThreads[selectedListing.title] = (chatThreads[selectedListing.title] || []).filter((message) => !String(message?.text || "").startsWith("Viewing request:"));
-      writeStorage("leasekaki-viewings", viewingRequests);
-      writeStorage("leasekaki-chats", chatThreads);
+      writeUserStorage("viewings", viewingRequests);
+      writeUserStorage("chats", chatThreads);
       renderChat();
       renderChatViewingPanel();
       renderChatList();
@@ -3762,7 +3925,7 @@
       if (!text) return;
       chatThreads[selectedListing.title] = chatThreads[selectedListing.title] || [];
       chatThreads[selectedListing.title].push({ who: "me", text });
-      writeStorage("leasekaki-chats", chatThreads);
+      writeUserStorage("chats", chatThreads);
       input.value = "";
       renderChat();
       renderChatList();
@@ -3770,12 +3933,9 @@
       showToast("Message saved in chat");
     });
 
-    renderListings();
     populateSortMenu();
     populateDistrictMenu();
     renderSearchSuggestions();
-    loadUraInsights();
-    loadListings();
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./sw.js").catch(() => {});
