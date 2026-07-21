@@ -1115,6 +1115,7 @@
       padding: 6px 2px;
     }
     .listing-question.active { display: grid; }
+    .listing-back { justify-self: start; }
     .listing-question h2 { max-width: 460px; font-size: clamp(28px, 8vw, 38px); line-height: 1.04; }
     .choice-stack { display: grid; gap: 10px; }
     .choice-card {
@@ -1372,12 +1373,20 @@
     .photo-slot, .photo-add { display: grid; min-height: 68px; place-items: center; border: 2px dashed rgba(16, 43, 54, .22); border-radius: 8px; color: var(--muted); background: var(--cream); }
     .photo-slot:first-of-type::after { content: "+"; font-size: 24px; color: var(--mint-deep); }
     .photo-add { border-style: dashed; font-size: 24px; cursor: pointer; }
+    .photo-reorder-hint { margin: -4px 0 0; color: var(--muted); font-size: 12px; }
     .tap-stepper { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; min-height: 56px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--paper); }
     .tap-stepper button { height: 100%; border: 0; background: var(--cream); color: var(--mint-deep); font-size: 24px; font-weight: 800; }
     .tap-stepper output { text-align: center; color: var(--ink); font-size: 20px; font-weight: 900; }
     .availability-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
     .availability-picker button { min-height: 50px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink-soft); font-size: 13px; font-weight: 850; }
     .availability-picker button.active { border-color: var(--mint); background: var(--mint); color: var(--mint-deep); }
+    .draft-card { display: none; gap: 16px; }
+    .draft-card.active { display: grid; }
+    .confirm-window { grid-template-rows: auto auto; width: min(420px, 100%); }
+    .confirm-body { display: grid; gap: 8px; padding: 20px; }
+    .confirm-body h3, .confirm-body p { margin: 0; }
+    .confirm-body p { color: var(--ink-soft); line-height: 1.4; }
+    .confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 20px 20px; }
     .toast {
       position: fixed;
       z-index: 30;
@@ -2193,6 +2202,7 @@
           <section id="captureStep" class="panel workflow-panel">
             <input id="listerInput" type="hidden" value="owner">
             <input id="verificationInput" type="hidden" value="">
+            <button id="listingBackButton" class="mini-action listing-back" type="button">← Back</button>
             <div class="listing-card-flow">
               <section class="listing-question active" data-listing-card="role">
                 <h2>Who are you?</h2>
@@ -2221,10 +2231,10 @@
                   <span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span>
                 </label>
                 <div id="selectedPhotoGrid" class="selected-photo-grid" aria-label="Selected property photos"></div>
+                <p class="photo-reorder-hint">Tap and hold a photo, then drag it to reorder.</p>
                 <button class="button secondary full" type="button" data-next-listing-card>Continue</button>
               </section>
               <section class="listing-question" data-listing-card="home">
-                <span class="eyebrow">The home</span>
                 <h2>What are you renting out?</h2>
                 <div class="question-block"><strong>Property type</strong><span class="form-toggle large-toggle" role="group" aria-label="Property type">
                   <input id="typeInput" type="hidden" value="HDB"><input id="kindInput" type="hidden" value="hdb_whole_unit">
@@ -2237,39 +2247,27 @@
                 <button class="button coral full" type="button" data-next-listing-card>Continue</button>
               </section>
               <section class="listing-question" data-listing-card="details">
-                <span class="eyebrow">A few essentials</span>
                 <h2>Set the move-in basics</h2>
                 <div class="question-block"><strong>Furnishing</strong><span class="form-toggle large-toggle" role="group" aria-label="Furnishing">
                   <input id="furnishingInput" type="hidden" value="Furnished">
-                  <button class="active" type="button" data-field-toggle="furnishingInput" data-value="Furnished">Furnished</button><button type="button" data-field-toggle="furnishingInput" data-value="Part-furnished">Part furnished</button><button type="button" data-field-toggle="furnishingInput" data-value="Unfurnished">Unfurnished</button>
+                  <button class="active" type="button" data-field-toggle="furnishingInput" data-value="Furnished">Furnished</button><button type="button" data-field-toggle="furnishingInput" data-value="Unfurnished">Unfurnished</button>
                 </span></div>
                 <div class="quick-number-grid"><label>Rooms<input id="roomsInput" type="hidden" value="3"><span class="tap-stepper"><button type="button" data-step-target="roomsInput" data-step-delta="-1" aria-label="Decrease rooms">−</button><output id="roomsValue">3</output><button type="button" data-step-target="roomsInput" data-step-delta="1" aria-label="Increase rooms">+</button></span></label><label>Toilets<input id="toiletsInput" type="hidden" value="2"><span class="tap-stepper"><button type="button" data-step-target="toiletsInput" data-step-delta="-1" aria-label="Decrease toilets">−</button><output id="toiletsValue">2</output><button type="button" data-step-target="toiletsInput" data-step-delta="1" aria-label="Increase toilets">+</button></span></label></div>
                 <label>Available from<input id="availableInput" type="hidden" value="2026-09-01"><span id="availabilityPicker" class="availability-picker" role="group" aria-label="Available from"><button type="button" data-available-date="2026-07-21">Now</button><button type="button" data-available-date="2026-08-01">1 Aug</button><button class="active" type="button" data-available-date="2026-09-01">1 Sep</button><button type="button" data-available-date="2026-10-01">1 Oct</button></span></label>
                 <button class="button coral full" type="button" data-next-listing-card>Continue</button>
               </section>
               <section class="listing-question" data-listing-card="location">
-                <span class="eyebrow">Location</span>
-                <h2>Where is the property?</h2>
-                <p class="workflow-copy">A postal code gives renters the right neighbourhood while keeping the full address private until a viewing is confirmed.</p>
                 <label>Postal code<input id="postcodeInput" inputmode="numeric" value="570013" maxlength="6" placeholder="e.g. 570013"></label>
-                <label>Street or project<input id="addressInput" value="Bishan Street 13"></label>
-                <label>Estate / neighbourhood<input id="estateInput" value="Bishan"></label>
-                <button id="generate" class="button coral full" type="button">Create my draft</button>
+                <label>Street or project<input id="addressInput" value="Bishan Street 13" readonly></label>
+                <label>Estate / neighbourhood<input id="estateInput" value="Bishan" readonly></label>
+                <p id="postcodeStatus" class="workflow-copy"></p>
+                <button id="generate" class="button coral full" type="button">Continue</button>
               </section>
             </div>
           </section>
           <section id="draftStep" class="panel workflow-panel hidden">
-            <span class="eyebrow" style="color:var(--mint-deep)">AI-assisted draft</span>
-            <h2>Review before publishing</h2>
-            <div class="ai-assist-card">
-              <strong>Assistant</strong>
-              <p class="workflow-copy">I’ll turn your facts into a short title, 100-word description and defensible rent range. Edit anything before approval.</p>
-              <div class="ai-assist-actions">
-                <button id="aiPolishButton" class="mini-action" type="button">Polish title & copy</button>
-                <button id="aiRentButton" class="mini-action" type="button">Refresh rent guide</button>
-              </div>
-            </div>
-            <div class="desktop-grid">
+            <button id="draftBackButton" class="mini-action listing-back" type="button">← Back</button>
+            <section class="draft-card active" data-draft-card="title">
               <div class="form two">
                 <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT" maxlength="42"></label>
                 <label>Asking rent<input id="rentInput" type="number" value="3750" min="500" step="50"></label>
@@ -2277,24 +2275,16 @@
               <aside class="rent-card">
                 <span class="eyebrow">Suggested asking rent</span>
                 <strong id="rentGuide">$3,650-$3,900</strong>
-                <span id="rentConfidence" class="confidence">Medium confidence</span>
                 <div class="range"><span></span></div>
-                <small id="rentGuideNote">Based on comparable mock listings, location, rental mode, furnishing and availability.</small>
               </aside>
-            </div>
-            <label>Description
-              <textarea id="descriptionInput" maxlength="850">Bright, breezy home with an efficient layout, updated kitchen and a sheltered walk to Bishan MRT.</textarea>
-              <span class="form-hint-row"><span>Keep this to 100 words for the details page.</span><span id="descriptionCount">0 words</span></span>
-            </label>
-            <div class="listing-preview">
-              <div class="field-help">This is the exact listing card style buyers will see.</div>
+              <button id="continueDescription" class="button coral full" type="button">Continue</button>
+            </section>
+            <section class="draft-card" data-draft-card="description">
+              <div class="ai-assist-actions"><button id="aiPolishButton" class="mini-action" type="button">AI draft</button></div>
+              <label>Description<textarea id="descriptionInput" maxlength="850" placeholder="Write your description"></textarea><span class="form-hint-row"><span>Up to 100 words.</span><span id="descriptionCount">0 words</span></span></label>
               <div id="listingPreview"></div>
-            </div>
-            <div class="actions">
-              <button class="button secondary" type="button" data-reset-listing>Edit photos</button>
-              <button class="button secondary" type="button" data-preview-detail>Preview details</button>
-              <button class="button coral" type="button" data-publish>Approve & publish →</button>
-            </div>
+              <div class="actions"><button class="button secondary" type="button" data-preview-detail>Preview</button><button class="button coral" type="button" data-publish>Publish</button></div>
+            </section>
           </section>
         </div>
       </div>
@@ -2364,6 +2354,13 @@
         <input id="chatInput" autocomplete="off" aria-label="Message" placeholder="Type a quick question...">
         <button class="button coral" type="submit">Send</button>
       </form>
+    </article>
+  </section>
+
+  <section id="confirmDialog" class="window-backdrop" aria-hidden="true">
+    <article class="task-window confirm-window" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="confirm-body"><h3 id="confirmTitle">Delete listing?</h3><p id="confirmCopy"></p></div>
+      <div class="confirm-actions"><button id="confirmCancel" class="button secondary" type="button">Keep</button><button id="confirmAccept" class="button coral" type="button">Delete</button></div>
     </article>
   </section>
 
@@ -2509,12 +2506,19 @@
     const chatViewingPanel = document.getElementById("chatViewingPanel");
     const detailSheet = document.querySelector(".detail-sheet");
     const detailMap = document.getElementById("detailMap");
+    const confirmDialog = document.getElementById("confirmDialog");
+    const confirmTitle = document.getElementById("confirmTitle");
+    const confirmCopy = document.getElementById("confirmCopy");
+    const confirmCancel = document.getElementById("confirmCancel");
+    const confirmAccept = document.getElementById("confirmAccept");
     const publishButton = document.querySelector("[data-publish]");
     const listingPreview = document.getElementById("listingPreview");
     const rentGuide = document.getElementById("rentGuide");
     const rentConfidence = document.getElementById("rentConfidence");
     const descriptionCount = document.getElementById("descriptionCount");
     let selectedListing = null;
+    let pendingConfirmation = null;
+    let currentView = "browse";
     let editingListingTitle = "";
     let leafletMap = null;
     let leafletLayer = null;
@@ -2535,6 +2539,7 @@
     let uraRentalSummary = null;
     const postalLookupCache = {};
     let postalLookupTimer = null;
+    let listingPostalLookupTimer = null;
     const districtOptions = [
       ["All", "All districts"],
       ["D01", "D01 Raffles Place / Marina"],
@@ -2674,6 +2679,22 @@
       renderOwnedListings();
     }
 
+    function openConfirmation(title, copy, actionLabel, onAccept) {
+      pendingConfirmation = onAccept;
+      confirmTitle.textContent = title;
+      confirmCopy.textContent = copy;
+      confirmAccept.textContent = actionLabel;
+      confirmDialog.classList.add("open");
+      confirmDialog.setAttribute("aria-hidden", "false");
+      confirmCancel.focus();
+    }
+
+    function closeConfirmation() {
+      pendingConfirmation = null;
+      confirmDialog.classList.remove("open");
+      confirmDialog.setAttribute("aria-hidden", "true");
+    }
+
     function mergeUserListings(baseListings) {
       const ownedTitles = new Set(userListings.map((item) => item.title));
       return [
@@ -2791,7 +2812,7 @@
         showToast(authError);
       }
       if (token || authError) {
-        history.replaceState({ leasekakiLayer: "root" }, "", window.location.pathname + window.location.search);
+        history.replaceState({ leasekakiLayer: "root", leasekakiView: currentView }, "", window.location.pathname + window.location.search);
       }
     }
 
@@ -2834,6 +2855,39 @@
       }
       renderSearchSuggestions();
       renderListings();
+    }
+
+    function estateFromAddress(address) {
+      const trimmed = String(address || "").replace(/^\d+\s+/, "").replace(/\s+Singapore\s+\d{6}$/i, "").trim();
+      const match = trimmed.match(/^(.*?)(?:\s+(?:Street|St|Avenue|Ave|Road|Rd|Drive|Lane|Close|Crescent|Way|View)\b)/i);
+      return (match?.[1] || trimmed).trim();
+    }
+
+    async function resolveListingPostcode(postal) {
+      const status = document.getElementById("postcodeStatus");
+      if (!/^\d{6}$/.test(postal)) {
+        status.textContent = "";
+        return;
+      }
+      status.textContent = "Finding address…";
+      let result = cachedPostalLookup(postal);
+      if (!result || !result.address) {
+        try {
+          const response = await fetch(`${API_BASE}/api/postal?postal=${encodeURIComponent(postal)}`, { headers: { accept: "application/json" } });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(body.code || body.error || "Postal code not found");
+          result = { address: body.address, postal: body.postal || postal };
+          postalLookupCache[postal] = result;
+        } catch (error) {
+          status.textContent = "Address not found. Check the postal code.";
+          return;
+        }
+      }
+      const address = String(result.address || "").replace(/\s+Singapore\s+\d{6}$/i, "").trim();
+      document.getElementById("addressInput").value = address;
+      document.getElementById("estateInput").value = estateFromAddress(address);
+      status.textContent = "Address found";
+      refreshListingPreview();
     }
 
     function cleanupLegacyConversationState() {
@@ -2897,21 +2951,25 @@
       }
     }
 
-    function setView(name) {
+    function setView(name, fromHistory = false) {
       closeFloatingLayersForTabSwitch();
+      currentView = name;
       views.forEach((view) => view.classList.toggle("active", view.id === name));
       document.querySelectorAll(".nav button").forEach((button) => button.classList.toggle("active", button.dataset.view === name));
       if (name === "liked") renderLikedListings();
       if (name === "chats") renderChatList();
       if (name === "listed") renderOwnedListings();
       accountMenu.classList.remove("open");
+      if (!fromHistory && history.state?.leasekakiView !== name) {
+        history.pushState({ leasekakiLayer: "root", leasekakiView: name }, "", `#${name}`);
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     applyTheme(readTheme());
     handleAuthReturn();
     refreshAccount();
-    history.replaceState({ leasekakiLayer: "root" }, "", window.location.pathname + window.location.search);
+    history.replaceState({ leasekakiLayer: "root", leasekakiView: "browse" }, "", window.location.pathname + window.location.search);
     navButtons.forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
     loginGoogleButton.addEventListener("click", () => startSso("google"));
     themeToggle.addEventListener("click", () => {
@@ -2924,6 +2982,15 @@
       accountMenu.classList.remove("open");
       showToast("Logged out.");
     });
+    confirmCancel.addEventListener("click", closeConfirmation);
+    confirmAccept.addEventListener("click", () => {
+      const action = pendingConfirmation;
+      closeConfirmation();
+      action?.();
+    });
+    confirmDialog.addEventListener("click", (event) => {
+      if (event.target === confirmDialog) closeConfirmation();
+    });
     accountButton.addEventListener("click", (event) => {
       event.stopPropagation();
       accountMenu.classList.toggle("open");
@@ -2932,7 +2999,27 @@
     document.addEventListener("click", (event) => {
       if (!accountMenu.contains(event.target) && event.target !== accountButton) accountMenu.classList.remove("open");
     });
-    window.addEventListener("popstate", closeTopLayerFromHistory);
+    window.addEventListener("popstate", (event) => {
+      if (confirmDialog.classList.contains("open")) {
+        closeConfirmation();
+        return;
+      }
+      if (chatWindow.classList.contains("open") || detailBackdrop.classList.contains("open")) {
+        closeTopLayerFromHistory();
+        return;
+      }
+      const nextView = event.state?.leasekakiView;
+      if (nextView === "list" && event.state?.listingCard) {
+        setView("list", true);
+        setWorkflowStep("capture");
+        setListingCard(event.state.listingCard, true);
+      } else if (nextView === "list" && event.state?.listingDraft) {
+        setView("list", true);
+        setWorkflowStep("draft");
+        setDraftCard(event.state.listingDraft, true);
+      } else if (nextView) setView(nextView, true);
+      else history.pushState({ leasekakiLayer: "root", leasekakiView: currentView }, "", `#${currentView}`);
+    });
     window.addEventListener("touchstart", (event) => {
       const touch = event.touches[0];
       const openLayer = detailBackdrop.classList.contains("open") || chatWindow.classList.contains("open");
@@ -3370,7 +3457,7 @@
       if (navigationClosing) return;
       const current = history.state || {};
       if (current.leasekakiLayer === layer && current.listingTitle === title) return;
-      history.pushState({ leasekakiLayer: layer, listingTitle: title }, "", `#${layer}`);
+      history.pushState({ leasekakiLayer: layer, listingTitle: title, leasekakiView: currentView }, "", `#${layer}`);
     }
 
     function closeTopLayerFromHistory() {
@@ -3484,8 +3571,34 @@
 
     const listingCardOrder = ["role", "verification", "photos", "home", "details", "location"];
 
-    function setListingCard(card) {
+    function setListingCard(card, fromHistory = false) {
       document.querySelectorAll("[data-listing-card]").forEach((item) => item.classList.toggle("active", item.dataset.listingCard === card));
+      if (!fromHistory && history.state?.listingCard !== card) {
+        history.pushState({ leasekakiLayer: "root", leasekakiView: "list", listingCard: card }, "", `#list-${card}`);
+      }
+    }
+
+    function setDraftCard(card, fromHistory = false) {
+      document.querySelectorAll("[data-draft-card]").forEach((item) => item.classList.toggle("active", item.dataset.draftCard === card));
+      if (!fromHistory && history.state?.listingDraft !== card) {
+        history.pushState({ leasekakiLayer: "root", leasekakiView: "list", listingDraft: card }, "", `#list-${card}`);
+      }
+    }
+
+    function goBackInListing() {
+      if (!document.getElementById("draftStep").classList.contains("hidden")) {
+        if (document.querySelector("[data-draft-card=description]").classList.contains("active")) {
+          setDraftCard("title");
+        } else {
+          setWorkflowStep("capture");
+          setListingCard("location");
+        }
+        return;
+      }
+      const active = document.querySelector("[data-listing-card].active")?.dataset.listingCard;
+      const index = listingCardOrder.indexOf(active);
+      if (index > 0) setListingCard(listingCardOrder[index - 1]);
+      else setView("listed");
     }
 
     function syncStepperValues() {
@@ -3576,18 +3689,23 @@
         photo.addEventListener("pointerdown", (event) => {
           if (event.target.closest("button")) return;
           photo.dataset.dragSource = photo.dataset.selectedPhotoIndex;
-          photo.classList.add("dragging");
+          photo.dataset.holdTimer = String(window.setTimeout(() => photo.classList.add("dragging"), 220));
           photo.setPointerCapture?.(event.pointerId);
         });
         photo.addEventListener("pointerup", (event) => {
+          window.clearTimeout(Number(photo.dataset.holdTimer));
           const fromIndex = Number(photo.dataset.dragSource);
           delete photo.dataset.dragSource;
+          delete photo.dataset.holdTimer;
+          if (!photo.classList.contains("dragging")) return;
           photo.classList.remove("dragging");
           const destination = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-selected-photo-index]");
           if (destination) moveListingPhoto(fromIndex, Number(destination.dataset.selectedPhotoIndex));
         });
         photo.addEventListener("pointercancel", () => {
+          window.clearTimeout(Number(photo.dataset.holdTimer));
           delete photo.dataset.dragSource;
+          delete photo.dataset.holdTimer;
           photo.classList.remove("dragging");
         });
       });
@@ -3992,15 +4110,16 @@
       target.querySelectorAll("[data-delete-owned-title]").forEach((button) => {
         button.addEventListener("click", () => {
           const title = button.dataset.deleteOwnedTitle;
-          if (!window.confirm(`Delete “${title}”? This removes the local listing from Listed and Explore.`)) return;
-          const index = userListings.findIndex((listing) => listing.title === title);
-          if (index < 0) return;
-          userListings.splice(index, 1);
-          writeUserStorage("ownerListings", userListings.slice(0, 12));
-          listings = listings.filter((listing) => listing.title !== title);
-          renderListings();
-          renderOwnedListings();
-          showToast("Listing deleted");
+          openConfirmation("Delete listing?", "This removes the local listing from Listed and Explore.", "Delete", () => {
+            const index = userListings.findIndex((listing) => listing.title === title);
+            if (index < 0) return;
+            userListings.splice(index, 1);
+            writeUserStorage("ownerListings", userListings.slice(0, 12));
+            listings = listings.filter((listing) => listing.title !== title);
+            renderListings();
+            renderOwnedListings();
+            showToast("Listing deleted");
+          });
         });
       });
     }
@@ -5053,13 +5172,18 @@
     ["titleInput", "estateInput", "addressInput", "postcodeInput", "availableInput", "roomsInput", "toiletsInput", "rentInput", "descriptionInput"].forEach((id) => {
       document.getElementById(id)?.addEventListener("input", refreshListingPreview);
     });
+    document.getElementById("postcodeInput").addEventListener("input", (event) => {
+      window.clearTimeout(listingPostalLookupTimer);
+      const postal = event.target.value.trim();
+      if (/^\d{6}$/.test(postal)) listingPostalLookupTimer = window.setTimeout(() => resolveListingPostcode(postal), 250);
+    });
 
     document.getElementById("aiPolishButton").addEventListener("click", polishListingDraft);
-    document.getElementById("aiRentButton").addEventListener("click", () => {
-      const guide = refreshRentGuide();
-      document.getElementById("rentInput").value = guide.guideMid;
+    document.getElementById("listingBackButton").addEventListener("click", goBackInListing);
+    document.getElementById("draftBackButton").addEventListener("click", goBackInListing);
+    document.getElementById("continueDescription").addEventListener("click", () => {
       refreshListingPreview();
-      showToast("Rent guide applied to draft");
+      setDraftCard("description");
     });
 
     document.getElementById("photos").addEventListener("change", async (event) => {
@@ -5074,20 +5198,21 @@
       }
     });
 
-    document.getElementById("generate").addEventListener("click", () => {
+    document.getElementById("generate").addEventListener("click", async () => {
       if (!document.getElementById("verificationInput").value) {
         setListingCard("verification");
         showToast("Choose a verification path first");
         return;
       }
+      const postcode = document.getElementById("postcodeInput").value.trim();
+      if (!document.getElementById("addressInput").value.trim()) await resolveListingPostcode(postcode);
+      if (!document.getElementById("addressInput").value.trim()) {
+        showToast("Enter a valid postal code to find the address");
+        return;
+      }
       setWorkflowStep("draft");
-      polishListingDraft();
-      showToast("AI draft ready for human approval");
-    });
-
-    document.querySelector("[data-reset-listing]").addEventListener("click", () => {
-      setWorkflowStep("capture");
-      setListingCard("photos");
+      setDraftCard("title");
+      refreshListingPreview();
     });
 
     document.querySelector("[data-preview-detail]").addEventListener("click", () => {
