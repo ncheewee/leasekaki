@@ -2448,6 +2448,7 @@
     const likedListings = new Set();
     const userListings = [];
     const photoIndexes = {};
+    let selectedListingPhotos = [];
     const viewingRequests = {};
     const chatThreads = {};
     let uraRentalSummary = null;
@@ -3039,9 +3040,9 @@
     }
 
     function imagesForListing(title, index = 0, apiImages = []) {
-      const primary = listingPhotos[title] || apiImages[0] || listingPhotoPool[index % listingPhotoPool.length];
+      const primary = apiImages[0] || listingPhotos[title] || listingPhotoPool[index % listingPhotoPool.length];
       const extras = [listingPhotoPool[(index + 3) % listingPhotoPool.length], listingPhotoPool[(index + 6) % listingPhotoPool.length]].filter(Boolean);
-      return [primary, ...extras].filter((image, imageIndex, array) => image && array.indexOf(image) === imageIndex);
+      return [primary, ...apiImages.slice(1), ...extras].filter((image, imageIndex, array) => image && array.indexOf(image) === imageIndex);
     }
 
     function districtFromPostcode(postcode) {
@@ -3361,7 +3362,7 @@
         askingRent,
         suggestedRentMin: Math.max(500, Math.round((askingRent * 0.94) / 50) * 50),
         suggestedRentMax: Math.round((askingRent * 1.04) / 50) * 50,
-        photoUrls: ["./assets/listings/01-bishan-hdb-living.jpg"]
+        photoUrls: selectedPhotoUrls()
       };
     }
 
@@ -3381,6 +3382,7 @@
         lister: titleCase(payload.listerKind),
         image: payload.photoUrls[0],
         images: imagesForListing(payload.title, 0, payload.photoUrls),
+        photoUrls: payload.photoUrls,
         district: districtForEstate(`${payload.estate} ${payload.addressHint}`),
         postcode: payload.postcode || postcodeForEstate(`${payload.estate} ${payload.addressHint}`),
         mrt: `${payload.estate} MRT`,
@@ -3400,6 +3402,70 @@
 
     function currentDraftListing() {
       return localListingFromPayload(buildListingPayload());
+    }
+
+    function selectedPhotoUrls() {
+      return selectedListingPhotos.length ? selectedListingPhotos : ["./assets/listings/01-bishan-hdb-living.jpg"];
+    }
+
+    function setListingPhotoSummary(files = []) {
+      const photoLabel = document.getElementById("photoLabel");
+      const photoHint = document.getElementById("photoHint");
+      if (!photoLabel || !photoHint) return;
+      if (files.length) {
+        photoLabel.textContent = `${files.length} photo${files.length > 1 ? "s" : ""} selected`;
+        photoHint.textContent = files.slice(0, 3).map((file) => file.name).join(" · ");
+      } else if (selectedListingPhotos.length) {
+        photoLabel.textContent = `${selectedListingPhotos.length} saved photo${selectedListingPhotos.length > 1 ? "s" : ""} loaded`;
+        photoHint.textContent = "These photos will appear in preview and Explore.";
+      } else {
+        photoLabel.textContent = "Tap to add property photos";
+        photoHint.textContent = "Living, bedroom, kitchen, toilet and view.";
+      }
+    }
+
+    function compressListingPhoto(file) {
+      return new Promise((resolve, reject) => {
+        if (!file.type.startsWith("image/")) {
+          reject(new Error(`${file.name} is not an image file.`));
+          return;
+        }
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error(`Unable to read ${file.name}.`));
+        reader.onload = () => {
+          const image = new Image();
+          image.onerror = () => reject(new Error(`Unable to prepare ${file.name}.`));
+          image.onload = () => {
+            const maxEdge = 1280;
+            const scale = Math.min(1, maxEdge / Math.max(image.width, image.height));
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.max(1, Math.round(image.width * scale));
+            canvas.height = Math.max(1, Math.round(image.height * scale));
+            const context = canvas.getContext("2d");
+            if (!context) {
+              reject(new Error(`Unable to compress ${file.name}.`));
+              return;
+            }
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL("image/jpeg", 0.82));
+          };
+          image.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function captureSelectedListingPhotos(fileList) {
+      const files = Array.from(fileList || []).slice(0, 4);
+      setListingPhotoSummary(files);
+      if (!files.length) {
+        selectedListingPhotos = [];
+        refreshListingPreview();
+        return;
+      }
+      selectedListingPhotos = await Promise.all(files.map(compressListingPhoto));
+      refreshListingPreview();
+      showToast(`${selectedListingPhotos.length} photo${selectedListingPhotos.length > 1 ? "s" : ""} ready for preview`);
     }
 
     function wordCount(value) {
@@ -3498,6 +3564,8 @@
       document.getElementById("furnishingInput").value = furnishingFact(item);
       document.getElementById("rentInput").value = item.price || 3500;
       document.getElementById("descriptionInput").value = capWords(detailCopy(item), 100);
+      selectedListingPhotos = (item.photoUrls?.length ? item.photoUrls : item.images?.length ? item.images : item.image ? [item.image] : []).filter(Boolean);
+      setListingPhotoSummary();
       syncFieldToggleButtons();
       refreshListingPreview();
     }
@@ -3518,6 +3586,8 @@
         setWorkflowStep("draft");
         showToast("Latest listing loaded for editing");
       } else {
+        selectedListingPhotos = [];
+        setListingPhotoSummary();
         refreshListingPreview();
       }
     }
@@ -4726,11 +4796,15 @@
       showToast("Rent guide applied to draft");
     });
 
-    document.getElementById("photos").addEventListener("change", (event) => {
-      const count = event.target.files.length;
-      document.getElementById("photoLabel").textContent = count ? `${count} photos selected` : "Tap to add property photos";
-      document.getElementById("photoHint").textContent = count ? Array.from(event.target.files).slice(0, 3).map((file) => file.name).join(" · ") : "Living, bedroom, kitchen, toilet and view.";
-      if (count) showToast(`${count} photo${count > 1 ? "s" : ""} ready for AI`);
+    document.getElementById("photos").addEventListener("change", async (event) => {
+      try {
+        await captureSelectedListingPhotos(event.target.files);
+      } catch (error) {
+        selectedListingPhotos = [];
+        setListingPhotoSummary();
+        refreshListingPreview();
+        showToast(error instanceof Error ? error.message : "Unable to prepare photos");
+      }
     });
 
     document.getElementById("generate").addEventListener("click", () => {
