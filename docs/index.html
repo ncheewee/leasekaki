@@ -951,8 +951,7 @@
     .mock-strip {
       width: min(100%, 360px);
       max-width: 360px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
       gap: 7px;
     }
     .mock-strip img {
@@ -1325,6 +1324,8 @@
       border-color: var(--line);
     }
     .nav button {
+      min-width: 0;
+      flex: 1 1 0;
       min-height: 48px;
       border: 0;
       border-radius: 15px;
@@ -1337,8 +1338,9 @@
     body.dark .nav button.active { color: #4b5f5c; }
     .nav span { display: block; font-size: 21px; line-height: 1; }
     .nav button[data-view="liked"] span { transform: scaleX(1.04) scaleY(.84); transform-origin: center; }
-    .listed-content { display: grid; gap: 14px; padding: 16px 16px 92px; }
-    .listed-head { padding: 18px; }
+    .listed-content { display: grid; gap: 14px; padding: 18px 16px 92px; }
+    .listed-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .listed-toolbar h1 { margin: 0; font-size: 24px; }
     .listed-heading { margin: 2px 0 -4px; }
     .owned-listings { display: grid; gap: 10px; }
     .owned-listing {
@@ -1354,7 +1356,14 @@
     .owned-listing img { width: 72px; height: 62px; border-radius: 7px; object-fit: cover; background: var(--cream); }
     .owned-listing strong { display: block; font-size: 14px; line-height: 1.25; }
     .owned-listing small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 750; }
-    .owned-listing .mini-action { min-height: 40px; padding: 0 10px; }
+    .owned-actions { display: grid; gap: 6px; }
+    .owned-listing .mini-action { min-height: 34px; padding: 0 10px; }
+    .owned-listing .delete-listing { color: var(--bad); border-color: rgba(202, 76, 67, .22); }
+    .selected-photo-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .selected-photo { position: relative; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); touch-action: none; }
+    .selected-photo.dragging { opacity: .45; }
+    .selected-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-remove { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: rgba(16, 43, 54, .84); color: var(--paper); font-size: 17px; line-height: 1; }
     .toast {
       position: fixed;
       z-index: 30;
@@ -2159,13 +2168,8 @@
 
       <div id="listed" class="view">
         <div class="listed-content">
-          <section class="workflow-head listed-head">
-            <span class="eyebrow">Your properties</span>
-            <h1>Listed</h1>
-            <p>Start a listing, check its status, or make changes from one place.</p>
-          </section>
+          <div class="listed-toolbar"><h1>Listed</h1><span id="listedCount" class="count">0 listings</span></div>
           <button id="startListingButton" class="button coral full" type="button">List a property</button>
-          <section class="section-heading listed-heading"><span id="listedCount" class="count">0 listings</span></section>
           <section id="ownedListings" class="owned-listings"></section>
         </div>
       </div>
@@ -2224,6 +2228,7 @@
                 <span id="photoHint">Living, bedroom, kitchen, toilet and view.</span>
                 <button class="button coral" type="button">Choose photos</button>
                 </label>
+                <div id="selectedPhotoGrid" class="selected-photo-grid" aria-label="Selected property photos"></div>
                 <button class="button secondary full" type="button" data-next-listing-card>Continue</button>
               </section>
               <section class="listing-question" data-listing-card="home">
@@ -2518,6 +2523,7 @@
     const rentConfidence = document.getElementById("rentConfidence");
     const descriptionCount = document.getElementById("descriptionCount");
     let selectedListing = null;
+    let editingListingTitle = "";
     let leafletMap = null;
     let leafletLayer = null;
     let mapAreaBounds = null;
@@ -3523,6 +3529,62 @@
         photoLabel.textContent = "Tap to add property photos";
         photoHint.textContent = "Living, bedroom, kitchen, toilet and view.";
       }
+      renderSelectedPhotoGrid();
+    }
+
+    function moveListingPhoto(fromIndex, toIndex) {
+      if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= selectedListingPhotos.length || toIndex >= selectedListingPhotos.length) return;
+      const [photo] = selectedListingPhotos.splice(fromIndex, 1);
+      selectedListingPhotos.splice(toIndex, 0, photo);
+      setListingPhotoSummary();
+      refreshListingPreview();
+    }
+
+    function renderSelectedPhotoGrid() {
+      const target = document.getElementById("selectedPhotoGrid");
+      if (!target) return;
+      target.innerHTML = selectedListingPhotos.map((photo, index) => `
+        <div class="selected-photo" draggable="true" data-selected-photo-index="${index}">
+          <img src="${escapeHtml(photo)}" alt="Selected property photo ${index + 1}">
+          <button class="photo-remove" type="button" data-remove-photo-index="${index}" aria-label="Remove photo ${index + 1}">×</button>
+        </div>
+      `).join("");
+      target.querySelectorAll("[data-remove-photo-index]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectedListingPhotos.splice(Number(button.dataset.removePhotoIndex), 1);
+          setListingPhotoSummary();
+          refreshListingPreview();
+        });
+      });
+      target.querySelectorAll("[data-selected-photo-index]").forEach((photo) => {
+        photo.addEventListener("dragstart", (event) => {
+          event.dataTransfer?.setData("text/plain", photo.dataset.selectedPhotoIndex);
+          photo.classList.add("dragging");
+        });
+        photo.addEventListener("dragend", () => photo.classList.remove("dragging"));
+        photo.addEventListener("dragover", (event) => event.preventDefault());
+        photo.addEventListener("drop", (event) => {
+          event.preventDefault();
+          moveListingPhoto(Number(event.dataTransfer?.getData("text/plain")), Number(photo.dataset.selectedPhotoIndex));
+        });
+        photo.addEventListener("pointerdown", (event) => {
+          if (event.target.closest("button")) return;
+          photo.dataset.dragSource = photo.dataset.selectedPhotoIndex;
+          photo.classList.add("dragging");
+          photo.setPointerCapture?.(event.pointerId);
+        });
+        photo.addEventListener("pointerup", (event) => {
+          const fromIndex = Number(photo.dataset.dragSource);
+          delete photo.dataset.dragSource;
+          photo.classList.remove("dragging");
+          const destination = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-selected-photo-index]");
+          if (destination) moveListingPhoto(fromIndex, Number(destination.dataset.selectedPhotoIndex));
+        });
+        photo.addEventListener("pointercancel", () => {
+          delete photo.dataset.dragSource;
+          photo.classList.remove("dragging");
+        });
+      });
     }
 
     function compressListingPhoto(file) {
@@ -3557,14 +3619,15 @@
     }
 
     async function captureSelectedListingPhotos(fileList) {
-      const files = Array.from(fileList || []).slice(0, 4);
+      const slotsRemaining = Math.max(0, 4 - selectedListingPhotos.length);
+      const files = Array.from(fileList || []).slice(0, slotsRemaining);
       setListingPhotoSummary(files);
       if (!files.length) {
-        selectedListingPhotos = [];
-        refreshListingPreview();
+        showToast(slotsRemaining ? "No new photos selected" : "Remove a photo before adding another");
         return;
       }
-      selectedListingPhotos = await Promise.all(files.map(compressListingPhoto));
+      selectedListingPhotos.push(...await Promise.all(files.map(compressListingPhoto)));
+      setListingPhotoSummary();
       refreshListingPreview();
       showToast(`${selectedListingPhotos.length} photo${selectedListingPhotos.length > 1 ? "s" : ""} ready for preview`);
     }
@@ -3686,10 +3749,12 @@
       setWorkflowStep("capture");
       const listingToEdit = editListing === true ? userListings[0] : editListing;
       if (listingToEdit && typeof listingToEdit === "object") {
+        editingListingTitle = listingToEdit.title;
         fillWorkflowFromListing(listingToEdit);
-        setWorkflowStep("draft");
-        showToast("Listing loaded for editing");
+        setListingCard("role");
+        showToast("Listing loaded. Step through the cards to update it.");
       } else {
+        editingListingTitle = "";
         selectedListingPhotos = [];
         document.getElementById("listerInput").value = "owner";
         document.getElementById("verificationInput").value = "";
@@ -3907,13 +3972,27 @@
         <article class="owned-listing">
           <img src="${escapeHtml(item.image || "./assets/listings/01-bishan-hdb-living.jpg")}" alt="">
           <div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.mode)} · $${Number(item.price || 0).toLocaleString()}/mo · ${escapeHtml(item.verification ? "Verification follow-up" : "Published")}</small></div>
-          <button class="mini-action" type="button" data-edit-owned-title="${escapeHtml(item.title)}">Edit</button>
+          <div class="owned-actions"><button class="mini-action" type="button" data-edit-owned-title="${escapeHtml(item.title)}">Edit</button><button class="mini-action delete-listing" type="button" data-delete-owned-title="${escapeHtml(item.title)}">Delete</button></div>
         </article>
       `).join("");
       target.querySelectorAll("[data-edit-owned-title]").forEach((button) => {
         button.addEventListener("click", () => {
           const item = userListings.find((listing) => listing.title === button.dataset.editOwnedTitle);
           if (item) openListingWorkflow(item);
+        });
+      });
+      target.querySelectorAll("[data-delete-owned-title]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const title = button.dataset.deleteOwnedTitle;
+          if (!window.confirm(`Delete “${title}”? This removes the local listing from Listed and Explore.`)) return;
+          const index = userListings.findIndex((listing) => listing.title === title);
+          if (index < 0) return;
+          userListings.splice(index, 1);
+          writeUserStorage("ownerListings", userListings.slice(0, 12));
+          listings = listings.filter((listing) => listing.title !== title);
+          renderListings();
+          renderOwnedListings();
+          showToast("Listing deleted");
         });
       });
     }
@@ -4959,10 +5038,11 @@
       try {
         await captureSelectedListingPhotos(event.target.files);
       } catch (error) {
-        selectedListingPhotos = [];
         setListingPhotoSummary();
         refreshListingPreview();
         showToast(error instanceof Error ? error.message : "Unable to prepare photos");
+      } finally {
+        event.target.value = "";
       }
     });
 
@@ -5011,8 +5091,9 @@
           showToast("Listing added locally; API save needs a retry");
         }
 
-        const existingOwnedIndex = userListings.findIndex((item) => item.title === newListing.title);
+        const existingOwnedIndex = userListings.findIndex((item) => item.title === (editingListingTitle || newListing.title));
         if (existingOwnedIndex >= 0) userListings.splice(existingOwnedIndex, 1);
+        editingListingTitle = "";
         userListings.unshift(newListing);
         writeUserStorage("ownerListings", userListings.slice(0, 12));
         updateOwnerListingButtons();
