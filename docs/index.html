@@ -1030,14 +1030,15 @@
     }
     .rent-card {
       display: grid;
-      gap: 12px;
-      margin-top: 14px;
-      padding: 17px;
-      border-radius: 18px;
-      background: var(--ink);
-      color: var(--paper);
+      gap: 4px;
+      margin-top: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--cream);
+      color: var(--ink-soft);
     }
-    .rent-card strong { font-size: 25px; letter-spacing: -.04em; }
+    .rent-card strong { font-size: 16px; letter-spacing: 0; color: var(--ink); }
     .confidence {
       width: max-content;
       padding: 6px 9px;
@@ -1364,7 +1365,7 @@
     .owned-listing .mini-action { min-height: 34px; padding: 0 10px; }
     .owned-listing .delete-listing { color: var(--bad); border-color: rgba(202, 76, 67, .22); }
     .selected-photo-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-    .selected-photo { position: relative; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); touch-action: none; }
+    .selected-photo { position: relative; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
     .selected-photo.dragging { opacity: .45; }
     .selected-photo img { width: 100%; height: 100%; object-fit: cover; }
     .photo-remove { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: rgba(16, 43, 54, .84); color: var(--paper); font-size: 17px; line-height: 1; }
@@ -1377,9 +1378,21 @@
     .tap-stepper { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; min-height: 56px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--paper); }
     .tap-stepper button { height: 100%; border: 0; background: var(--cream); color: var(--mint-deep); font-size: 24px; font-weight: 800; }
     .tap-stepper output { text-align: center; color: var(--ink); font-size: 20px; font-weight: 900; }
-    .availability-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-    .availability-picker button { min-height: 50px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink-soft); font-size: 13px; font-weight: 850; }
+    .date-picker-trigger { display: flex; align-items: center; justify-content: space-between; min-height: 56px; width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; background: var(--paper); color: var(--ink); font: inherit; font-weight: 850; }
+    .date-picker-trigger::after { content: "Choose"; color: var(--muted); font-size: 12px; }
+    .date-picker-trigger.has-value::after { content: "Change"; }
+    .availability-picker { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-top: 8px; max-height: 286px; overflow-y: auto; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); }
+    .availability-picker.hidden { display: none; }
+    .availability-picker .calendar-month { grid-column: 1 / -1; padding: 4px 2px 1px; color: var(--muted); font-size: 12px; font-weight: 900; }
+    .availability-picker button { min-height: 42px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink-soft); font-size: 12px; font-weight: 850; }
     .availability-picker button.active { border-color: var(--mint); background: var(--mint); color: var(--mint-deep); }
+    .listing-question input[readonly] { background: var(--cream); color: var(--muted); }
+    .currency-field { position: relative; display: block; }
+    .currency-field span { position: absolute; z-index: 1; top: 50%; left: 14px; transform: translateY(-50%); color: var(--muted); font-weight: 900; pointer-events: none; }
+    .currency-field input { padding-left: 30px; }
+    .ai-assist-actions { display: flex; justify-content: center; }
+    .ai-draft-button { min-width: 230px; min-height: 58px; border: 1px solid var(--coral); border-radius: 8px; background: var(--coral); color: var(--ink); box-shadow: 0 0 0 4px rgba(187, 241, 209, .8), 0 0 24px rgba(255, 123, 93, .48); font-size: 16px; font-weight: 900; }
+    #descriptionInput { min-height: min(52dvh, 430px); }
     .draft-card { display: none; gap: 16px; }
     .draft-card.active { display: grid; }
     .confirm-window { grid-template-rows: auto auto; width: min(420px, 100%); }
@@ -2253,13 +2266,13 @@
                   <button class="active" type="button" data-field-toggle="furnishingInput" data-value="Furnished">Furnished</button><button type="button" data-field-toggle="furnishingInput" data-value="Unfurnished">Unfurnished</button>
                 </span></div>
                 <div class="quick-number-grid"><label>Rooms<input id="roomsInput" type="hidden" value="3"><span class="tap-stepper"><button type="button" data-step-target="roomsInput" data-step-delta="-1" aria-label="Decrease rooms">−</button><output id="roomsValue">3</output><button type="button" data-step-target="roomsInput" data-step-delta="1" aria-label="Increase rooms">+</button></span></label><label>Toilets<input id="toiletsInput" type="hidden" value="2"><span class="tap-stepper"><button type="button" data-step-target="toiletsInput" data-step-delta="-1" aria-label="Decrease toilets">−</button><output id="toiletsValue">2</output><button type="button" data-step-target="toiletsInput" data-step-delta="1" aria-label="Increase toilets">+</button></span></label></div>
-                <label>Available from<input id="availableInput" type="hidden" value="2026-09-01"><span id="availabilityPicker" class="availability-picker" role="group" aria-label="Available from"><button type="button" data-available-date="2026-07-21">Now</button><button type="button" data-available-date="2026-08-01">1 Aug</button><button class="active" type="button" data-available-date="2026-09-01">1 Sep</button><button type="button" data-available-date="2026-10-01">1 Oct</button></span></label>
+                <label>Available from<input id="availableInput" type="hidden" value=""><button id="availabilityButton" class="date-picker-trigger" type="button" aria-expanded="false">Choose a date</button><span id="availabilityPicker" class="availability-picker hidden" role="dialog" aria-label="Choose available date"></span></label>
                 <button class="button coral full" type="button" data-next-listing-card>Continue</button>
               </section>
               <section class="listing-question" data-listing-card="location">
-                <label>Postal code<input id="postcodeInput" inputmode="numeric" value="570013" maxlength="6" placeholder="e.g. 570013"></label>
-                <label>Street or project<input id="addressInput" value="Bishan Street 13" readonly></label>
-                <label>Estate / neighbourhood<input id="estateInput" value="Bishan" readonly></label>
+                <label>Postal code<input id="postcodeInput" inputmode="numeric" value="" maxlength="6" placeholder="e.g. 570013"></label>
+                <label>Street<input id="addressInput" value="" readonly></label>
+                <label>District<input id="estateInput" value="" readonly></label>
                 <p id="postcodeStatus" class="workflow-copy"></p>
                 <button id="generate" class="button coral full" type="button">Continue</button>
               </section>
@@ -2270,19 +2283,17 @@
             <section class="draft-card active" data-draft-card="title">
               <div class="form two">
                 <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT" maxlength="42"></label>
-                <label>Asking rent<input id="rentInput" type="number" value="3750" min="500" step="50"></label>
+                <label>Asking rent<span class="currency-field"><span>$</span><input id="rentInput" type="number" value="3750" min="500" step="50"></span></label>
               </div>
               <aside class="rent-card">
                 <span class="eyebrow">Suggested asking rent</span>
                 <strong id="rentGuide">$3,650-$3,900</strong>
-                <div class="range"><span></span></div>
               </aside>
               <button id="continueDescription" class="button coral full" type="button">Continue</button>
             </section>
             <section class="draft-card" data-draft-card="description">
-              <div class="ai-assist-actions"><button id="aiPolishButton" class="mini-action" type="button">AI draft</button></div>
+              <div class="ai-assist-actions"><button id="aiPolishButton" class="ai-draft-button" type="button">AI draft</button></div>
               <label>Description<textarea id="descriptionInput" maxlength="850" placeholder="Write your description"></textarea><span class="form-hint-row"><span>Up to 100 words.</span><span id="descriptionCount">0 words</span></span></label>
-              <div id="listingPreview"></div>
               <div class="actions"><button class="button secondary" type="button" data-preview-detail>Preview</button><button class="button coral" type="button" data-publish>Publish</button></div>
             </section>
           </section>
@@ -2876,7 +2887,7 @@
           const response = await fetch(`${API_BASE}/api/postal?postal=${encodeURIComponent(postal)}`, { headers: { accept: "application/json" } });
           const body = await response.json().catch(() => ({}));
           if (!response.ok) throw new Error(body.code || body.error || "Postal code not found");
-          result = { address: body.address, postal: body.postal || postal };
+          result = { address: body.address, postal: body.postal || postal, district: districtFromPostcode(postal) };
           postalLookupCache[postal] = result;
         } catch (error) {
           status.textContent = "Address not found. Check the postal code.";
@@ -2885,7 +2896,7 @@
       }
       const address = String(result.address || "").replace(/\s+Singapore\s+\d{6}$/i, "").trim();
       document.getElementById("addressInput").value = address;
-      document.getElementById("estateInput").value = estateFromAddress(address);
+      document.getElementById("estateInput").value = result.district || districtFromPostcode(postal);
       status.textContent = "Address found";
       refreshListingPreview();
     }
@@ -3610,8 +3621,42 @@
     }
 
     function syncAvailabilityPicker() {
-      const value = document.getElementById("availableInput")?.value;
-      document.querySelectorAll("[data-available-date]").forEach((button) => button.classList.toggle("active", button.dataset.availableDate === value));
+      const input = document.getElementById("availableInput");
+      const picker = document.getElementById("availabilityPicker");
+      const trigger = document.getElementById("availabilityButton");
+      if (!input || !picker || !trigger) return;
+      const value = input.value;
+      trigger.textContent = value ? formatAvailability(value) : "Choose a date";
+      trigger.classList.toggle("has-value", Boolean(value));
+      trigger.setAttribute("aria-expanded", String(!picker.classList.contains("hidden")));
+      picker.querySelectorAll("[data-available-date]").forEach((button) => button.classList.toggle("active", button.dataset.availableDate === value));
+    }
+
+    function localDateValue(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function renderAvailabilityPicker() {
+      const picker = document.getElementById("availabilityPicker");
+      if (!picker || picker.childElementCount) return;
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      const dates = Array.from({ length: 180 }, (_, index) => {
+        const date = new Date(start);
+        date.setDate(start.getDate() + index);
+        return date;
+      });
+      let lastMonth = -1;
+      picker.innerHTML = dates.map((date) => {
+        const month = date.getMonth();
+        const heading = month !== lastMonth ? `<span class="calendar-month">${date.toLocaleDateString("en-SG", { month: "long", year: "numeric" })}</span>` : "";
+        lastMonth = month;
+        return `${heading}<button type="button" data-available-date="${localDateValue(date)}" aria-label="${date.toLocaleDateString("en-SG", { day: "numeric", month: "long", year: "numeric" })}">${date.getDate()}</button>`;
+      }).join("");
+      syncAvailabilityPicker();
     }
 
     function setVerificationQuestion(role) {
@@ -3663,7 +3708,7 @@
       const target = document.getElementById("selectedPhotoGrid");
       if (!target) return;
       target.innerHTML = selectedListingPhotos.map((photo, index) => `
-        <div class="selected-photo" draggable="true" data-selected-photo-index="${index}">
+        <div class="selected-photo" data-selected-photo-index="${index}">
           <img src="${escapeHtml(photo)}" alt="Selected property photo ${index + 1}">
           <button class="photo-remove" type="button" data-remove-photo-index="${index}" aria-label="Remove photo ${index + 1}">×</button>
         </div>
@@ -3676,16 +3721,7 @@
         });
       });
       target.querySelectorAll("[data-selected-photo-index]").forEach((photo) => {
-        photo.addEventListener("dragstart", (event) => {
-          event.dataTransfer?.setData("text/plain", photo.dataset.selectedPhotoIndex);
-          photo.classList.add("dragging");
-        });
-        photo.addEventListener("dragend", () => photo.classList.remove("dragging"));
-        photo.addEventListener("dragover", (event) => event.preventDefault());
-        photo.addEventListener("drop", (event) => {
-          event.preventDefault();
-          moveListingPhoto(Number(event.dataTransfer?.getData("text/plain")), Number(photo.dataset.selectedPhotoIndex));
-        });
+        photo.addEventListener("contextmenu", (event) => event.preventDefault());
         photo.addEventListener("pointerdown", (event) => {
           if (event.target.closest("button")) return;
           photo.dataset.dragSource = photo.dataset.selectedPhotoIndex;
@@ -3884,9 +3920,14 @@
         selectedListingPhotos = [];
         document.getElementById("listerInput").value = "owner";
         document.getElementById("verificationInput").value = "";
+        document.getElementById("postcodeInput").value = "";
+        document.getElementById("addressInput").value = "";
+        document.getElementById("estateInput").value = "";
+        document.getElementById("availableInput").value = "";
         setVerificationQuestion("owner");
         setListingCard("role");
         setListingPhotoSummary();
+        syncAvailabilityPicker();
         refreshListingPreview();
       }
     }
@@ -5161,12 +5202,19 @@
       });
     });
 
-    document.querySelectorAll("[data-available-date]").forEach((button) => {
-      button.addEventListener("click", () => {
-        document.getElementById("availableInput").value = button.dataset.availableDate;
-        syncAvailabilityPicker();
-        refreshListingPreview();
-      });
+    document.getElementById("availabilityButton").addEventListener("click", () => {
+      const picker = document.getElementById("availabilityPicker");
+      renderAvailabilityPicker();
+      picker.classList.toggle("hidden");
+      syncAvailabilityPicker();
+    });
+    document.getElementById("availabilityPicker").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-available-date]");
+      if (!button) return;
+      document.getElementById("availableInput").value = button.dataset.availableDate;
+      document.getElementById("availabilityPicker").classList.add("hidden");
+      syncAvailabilityPicker();
+      refreshListingPreview();
     });
 
     ["titleInput", "estateInput", "addressInput", "postcodeInput", "availableInput", "roomsInput", "toiletsInput", "rentInput", "descriptionInput"].forEach((id) => {
