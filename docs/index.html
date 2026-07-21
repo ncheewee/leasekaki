@@ -750,7 +750,7 @@
       width: 56%;
       height: 84px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 7px;
       padding: 16px 10px 9px;
       border-radius: 14px 14px 4px 4px;
@@ -1337,6 +1337,24 @@
     body.dark .nav button.active { color: #4b5f5c; }
     .nav span { display: block; font-size: 21px; line-height: 1; }
     .nav button[data-view="liked"] span { transform: scaleX(1.04) scaleY(.84); transform-origin: center; }
+    .listed-content { display: grid; gap: 14px; padding: 16px 16px 92px; }
+    .listed-head { padding: 18px; }
+    .listed-heading { margin: 2px 0 -4px; }
+    .owned-listings { display: grid; gap: 10px; }
+    .owned-listing {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+    .owned-listing img { width: 72px; height: 62px; border-radius: 7px; object-fit: cover; background: var(--cream); }
+    .owned-listing strong { display: block; font-size: 14px; line-height: 1.25; }
+    .owned-listing small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 750; }
+    .owned-listing .mini-action { min-height: 40px; padding: 0 10px; }
     .toast {
       position: fixed;
       z-index: 30;
@@ -2073,8 +2091,6 @@
             <strong>Signed in</strong>
             <span>LeaseKaki profile</span>
           </div>
-          <button id="listPropertyButton" class="list-property" type="button"><span>＋</span><span>List your property</span></button>
-          <button id="editLastListingButton" class="list-property" type="button" hidden><span>✎</span><span>Edit latest listing</span></button>
           <button id="themeToggle" class="theme-menu-item" type="button" aria-pressed="false"><span>☾</span><span>Dark theme</span><i class="theme-switch" aria-hidden="true"></i></button>
           <button id="signOutButton" class="sign-out" type="button"><span>↩</span><span>Log out</span></button>
         </div>
@@ -2141,6 +2157,19 @@
         <div id="likedListings" class="listings"></div>
       </div>
 
+      <div id="listed" class="view">
+        <div class="listed-content">
+          <section class="workflow-head listed-head">
+            <span class="eyebrow">Your properties</span>
+            <h1>Listed</h1>
+            <p>Start a listing, check its status, or make changes from one place.</p>
+          </section>
+          <button id="startListingButton" class="button coral full" type="button">List a property</button>
+          <section class="section-heading listed-heading"><span id="listedCount" class="count">0 listings</span></section>
+          <section id="ownedListings" class="owned-listings"></section>
+        </div>
+      </div>
+
       <div id="list" class="view">
         <div class="listing-workflow">
           <section class="workflow-head">
@@ -2171,11 +2200,11 @@
                 <h2 id="verificationTitle">Verify that you own this home</h2>
                 <p id="verificationCopy" class="workflow-copy">A Singpass check can confirm ownership without showing personal details to renters.</p>
                 <div id="ownerVerificationChoices" class="choice-stack">
-                  <button class="choice-card" type="button" data-verification-choice="singpass"><strong>Verify with Singpass</strong><span>Prototype check; real Singpass connection comes with the backend</span></button>
+                  <button class="choice-card" type="button" data-verification-choice="singpass"><strong>Verify with Singpass</strong><span>Requires a consented Myinfo integration to confirm identity and ownership</span></button>
                   <button class="choice-card muted-choice" type="button" data-verification-choice="later"><strong>Verify later</strong><span>Your listing will be marked for follow-up review</span></button>
                 </div>
                 <div id="agentVerificationChoices" class="choice-stack hidden">
-                  <button class="choice-card" type="button" data-verification-choice="cea"><strong>Confirm CEA registration</strong><span>You'll be shown as an authorised agent</span></button>
+                  <button class="choice-card" type="button" data-verification-choice="cea"><strong>Verify CEA registration</strong><span>Match your advertised phone number against the CEA Public Register</span></button>
                   <button class="choice-card muted-choice" type="button" data-verification-choice="later"><strong>Verify later</strong><span>Your listing will be marked for follow-up review</span></button>
                 </div>
               </section>
@@ -2345,6 +2374,7 @@
     <button class="active" type="button" data-view="browse"><span>⌂</span>Explore</button>
     <button type="button" data-view="liked"><span>♥</span>Liked</button>
     <button type="button" data-view="chats"><span>◐</span>Chats</button>
+    <button type="button" data-view="listed"><span>▣</span>Listed</button>
   </nav>
   <button id="toast" class="toast hidden" type="button" aria-label="Dismiss message"></button>
 
@@ -2472,8 +2502,7 @@
     const accountButton = document.getElementById("accountButton");
     const accountMenu = document.getElementById("accountMenu");
     const accountStatus = document.getElementById("accountStatus");
-    const listPropertyButton = document.getElementById("listPropertyButton");
-    const editLastListingButton = document.getElementById("editLastListingButton");
+    const startListingButton = document.getElementById("startListingButton");
     const themeToggle = document.getElementById("themeToggle");
     const signOutButton = document.getElementById("signOutButton");
     const toast = document.getElementById("toast");
@@ -2644,8 +2673,7 @@
     }
 
     function updateOwnerListingButtons() {
-      if (!editLastListingButton) return;
-      editLastListingButton.hidden = userListings.length === 0;
+      renderOwnedListings();
     }
 
     function mergeUserListings(baseListings) {
@@ -2877,6 +2905,7 @@
       document.querySelectorAll(".nav button").forEach((button) => button.classList.toggle("active", button.dataset.view === name));
       if (name === "liked") renderLikedListings();
       if (name === "chats") renderChatList();
+      if (name === "listed") renderOwnedListings();
       accountMenu.classList.remove("open");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -2901,8 +2930,7 @@
       event.stopPropagation();
       accountMenu.classList.toggle("open");
     });
-    listPropertyButton.addEventListener("click", () => openListingWorkflow(false));
-    editLastListingButton.addEventListener("click", () => openListingWorkflow(true));
+    startListingButton.addEventListener("click", () => openListingWorkflow(false));
     document.addEventListener("click", (event) => {
       if (!accountMenu.contains(event.target) && event.target !== accountButton) accountMenu.classList.remove("open");
     });
@@ -3653,13 +3681,14 @@
       updateKindInput();
     }
 
-    function openListingWorkflow(editLatest = false) {
+    function openListingWorkflow(editListing = null) {
       setView("list");
       setWorkflowStep("capture");
-      if (editLatest && userListings[0]) {
-        fillWorkflowFromListing(userListings[0]);
+      const listingToEdit = editListing === true ? userListings[0] : editListing;
+      if (listingToEdit && typeof listingToEdit === "object") {
+        fillWorkflowFromListing(listingToEdit);
         setWorkflowStep("draft");
-        showToast("Latest listing loaded for editing");
+        showToast("Listing loaded for editing");
       } else {
         selectedListingPhotos = [];
         document.getElementById("listerInput").value = "owner";
@@ -3863,6 +3892,30 @@
       const liked = listings.filter((item) => likedListings.has(item.title)).sort(sortListings);
       document.getElementById("likedCount").textContent = `${liked.length} liked`;
       renderListingCards(liked, document.getElementById("likedListings"), "No liked homes yet.", "Tap the heart on any listing to build your shortlist.");
+    }
+
+    function renderOwnedListings() {
+      const target = document.getElementById("ownedListings");
+      const count = document.getElementById("listedCount");
+      if (!target || !count) return;
+      count.textContent = `${userListings.length} listing${userListings.length === 1 ? "" : "s"}`;
+      if (!userListings.length) {
+        target.innerHTML = `<div class="empty-state"><strong>No properties listed yet.</strong>Start with a few taps and return here whenever you need to edit or manage a listing.</div>`;
+        return;
+      }
+      target.innerHTML = userListings.map((item) => `
+        <article class="owned-listing">
+          <img src="${escapeHtml(item.image || "./assets/listings/01-bishan-hdb-living.jpg")}" alt="">
+          <div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.mode)} · $${Number(item.price || 0).toLocaleString()}/mo · ${escapeHtml(item.verification ? "Verification follow-up" : "Published")}</small></div>
+          <button class="mini-action" type="button" data-edit-owned-title="${escapeHtml(item.title)}">Edit</button>
+        </article>
+      `).join("");
+      target.querySelectorAll("[data-edit-owned-title]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const item = userListings.find((listing) => listing.title === button.dataset.editOwnedTitle);
+          if (item) openListingWorkflow(item);
+        });
+      });
     }
 
     function clearMapAreaFilter() {
@@ -4878,7 +4931,7 @@
         document.getElementById("verificationInput").value = button.dataset.verificationChoice;
         setListingCard("photos");
         const confirmed = button.dataset.verificationChoice === "singpass" || button.dataset.verificationChoice === "cea";
-        showToast(confirmed ? "Verification recorded for this prototype" : "Verification follow-up recorded");
+        showToast(confirmed ? "Verification path selected; a live check is still required for a verified badge" : "Verification follow-up recorded");
       });
     });
 
@@ -4965,7 +5018,7 @@
         updateOwnerListingButtons();
         listings = mergeUserListings(listings.filter((item) => item.title !== newListing.title));
         renderListings();
-        setView("browse");
+        setView("listed");
       } catch (error) {
         showToast(error instanceof Error ? error.message : "Unable to publish listing");
       } finally {
