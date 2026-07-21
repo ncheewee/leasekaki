@@ -1035,8 +1035,8 @@
       padding: 12px 14px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: var(--cream);
-      color: var(--ink-soft);
+      background: var(--paper);
+      color: var(--muted);
     }
     .rent-card strong { font-size: 16px; letter-spacing: 0; color: var(--ink); }
     .confidence {
@@ -1366,8 +1366,10 @@
     .owned-listing .delete-listing { color: var(--bad); border-color: rgba(202, 76, 67, .22); }
     .selected-photo-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
     .selected-photo { position: relative; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
-    .selected-photo.dragging { opacity: .45; }
+    .selected-photo.dragging { opacity: .35; outline: 2px solid var(--mint-deep); outline-offset: 2px; }
     .selected-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-drag-ghost { position: fixed; z-index: 90; width: 92px; aspect-ratio: 1; overflow: hidden; border: 2px solid var(--paper); border-radius: 10px; box-shadow: 0 12px 28px rgba(16, 43, 54, .32); pointer-events: none; transform: translate(-50%, -50%) rotate(3deg) scale(1.05); }
+    .photo-drag-ghost img { width: 100%; height: 100%; object-fit: cover; }
     .photo-remove { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: rgba(16, 43, 54, .84); color: var(--paper); font-size: 17px; line-height: 1; }
     .photo-drop { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
     .photo-drop input { position: absolute; opacity: 0; pointer-events: none; }
@@ -1381,17 +1383,24 @@
     .date-picker-trigger { display: flex; align-items: center; justify-content: space-between; min-height: 56px; width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; background: var(--paper); color: var(--ink); font: inherit; font-weight: 850; }
     .date-picker-trigger::after { content: "Choose"; color: var(--muted); font-size: 12px; }
     .date-picker-trigger.has-value::after { content: "Change"; }
-    .availability-picker { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-top: 8px; max-height: 286px; overflow-y: auto; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); }
+    .availability-picker { display: grid; gap: 10px; margin-top: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); }
     .availability-picker.hidden { display: none; }
-    .availability-picker .calendar-month { grid-column: 1 / -1; padding: 4px 2px 1px; color: var(--muted); font-size: 12px; font-weight: 900; }
-    .availability-picker button { min-height: 42px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink-soft); font-size: 12px; font-weight: 850; }
+    .calendar-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .calendar-controls select { min-height: 44px; border-radius: 8px; background: var(--paper); font-weight: 850; }
+    .calendar-weekdays, .calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+    .calendar-weekdays span { padding: 2px 0; color: var(--muted); font-size: 10px; font-weight: 900; text-align: center; }
+    .availability-picker button { min-height: 40px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink-soft); font-size: 12px; font-weight: 850; }
+    .availability-picker button:disabled { opacity: .32; }
     .availability-picker button.active { border-color: var(--mint); background: var(--mint); color: var(--mint-deep); }
     .listing-question input[readonly] { background: var(--cream); color: var(--muted); }
+    .postcode-control { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+    .postcode-control button { min-width: 84px; min-height: 44px; border: 1px solid var(--line); border-radius: 8px; background: var(--ink); color: var(--paper); font-weight: 850; }
+    .postcode-control button:disabled { background: var(--cream); color: var(--muted); }
     .currency-field { position: relative; display: block; }
     .currency-field span { position: absolute; z-index: 1; top: 50%; left: 14px; transform: translateY(-50%); color: var(--muted); font-weight: 900; pointer-events: none; }
     .currency-field input { padding-left: 30px; }
     .ai-assist-actions { display: flex; justify-content: center; }
-    .ai-draft-button { min-width: 230px; min-height: 58px; border: 1px solid var(--coral); border-radius: 8px; background: var(--coral); color: var(--ink); box-shadow: 0 0 0 4px rgba(187, 241, 209, .8), 0 0 24px rgba(255, 123, 93, .48); font-size: 16px; font-weight: 900; }
+    .ai-draft-button { min-width: 230px; min-height: 58px; border: 2px solid transparent; border-radius: 999px; background: linear-gradient(var(--paper), var(--paper)) padding-box, conic-gradient(from 210deg, #1aa7ec, #7b61ff, #ed6a8a, #f1a45b, #1aa7ec) border-box; color: var(--ink); box-shadow: 0 6px 18px rgba(45, 112, 150, .18); font-size: 16px; font-weight: 900; }
     #descriptionInput { min-height: min(52dvh, 430px); }
     .draft-card { display: none; gap: 16px; }
     .draft-card.active { display: grid; }
@@ -2266,11 +2275,11 @@
                   <button class="active" type="button" data-field-toggle="furnishingInput" data-value="Furnished">Furnished</button><button type="button" data-field-toggle="furnishingInput" data-value="Unfurnished">Unfurnished</button>
                 </span></div>
                 <div class="quick-number-grid"><label>Rooms<input id="roomsInput" type="hidden" value="3"><span class="tap-stepper"><button type="button" data-step-target="roomsInput" data-step-delta="-1" aria-label="Decrease rooms">−</button><output id="roomsValue">3</output><button type="button" data-step-target="roomsInput" data-step-delta="1" aria-label="Increase rooms">+</button></span></label><label>Toilets<input id="toiletsInput" type="hidden" value="2"><span class="tap-stepper"><button type="button" data-step-target="toiletsInput" data-step-delta="-1" aria-label="Decrease toilets">−</button><output id="toiletsValue">2</output><button type="button" data-step-target="toiletsInput" data-step-delta="1" aria-label="Increase toilets">+</button></span></label></div>
-                <label>Available from<input id="availableInput" type="hidden" value=""><button id="availabilityButton" class="date-picker-trigger" type="button" aria-expanded="false">Choose a date</button><span id="availabilityPicker" class="availability-picker hidden" role="dialog" aria-label="Choose available date"></span></label>
+                <label>Available from<input id="availableInput" type="hidden" value=""><button id="availabilityButton" class="date-picker-trigger" type="button" aria-expanded="false">Choose a date</button><div id="availabilityPicker" class="availability-picker hidden" role="dialog" aria-label="Choose available date"><div class="calendar-controls"><select id="availabilityMonth" aria-label="Month"></select><select id="availabilityYear" aria-label="Year"></select></div><div class="calendar-weekdays" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div><div id="availabilityDays" class="calendar-days"></div></div></label>
                 <button class="button coral full" type="button" data-next-listing-card>Continue</button>
               </section>
               <section class="listing-question" data-listing-card="location">
-                <label>Postal code<input id="postcodeInput" inputmode="numeric" value="" maxlength="6" placeholder="e.g. 570013"></label>
+                <label>Postal code<span class="postcode-control"><input id="postcodeInput" inputmode="numeric" value="" maxlength="6" placeholder="e.g. 570013"><button id="postcodeSearch" type="button" disabled>Search</button></span></label>
                 <label>Street<input id="addressInput" value="" readonly></label>
                 <label>District<input id="estateInput" value="" readonly></label>
                 <p id="postcodeStatus" class="workflow-copy"></p>
@@ -2545,6 +2554,8 @@
     const userListings = [];
     const photoIndexes = {};
     let selectedListingPhotos = [];
+    let activePhotoDragGhost = null;
+    let availabilityCalendarCursor = null;
     const viewingRequests = {};
     const chatThreads = {};
     let uraRentalSummary = null;
@@ -2887,7 +2898,7 @@
           const response = await fetch(`${API_BASE}/api/postal?postal=${encodeURIComponent(postal)}`, { headers: { accept: "application/json" } });
           const body = await response.json().catch(() => ({}));
           if (!response.ok) throw new Error(body.code || body.error || "Postal code not found");
-          result = { address: body.address, postal: body.postal || postal, district: districtFromPostcode(postal) };
+          result = { address: body.address, postal: body.postal || postal, district: districtLabelForPostcode(postal) };
           postalLookupCache[postal] = result;
         } catch (error) {
           status.textContent = "Address not found. Check the postal code.";
@@ -2896,7 +2907,7 @@
       }
       const address = String(result.address || "").replace(/\s+Singapore\s+\d{6}$/i, "").trim();
       document.getElementById("addressInput").value = address;
-      document.getElementById("estateInput").value = result.district || districtFromPostcode(postal);
+      document.getElementById("estateInput").value = districtLabelForPostcode(postal) || result.district || "";
       status.textContent = "Address found";
       refreshListingPreview();
     }
@@ -3229,6 +3240,11 @@
       return match ? match[1] : "";
     }
 
+    function districtLabelForPostcode(postcode) {
+      const district = districtFromPostcode(postcode);
+      return districtOptions.find(([value]) => value === district)?.[1] || district;
+    }
+
     function mapForIndex(index) {
       return { x: 15 + ((index * 17) % 72), y: 24 + ((index * 13) % 54) };
     }
@@ -3517,9 +3533,14 @@
       const toilets = toiletsForListing();
       const furnishing = document.getElementById("furnishingInput").value.trim() || "Furnished";
 
-      if (!title || !estate || !addressHint || !availableFrom || !description || !Number.isFinite(askingRent)) {
-        throw new Error("Please complete title, location, availability, rent and description.");
-      }
+      const missing = [
+        ["listing title", title],
+        ["Street and District", estate && addressHint],
+        ["available from date", availableFrom],
+        ["asking rent", Number.isFinite(askingRent)],
+        ["description", description]
+      ].filter(([, value]) => !value).map(([label]) => label);
+      if (missing.length) throw new Error(`Complete ${missing.join(", ")}.`);
 
       return {
         title,
@@ -3632,6 +3653,12 @@
       picker.querySelectorAll("[data-available-date]").forEach((button) => button.classList.toggle("active", button.dataset.availableDate === value));
     }
 
+    function syncPostcodeSearchButton() {
+      const postcode = document.getElementById("postcodeInput")?.value.trim() || "";
+      const button = document.getElementById("postcodeSearch");
+      if (button) button.disabled = !/^\d{6}$/.test(postcode);
+    }
+
     function localDateValue(date) {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -3641,21 +3668,31 @@
 
     function renderAvailabilityPicker() {
       const picker = document.getElementById("availabilityPicker");
-      if (!picker || picker.childElementCount) return;
+      const monthSelect = document.getElementById("availabilityMonth");
+      const yearSelect = document.getElementById("availabilityYear");
+      const days = document.getElementById("availabilityDays");
+      if (!picker || !monthSelect || !yearSelect || !days) return;
       const start = new Date();
       start.setHours(0, 0, 0, 0);
-      const dates = Array.from({ length: 180 }, (_, index) => {
-        const date = new Date(start);
-        date.setDate(start.getDate() + index);
-        return date;
-      });
-      let lastMonth = -1;
-      picker.innerHTML = dates.map((date) => {
-        const month = date.getMonth();
-        const heading = month !== lastMonth ? `<span class="calendar-month">${date.toLocaleDateString("en-SG", { month: "long", year: "numeric" })}</span>` : "";
-        lastMonth = month;
-        return `${heading}<button type="button" data-available-date="${localDateValue(date)}" aria-label="${date.toLocaleDateString("en-SG", { day: "numeric", month: "long", year: "numeric" })}">${date.getDate()}</button>`;
-      }).join("");
+      const selected = document.getElementById("availableInput")?.value;
+      if (!availabilityCalendarCursor) availabilityCalendarCursor = selected ? new Date(`${selected}T00:00:00`) : new Date(start);
+      const minYear = start.getFullYear();
+      const maxYear = minYear + 2;
+      if (availabilityCalendarCursor.getFullYear() < minYear || availabilityCalendarCursor.getFullYear() > maxYear) availabilityCalendarCursor = new Date(start);
+      monthSelect.innerHTML = Array.from({ length: 12 }, (_, month) => `<option value="${month}">${new Date(2000, month, 1).toLocaleDateString("en-SG", { month: "long" })}</option>`).join("");
+      yearSelect.innerHTML = Array.from({ length: maxYear - minYear + 1 }, (_, index) => `<option value="${minYear + index}">${minYear + index}</option>`).join("");
+      monthSelect.value = String(availabilityCalendarCursor.getMonth());
+      yearSelect.value = String(availabilityCalendarCursor.getFullYear());
+      const year = availabilityCalendarCursor.getFullYear();
+      const month = availabilityCalendarCursor.getMonth();
+      const firstDay = new Date(year, month, 1).getDay();
+      const dayCount = new Date(year, month + 1, 0).getDate();
+      days.innerHTML = `${"<span></span>".repeat(firstDay)}${Array.from({ length: dayCount }, (_, index) => {
+        const date = new Date(year, month, index + 1);
+        const value = localDateValue(date);
+        const disabled = date < start ? " disabled" : "";
+        return `<button type="button" data-available-date="${value}"${disabled} aria-label="${date.toLocaleDateString("en-SG", { day: "numeric", month: "long", year: "numeric" })}">${index + 1}</button>`;
+      }).join("")}`;
       syncAvailabilityPicker();
     }
 
@@ -3704,6 +3741,29 @@
       refreshListingPreview();
     }
 
+    function updatePhotoDragGhost(x, y) {
+      if (!activePhotoDragGhost) return;
+      activePhotoDragGhost.style.left = `${x}px`;
+      activePhotoDragGhost.style.top = `${y}px`;
+    }
+
+    function removePhotoDragGhost() {
+      activePhotoDragGhost?.remove();
+      activePhotoDragGhost = null;
+    }
+
+    function beginPhotoDrag(photo, x, y) {
+      if (activePhotoDragGhost) return;
+      const image = photo.querySelector("img");
+      if (!image) return;
+      const ghost = document.createElement("div");
+      ghost.className = "photo-drag-ghost";
+      ghost.innerHTML = `<img src="${escapeHtml(image.src)}" alt="">`;
+      document.body.appendChild(ghost);
+      activePhotoDragGhost = ghost;
+      updatePhotoDragGhost(x, y);
+    }
+
     function renderSelectedPhotoGrid() {
       const target = document.getElementById("selectedPhotoGrid");
       if (!target) return;
@@ -3725,8 +3785,16 @@
         photo.addEventListener("pointerdown", (event) => {
           if (event.target.closest("button")) return;
           photo.dataset.dragSource = photo.dataset.selectedPhotoIndex;
-          photo.dataset.holdTimer = String(window.setTimeout(() => photo.classList.add("dragging"), 220));
+          photo.dataset.holdTimer = String(window.setTimeout(() => {
+            photo.classList.add("dragging");
+            beginPhotoDrag(photo, event.clientX, event.clientY);
+          }, 220));
           photo.setPointerCapture?.(event.pointerId);
+        });
+        photo.addEventListener("pointermove", (event) => {
+          if (!photo.classList.contains("dragging")) return;
+          event.preventDefault();
+          updatePhotoDragGhost(event.clientX, event.clientY);
         });
         photo.addEventListener("pointerup", (event) => {
           window.clearTimeout(Number(photo.dataset.holdTimer));
@@ -3735,6 +3803,7 @@
           delete photo.dataset.holdTimer;
           if (!photo.classList.contains("dragging")) return;
           photo.classList.remove("dragging");
+          removePhotoDragGhost();
           const destination = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-selected-photo-index]");
           if (destination) moveListingPhoto(fromIndex, Number(destination.dataset.selectedPhotoIndex));
         });
@@ -3743,6 +3812,7 @@
           delete photo.dataset.dragSource;
           delete photo.dataset.holdTimer;
           photo.classList.remove("dragging");
+          removePhotoDragGhost();
         });
       });
     }
@@ -3880,7 +3950,7 @@
       document.getElementById("modeInput").value = item.mode || "Whole unit";
       document.getElementById("listerInput").value = String(item.lister || "Owner").toLowerCase();
       document.getElementById("verificationInput").value = item.verification || "follow-up";
-      document.getElementById("estateInput").value = item.area?.split(/\s+(?:Street|Avenue|Road|Close|Residences|Terrace)\b/i)[0] || item.area || "";
+      document.getElementById("estateInput").value = districtOptions.find(([value]) => value === item.district)?.[1] || districtLabelForPostcode(item.postcode) || "";
       document.getElementById("addressInput").value = item.area || "";
       document.getElementById("postcodeInput").value = item.postcode || "";
       document.getElementById("availableInput").value = item.availableDate || "2026-09-01";
@@ -3895,6 +3965,7 @@
       syncFieldToggleButtons();
       syncStepperValues();
       syncAvailabilityPicker();
+      syncPostcodeSearchButton();
       refreshListingPreview();
     }
 
@@ -3928,6 +3999,7 @@
         setListingCard("role");
         setListingPhotoSummary();
         syncAvailabilityPicker();
+        syncPostcodeSearchButton();
         refreshListingPreview();
       }
     }
@@ -5204,9 +5276,18 @@
 
     document.getElementById("availabilityButton").addEventListener("click", () => {
       const picker = document.getElementById("availabilityPicker");
+      const selected = document.getElementById("availableInput").value;
+      availabilityCalendarCursor = selected ? new Date(`${selected}T00:00:00`) : new Date();
       renderAvailabilityPicker();
       picker.classList.toggle("hidden");
       syncAvailabilityPicker();
+    });
+    document.getElementById("availabilityPicker").addEventListener("change", (event) => {
+      if (event.target.id !== "availabilityMonth" && event.target.id !== "availabilityYear") return;
+      const month = Number(document.getElementById("availabilityMonth").value);
+      const year = Number(document.getElementById("availabilityYear").value);
+      availabilityCalendarCursor = new Date(year, month, 1);
+      renderAvailabilityPicker();
     });
     document.getElementById("availabilityPicker").addEventListener("click", (event) => {
       const button = event.target.closest("[data-available-date]");
@@ -5221,10 +5302,14 @@
       document.getElementById(id)?.addEventListener("input", refreshListingPreview);
     });
     document.getElementById("postcodeInput").addEventListener("input", (event) => {
-      window.clearTimeout(listingPostalLookupTimer);
       const postal = event.target.value.trim();
-      if (/^\d{6}$/.test(postal)) listingPostalLookupTimer = window.setTimeout(() => resolveListingPostcode(postal), 250);
+      const ready = /^\d{6}$/.test(postal);
+      document.getElementById("postcodeSearch").disabled = !ready;
+      document.getElementById("addressInput").value = "";
+      document.getElementById("estateInput").value = "";
+      document.getElementById("postcodeStatus").textContent = ready ? "Search to fill Street and District." : "";
     });
+    document.getElementById("postcodeSearch").addEventListener("click", () => resolveListingPostcode(document.getElementById("postcodeInput").value.trim()));
 
     document.getElementById("aiPolishButton").addEventListener("click", polishListingDraft);
     document.getElementById("listingBackButton").addEventListener("click", goBackInListing);
@@ -5265,8 +5350,9 @@
 
     document.querySelector("[data-preview-detail]").addEventListener("click", () => {
       try {
+        const draft = currentDraftListing();
         setWorkflowStep("approve");
-        openListingDetail(currentDraftListing());
+        openListingDetail(draft);
       } catch (error) {
         showToast(error instanceof Error ? error.message : "Complete required fields first");
       }
