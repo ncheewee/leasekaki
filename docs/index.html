@@ -259,6 +259,21 @@
     }
     .account-menu button:hover { background: var(--cream); color: var(--ink); }
     .account-menu .sign-out { color: var(--coral); }
+    .account-menu .list-property {
+      color: var(--mint-deep);
+    }
+    .account-menu .list-property span:first-child {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(187, 241, 209, .72);
+      color: var(--mint-deep);
+      font-size: 14px;
+      font-weight: 950;
+    }
+    .account-menu .list-property[hidden] { display: none; }
     .theme-menu-item {
       grid-template-columns: auto 1fr auto !important;
     }
@@ -890,6 +905,7 @@
       -webkit-line-clamp: 1;
     }
     .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-self: end; margin-top: 14px; }
+    .workflow-panel .actions { grid-template-columns: 1fr; }
     .empty-state {
       margin: 0 16px 28px;
       padding: 18px;
@@ -1034,6 +1050,123 @@
     }
     .range { height: 8px; border-radius: 999px; background: rgba(255, 255, 255, .14); overflow: hidden; }
     .range span { display: block; width: 44%; height: 100%; margin-left: 30%; border-radius: inherit; background: var(--coral); }
+    .listing-workflow {
+      display: grid;
+      gap: 14px;
+      padding: 16px 16px 28px;
+    }
+    .workflow-head {
+      display: grid;
+      gap: 7px;
+      padding: 18px;
+      border-radius: 22px;
+      background: var(--ink);
+      color: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .workflow-head h1 {
+      margin: 0;
+      font-size: clamp(28px, 9vw, 46px);
+      line-height: .98;
+    }
+    .workflow-head p {
+      margin: 0;
+      color: rgba(255, 253, 248, .72);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .workflow-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .workflow-step {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: var(--paper);
+      color: var(--ink-soft);
+      font-size: 11px;
+      font-weight: 900;
+      text-align: center;
+    }
+    .workflow-step.active {
+      border-color: rgba(255, 115, 95, .42);
+      background: rgba(255, 115, 95, .14);
+      color: #9d4639;
+    }
+    .workflow-panel {
+      margin: 0;
+      display: grid;
+      gap: 14px;
+    }
+    .workflow-panel h2 {
+      margin: 0;
+      font-size: 23px;
+      letter-spacing: -.04em;
+    }
+    .workflow-copy {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .ai-assist-card {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(187, 241, 209, .35);
+      color: var(--ink-soft);
+    }
+    body.dark .ai-assist-card { background: rgba(88, 201, 149, .14); }
+    .ai-assist-card strong {
+      color: var(--mint-deep);
+      font-size: 13px;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+    .ai-assist-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .mini-action {
+      min-height: 34px;
+      border: 1px solid rgba(28, 107, 87, .18);
+      border-radius: 999px;
+      padding: 0 11px;
+      background: var(--paper);
+      color: var(--mint-deep);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .listing-preview {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--cream);
+    }
+    .listing-preview .listings { padding: 0; }
+    .field-help {
+      margin-top: -3px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 1.35;
+    }
+    .form-hint-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
     .deal-card { margin: -28px 16px 16px; padding: 16px; border-radius: 20px; background: var(--mint); box-shadow: var(--shadow); }
     .deal-title { display: grid; grid-template-columns: 66px 1fr; gap: 12px; align-items: center; }
     .mini { width: 66px; height: 52px; border-radius: 14px; background: linear-gradient(145deg, #f9c8a7, #e97866); }
@@ -1281,8 +1414,8 @@
       gap: 10px;
       margin: 10px 0 12px;
       color: var(--ink-soft);
-      font-size: 12px;
-      line-height: 1.5;
+      font-size: 13px;
+      line-height: 1.56;
     }
     .detail-description p { margin: 0; }
     .detail-section {
@@ -1306,9 +1439,10 @@
       display: block;
       margin-bottom: 2px;
       color: var(--ink);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 850;
     }
+    .detail-long-copy p { line-height: 1.64; }
     .detail-description ul {
       display: grid;
       gap: 3px;
@@ -1851,8 +1985,10 @@
       .map-card { margin-left: 0; margin-right: 0; }
       .conversation-list { max-width: 1040px; margin: 0 auto; grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .panel { max-width: 1020px; margin: 38px auto; }
+      .listing-workflow { max-width: 1040px; margin: 0 auto; padding: 24px clamp(18px, 4vw, 62px) 60px; }
       .desktop-grid { display: grid; grid-template-columns: .92fr 1.08fr; gap: 28px; align-items: start; }
       .form.two { grid-template-columns: repeat(2, 1fr); }
+      .workflow-panel .actions { grid-template-columns: repeat(3, 1fr); }
       .deal-card, .timeline { max-width: 1040px; margin-left: auto; margin-right: auto; }
       .nav { display: none; }
       .toast { left: auto; right: 24px; bottom: 24px; width: 320px; }
@@ -1899,6 +2035,8 @@
             <strong>Signed in</strong>
             <span>LeaseKaki profile</span>
           </div>
+          <button id="listPropertyButton" class="list-property" type="button"><span>＋</span><span>List your property</span></button>
+          <button id="editLastListingButton" class="list-property" type="button" hidden><span>✎</span><span>Edit latest listing</span></button>
           <button id="themeToggle" class="theme-menu-item" type="button" aria-pressed="false"><span>☾</span><span>Dark theme</span><i class="theme-switch" aria-hidden="true"></i></button>
           <button id="signOutButton" class="sign-out" type="button"><span>↩</span><span>Log out</span></button>
         </div>
@@ -1966,75 +2104,119 @@
       </div>
 
       <div id="list" class="view">
-        <section class="hero">
-          <span class="eyebrow">Owner / authorised agent</span>
-          <h1>Photos first.<br>Details after.</h1>
-          <p>Upload a few honest photos. LeaseKaki drafts the listing and suggests a defensible rent range.</p>
-        </section>
-        <section id="captureStep" class="panel">
-          <div class="desktop-grid">
-            <label class="capture">
-              <input id="photos" type="file" accept="image/*" multiple>
-              <span class="mock-strip" aria-hidden="true">
-                <img src="./assets/listings/01-bishan-hdb-living.jpg" alt="">
-                <img src="./assets/listings/05-queenstown-room.jpg" alt="">
-                <img src="./assets/listings/03-paya-lebar-condo.jpg" alt="">
-              </span>
-              <span class="camera">◎</span>
-              <strong id="photoLabel">Tap to add property photos</strong>
-              <span id="photoHint">Living, bedroom, kitchen, toilet and view.</span>
-              <button class="button coral" type="button">Choose photos</button>
-            </label>
-            <div>
-              <div class="steps">
-                <div class="step"><b>1</b><span>AI reads room type, layout and condition</span></div>
-                <div class="step"><b>2</b><span>You confirm address level and availability</span></div>
-                <div class="step"><b>3</b><span>Listing draft and rent guide appear together</span></div>
+        <div class="listing-workflow">
+          <section class="workflow-head">
+            <span class="eyebrow">Owner / authorised agent</span>
+            <h1>List your property</h1>
+            <p>Guided inputs first, AI-assisted copy second, human approval always before it appears beside other listings.</p>
+          </section>
+          <div class="workflow-steps" aria-label="Listing workflow progress">
+            <div class="workflow-step active" data-workflow-step="capture">1. Photos</div>
+            <div class="workflow-step" data-workflow-step="draft">2. Draft</div>
+            <div class="workflow-step" data-workflow-step="approve">3. Approve</div>
+          </div>
+          <section id="captureStep" class="panel workflow-panel">
+            <h2>Start with honest photos</h2>
+            <p class="workflow-copy">For MVP, photos are selected locally and the assistant uses your structured inputs to draft a listing. Real image understanding can plug in later without changing this flow.</p>
+            <div class="desktop-grid">
+              <label class="capture">
+                <input id="photos" type="file" accept="image/*" multiple>
+                <span class="mock-strip" aria-hidden="true">
+                  <img src="./assets/listings/01-bishan-hdb-living.jpg" alt="">
+                  <img src="./assets/listings/05-queenstown-room.jpg" alt="">
+                  <img src="./assets/listings/03-paya-lebar-condo.jpg" alt="">
+                </span>
+                <span class="camera">◎</span>
+                <strong id="photoLabel">Tap to add property photos</strong>
+                <span id="photoHint">Living, bedroom, kitchen, toilet and view.</span>
+                <button class="button coral" type="button">Choose photos</button>
+              </label>
+              <div>
+                <div class="steps">
+                  <div class="step"><b>1</b><span>Confirm owner or agent, property type and rental mode</span></div>
+                  <div class="step"><b>2</b><span>Add location, room count, toilets, furnishing and availability</span></div>
+                  <div class="step"><b>3</b><span>AI drafts copy and rent guidance; you approve the final listing</span></div>
+                </div>
+                <button id="generate" class="button coral full" type="button" style="margin-top:14px">Continue to guided draft →</button>
               </div>
-              <button id="generate" class="button coral full" type="button" style="margin-top:14px">Generate AI draft →</button>
             </div>
-          </div>
-        </section>
-        <section id="draftStep" class="panel hidden">
-          <span class="eyebrow" style="color:var(--mint-deep)">AI draft ready</span>
-          <h2>We found the essentials.</h2>
-          <div class="desktop-grid">
-            <div class="form two">
-              <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT"></label>
-              <label>Property type
-                <input id="kindInput" type="hidden" value="hdb_whole_unit">
-                <span class="form-toggle" role="group" aria-label="Property type">
-                  <button class="active" type="button" data-field-toggle="kindInput" data-value="hdb_whole_unit">Whole HDB</button>
-                  <button type="button" data-field-toggle="kindInput" data-value="hdb_room">HDB room</button>
-                  <button type="button" data-field-toggle="kindInput" data-value="private_whole_unit">Whole private</button>
-                  <button type="button" data-field-toggle="kindInput" data-value="private_room">Private room</button>
-                </span>
-              </label>
-              <label>Estate<input id="estateInput" value="Bishan"></label>
-              <label>Street / project<input id="addressInput" value="Bishan Street 13"></label>
-              <label>Available from<input id="availableInput" type="date" value="2026-09-01"></label>
-              <label>Asking rent<input id="rentInput" type="number" value="3750" min="500" step="50"></label>
-              <label>Bedrooms / room<input id="bedroomsInput" value="3 bed"></label>
-              <label>Furnishing<input id="furnishingInput" value="Furnished"></label>
-              <label>Lister
-                <input id="listerInput" type="hidden" value="owner">
-                <span class="form-toggle" role="group" aria-label="Lister type">
-                  <button class="active" type="button" data-field-toggle="listerInput" data-value="owner">Owner</button>
-                  <button type="button" data-field-toggle="listerInput" data-value="agent">Agent</button>
-                </span>
-              </label>
+          </section>
+          <section id="draftStep" class="panel workflow-panel hidden">
+            <span class="eyebrow" style="color:var(--mint-deep)">AI-assisted draft</span>
+            <h2>Review before publishing</h2>
+            <div class="ai-assist-card">
+              <strong>Assistant</strong>
+              <p class="workflow-copy">I’ll turn your facts into a short title, 100-word description and defensible rent range. Edit anything before approval.</p>
+              <div class="ai-assist-actions">
+                <button id="aiPolishButton" class="mini-action" type="button">Polish title & copy</button>
+                <button id="aiRentButton" class="mini-action" type="button">Refresh rent guide</button>
+              </div>
             </div>
-            <aside class="rent-card">
-              <span class="eyebrow">Suggested asking rent</span>
-              <strong>$3,650-$3,900</strong>
-              <span class="confidence">Medium confidence</span>
-              <div class="range"><span></span></div>
-              <small>Based on recent HDB/URA rental data, adjusted for location, furnishing and availability.</small>
-            </aside>
-          </div>
-          <label style="margin-top:14px">Description<textarea id="descriptionInput">Bright, breezy home with an efficient layout, updated kitchen and a sheltered walk to Bishan MRT.</textarea></label>
-          <div class="actions"><button class="button secondary" type="button" data-reset-listing>Edit</button><button class="button coral" type="button" data-publish>Publish listing →</button></div>
-        </section>
+            <div class="desktop-grid">
+              <div class="form two">
+                <label>Listed by
+                  <input id="listerInput" type="hidden" value="owner">
+                  <span class="form-toggle" role="group" aria-label="Lister type">
+                    <button class="active" type="button" data-field-toggle="listerInput" data-value="owner">Owner</button>
+                    <button type="button" data-field-toggle="listerInput" data-value="agent">Agent</button>
+                  </span>
+                </label>
+                <label>Rental mode
+                  <input id="modeInput" type="hidden" value="Whole unit">
+                  <span class="form-toggle" role="group" aria-label="Rental mode">
+                    <button class="active" type="button" data-field-toggle="modeInput" data-value="Whole unit">Whole unit</button>
+                    <button type="button" data-field-toggle="modeInput" data-value="Room only">Room only</button>
+                  </span>
+                </label>
+                <label>Property type
+                  <input id="typeInput" type="hidden" value="HDB">
+                  <input id="kindInput" type="hidden" value="hdb_whole_unit">
+                  <span class="form-toggle" role="group" aria-label="Property type">
+                    <button class="active" type="button" data-field-toggle="typeInput" data-value="HDB">HDB</button>
+                    <button type="button" data-field-toggle="typeInput" data-value="Condo">Condo</button>
+                    <button type="button" data-field-toggle="typeInput" data-value="Landed">Landed</button>
+                  </span>
+                </label>
+                <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT" maxlength="42"></label>
+                <label>Estate / neighbourhood<input id="estateInput" value="Bishan"></label>
+                <label>Street / project<input id="addressInput" value="Bishan Street 13"></label>
+                <label>Postal code<input id="postcodeInput" inputmode="numeric" value="570013" maxlength="6"></label>
+                <label>Available from<input id="availableInput" type="date" value="2026-09-01"></label>
+                <label>No. of rooms<input id="roomsInput" type="number" value="3" min="1" max="8"></label>
+                <label>No. of toilets<input id="toiletsInput" type="number" value="2" min="1" max="8"></label>
+                <label>Furnishing
+                  <input id="furnishingInput" type="hidden" value="Furnished">
+                  <span class="form-toggle" role="group" aria-label="Furnishing">
+                    <button class="active" type="button" data-field-toggle="furnishingInput" data-value="Furnished">Furnished</button>
+                    <button type="button" data-field-toggle="furnishingInput" data-value="Part-furnished">Part</button>
+                    <button type="button" data-field-toggle="furnishingInput" data-value="Unfurnished">Unfurnished</button>
+                  </span>
+                </label>
+                <label>Asking rent<input id="rentInput" type="number" value="3750" min="500" step="50"></label>
+              </div>
+              <aside class="rent-card">
+                <span class="eyebrow">Suggested asking rent</span>
+                <strong id="rentGuide">$3,650-$3,900</strong>
+                <span id="rentConfidence" class="confidence">Medium confidence</span>
+                <div class="range"><span></span></div>
+                <small id="rentGuideNote">Based on comparable mock listings, location, rental mode, furnishing and availability.</small>
+              </aside>
+            </div>
+            <label>Description
+              <textarea id="descriptionInput" maxlength="850">Bright, breezy home with an efficient layout, updated kitchen and a sheltered walk to Bishan MRT.</textarea>
+              <span class="form-hint-row"><span>Keep this to 100 words for the details page.</span><span id="descriptionCount">0 words</span></span>
+            </label>
+            <div class="listing-preview">
+              <div class="field-help">This is the exact listing card style buyers will see.</div>
+              <div id="listingPreview"></div>
+            </div>
+            <div class="actions">
+              <button class="button secondary" type="button" data-reset-listing>Edit photos</button>
+              <button class="button secondary" type="button" data-preview-detail>Preview details</button>
+              <button class="button coral" type="button" data-publish>Approve & publish →</button>
+            </div>
+          </section>
+        </div>
       </div>
 
       <div id="chats" class="view">
@@ -2236,6 +2418,8 @@
     const accountButton = document.getElementById("accountButton");
     const accountMenu = document.getElementById("accountMenu");
     const accountStatus = document.getElementById("accountStatus");
+    const listPropertyButton = document.getElementById("listPropertyButton");
+    const editLastListingButton = document.getElementById("editLastListingButton");
     const themeToggle = document.getElementById("themeToggle");
     const signOutButton = document.getElementById("signOutButton");
     const toast = document.getElementById("toast");
@@ -2246,6 +2430,10 @@
     const detailSheet = document.querySelector(".detail-sheet");
     const detailMap = document.getElementById("detailMap");
     const publishButton = document.querySelector("[data-publish]");
+    const listingPreview = document.getElementById("listingPreview");
+    const rentGuide = document.getElementById("rentGuide");
+    const rentConfidence = document.getElementById("rentConfidence");
+    const descriptionCount = document.getElementById("descriptionCount");
     let selectedListing = null;
     let leafletMap = null;
     let leafletLayer = null;
@@ -2258,6 +2446,7 @@
     let currentUser = null;
     let hasLoadedAppData = false;
     const likedListings = new Set();
+    const userListings = [];
     const photoIndexes = {};
     const viewingRequests = {};
     const chatThreads = {};
@@ -2399,19 +2588,36 @@
       if (scopedKey) writeStorage(scopedKey, value);
     }
 
+    function updateOwnerListingButtons() {
+      if (!editLastListingButton) return;
+      editLastListingButton.hidden = userListings.length === 0;
+    }
+
+    function mergeUserListings(baseListings) {
+      const ownedTitles = new Set(userListings.map((item) => item.title));
+      return [
+        ...userListings,
+        ...baseListings.filter((item) => !ownedTitles.has(item.title))
+      ];
+    }
+
     function clearUserState() {
       likedListings.clear();
+      userListings.splice(0, userListings.length);
       clearObject(viewingRequests);
       clearObject(chatThreads);
       hasLoadedAppData = false;
+      updateOwnerListingButtons();
     }
 
     function loadUserState() {
       likedListings.clear();
       readUserStorage("liked", []).forEach((title) => likedListings.add(title));
+      userListings.splice(0, userListings.length, ...readUserStorage("ownerListings", []));
       replaceObject(viewingRequests, readUserStorage("viewings", {}));
       replaceObject(chatThreads, readUserStorage("chats", {}));
       cleanupLegacyConversationState();
+      updateOwnerListingButtons();
     }
 
     function getAuthToken() {
@@ -2640,6 +2846,8 @@
       event.stopPropagation();
       accountMenu.classList.toggle("open");
     });
+    listPropertyButton.addEventListener("click", () => openListingWorkflow(false));
+    editLastListingButton.addEventListener("click", () => openListingWorkflow(true));
     document.addEventListener("click", (event) => {
       if (!accountMenu.contains(event.target) && event.target !== accountButton) accountMenu.classList.remove("open");
     });
@@ -2935,16 +3143,51 @@
       return item.description || `${item.title} is available from ${item.available.toLowerCase()} at ${item.area}. The mock transaction lane would next help confirm viewing, offer terms and paperwork.`;
     }
 
+    function roomFact(item) {
+      if (item.rooms) return `${item.rooms} room${Number(item.rooms) === 1 ? "" : "s"}`;
+      const bedText = String(item.beds || "");
+      const numeric = bedText.match(/(\d+)\s*(?:bed|room)/i);
+      if (numeric) return `${numeric[1]} room${numeric[1] === "1" ? "" : "s"}`;
+      if (/master|common|studio|room only/i.test(`${item.mode} ${bedText}`)) return "1 room";
+      return item.mode === "Room only" ? "1 room" : "3 rooms";
+    }
+
+    function toiletFact(item) {
+      if (item.toilets) return `${item.toilets} toilet${Number(item.toilets) === 1 ? "" : "s"}`;
+      const bedText = String(item.beds || "");
+      const bath = bedText.match(/(\d+)\s*(?:bath|toilet)/i);
+      if (bath) return `${bath[1]} toilet${bath[1] === "1" ? "" : "s"}`;
+      if (/ensuite|studio|room only|common room|master room/i.test(`${item.mode} ${bedText}`)) return "1 toilet";
+      return "2 toilets";
+    }
+
+    function furnishingFact(item) {
+      if (item.furnishing) return item.furnishing;
+      const bedText = String(item.beds || "");
+      if (/part[-\s]?furnished/i.test(bedText)) return "Part-furnished";
+      if (/unfurnished/i.test(bedText)) return "Unfurnished";
+      if (/furnished/i.test(bedText)) return "Furnished";
+      return "Furnishing to confirm";
+    }
+
+    function availableFact(item) {
+      if (!item.availableDate) return item.available || "Available date to confirm";
+      const date = new Date(`${item.availableDate}T00:00:00+08:00`);
+      if (Number.isNaN(date.getTime())) return item.available || "Available date to confirm";
+      return `Available from ${date.toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" })}`;
+    }
+
     function detailRichCopy(item) {
-      const summary = capWords(detailCopy(item), 150);
+      const summary = capWords(detailCopy(item), 100);
       const fitLine = item.mode === "Room only"
         ? "Best for a tenant who wants a straightforward room search, clear house expectations and a lighter monthly commitment."
         : "Best for tenants who want the privacy of a whole home, a clear move-in timeline and enough space for daily routines.";
       const locationLine = `${item.area} · ${item.mrt} · ${item.district}${item.postcode ? ` · ${item.postcode}` : ""}.`;
       const bullets = [
-        `${item.beds}`,
-        `${item.available}`,
-        item.mode === "Room only" ? "House rules and viewing to confirm in chat" : "Viewing request and next steps handled in chat"
+        roomFact(item),
+        toiletFact(item),
+        furnishingFact(item),
+        availableFact(item)
       ];
       return `
         <section class="detail-section">
@@ -3056,27 +3299,44 @@
       navigationClosing = false;
     }
 
-    function kindToType(kind) {
-      if (kind === "hdb_room") return "HDB";
-      if (kind === "private_room") return "Condo";
-      if (kind === "private_whole_unit") return "Condo";
-      return "HDB";
+    function typeModeToKind(type, mode) {
+      if (type === "HDB" && mode === "Room only") return "hdb_room";
+      if (type === "HDB") return "hdb_whole_unit";
+      if (mode === "Room only") return "private_room";
+      return "private_whole_unit";
     }
 
-    function bedroomsForKind(kind) {
-      if (kind === "hdb_room") return "Common room";
-      if (kind === "private_room") return "Master room";
-      return document.getElementById("bedroomsInput").value.trim() || "3 bed";
+    function kindToType(kind, fallback = "HDB") {
+      if (kind === "hdb_room" || kind === "hdb_whole_unit") return "HDB";
+      if (kind === "private_room" || kind === "private_whole_unit") return fallback === "Landed" ? "Landed" : "Condo";
+      return fallback;
+    }
+
+    function roomsForListing(mode) {
+      const rooms = Number(document.getElementById("roomsInput")?.value || 1);
+      const safeRooms = Number.isFinite(rooms) ? Math.max(1, Math.min(8, Math.round(rooms))) : 1;
+      return mode === "Room only" ? 1 : safeRooms;
+    }
+
+    function toiletsForListing() {
+      const toilets = Number(document.getElementById("toiletsInput")?.value || 1);
+      return Number.isFinite(toilets) ? Math.max(1, Math.min(8, Math.round(toilets))) : 1;
     }
 
     function buildListingPayload() {
-      const kind = document.getElementById("kindInput").value;
+      const type = document.getElementById("typeInput").value;
+      const mode = document.getElementById("modeInput").value;
+      const kind = typeModeToKind(type, mode);
       const title = document.getElementById("titleInput").value.trim();
       const estate = document.getElementById("estateInput").value.trim();
       const addressHint = document.getElementById("addressInput").value.trim();
+      const postcode = document.getElementById("postcodeInput").value.trim();
       const availableFrom = document.getElementById("availableInput").value;
       const askingRent = Number(document.getElementById("rentInput").value);
-      const description = document.getElementById("descriptionInput").value.trim();
+      const description = capWords(document.getElementById("descriptionInput").value.trim(), 100);
+      const rooms = roomsForListing(mode);
+      const toilets = toiletsForListing();
+      const furnishing = document.getElementById("furnishingInput").value.trim() || "Furnished";
 
       if (!title || !estate || !addressHint || !availableFrom || !description || !Number.isFinite(askingRent)) {
         throw new Error("Please complete title, location, availability, rent and description.");
@@ -3086,12 +3346,17 @@
         title,
         description,
         kind,
+        type,
+        mode,
         listerKind: document.getElementById("listerInput").value,
         status: "published",
         estate,
         addressHint,
-        bedrooms: bedroomsForKind(kind),
-        furnishing: document.getElementById("furnishingInput").value.trim() || "Furnished",
+        postcode,
+        bedrooms: mode === "Room only" ? "1 room" : `${rooms} rooms`,
+        rooms,
+        toilets,
+        furnishing,
         availableFrom,
         askingRent,
         suggestedRentMin: Math.max(500, Math.round((askingRent * 0.94) / 50) * 50),
@@ -3104,17 +3369,20 @@
       return {
         title: payload.title,
         area: payload.addressHint,
-        type: kindToType(payload.kind),
-        mode: modeFromKind(payload.kind),
+        type: payload.type || kindToType(payload.kind),
+        mode: payload.mode || modeFromKind(payload.kind),
         price: payload.askingRent,
-        beds: `${payload.bedrooms} · ${payload.furnishing}`,
+        beds: `${payload.rooms || payload.bedrooms} room${Number(payload.rooms || 1) === 1 ? "" : "s"} · ${payload.toilets || 1} toilet${Number(payload.toilets || 1) === 1 ? "" : "s"} · ${payload.furnishing}`,
+        rooms: payload.rooms,
+        toilets: payload.toilets,
+        furnishing: payload.furnishing,
         available: formatAvailability(payload.availableFrom),
         availableDate: payload.availableFrom,
         lister: titleCase(payload.listerKind),
         image: payload.photoUrls[0],
         images: imagesForListing(payload.title, 0, payload.photoUrls),
         district: districtForEstate(`${payload.estate} ${payload.addressHint}`),
-        postcode: postcodeForEstate(`${payload.estate} ${payload.addressHint}`),
+        postcode: payload.postcode || postcodeForEstate(`${payload.estate} ${payload.addressHint}`),
         mrt: `${payload.estate} MRT`,
         map: mapForIndex(0),
         description: payload.description,
@@ -3122,6 +3390,136 @@
         tone: "sunset",
         postedAt: 101
       };
+    }
+
+    function setWorkflowStep(step) {
+      document.querySelectorAll("[data-workflow-step]").forEach((item) => item.classList.toggle("active", item.dataset.workflowStep === step));
+      document.getElementById("captureStep").classList.toggle("hidden", step !== "capture");
+      document.getElementById("draftStep").classList.toggle("hidden", step === "capture");
+    }
+
+    function currentDraftListing() {
+      return localListingFromPayload(buildListingPayload());
+    }
+
+    function wordCount(value) {
+      return String(value || "").trim().split(/\s+/).filter(Boolean).length;
+    }
+
+    function updateDescriptionCount() {
+      if (!descriptionCount) return;
+      const count = wordCount(document.getElementById("descriptionInput")?.value || "");
+      descriptionCount.textContent = `${count}/100 words`;
+      descriptionCount.style.color = count > 100 ? "var(--bad)" : "var(--muted)";
+    }
+
+    function refreshRentGuide() {
+      const type = document.getElementById("typeInput")?.value || "HDB";
+      const mode = document.getElementById("modeInput")?.value || "Whole unit";
+      const district = districtForEstate(`${document.getElementById("estateInput")?.value || ""} ${document.getElementById("addressInput")?.value || ""}`);
+      const rooms = roomsForListing(mode);
+      const furnishing = document.getElementById("furnishingInput")?.value || "Furnished";
+      const comparable = listings.filter((item) => item.type === type && item.mode === mode && (!district || item.district === district));
+      const fallback = listings.filter((item) => item.type === type && item.mode === mode);
+      const sample = comparable.length >= 3 ? comparable : fallback;
+      const average = sample.length ? sample.reduce((sum, item) => sum + Number(item.price || 0), 0) / sample.length : Number(document.getElementById("rentInput")?.value || 3500);
+      const roomAdjustment = mode === "Whole unit" ? 1 + Math.max(0, rooms - 3) * 0.08 : 1;
+      const furnishAdjustment = furnishing === "Unfurnished" ? 0.96 : furnishing === "Part-furnished" ? 0.98 : 1.02;
+      const guideMid = Math.round((average * roomAdjustment * furnishAdjustment) / 50) * 50;
+      const low = Math.max(500, Math.round((guideMid * 0.94) / 50) * 50);
+      const high = Math.round((guideMid * 1.06) / 50) * 50;
+      if (rentGuide) rentGuide.textContent = `$${low.toLocaleString()}-$${high.toLocaleString()}`;
+      if (rentConfidence) rentConfidence.textContent = sample.length >= 6 ? "Medium-high confidence" : "Medium confidence";
+      return { low, high, guideMid };
+    }
+
+    function refreshListingPreview() {
+      updateKindInput();
+      updateDescriptionCount();
+      refreshRentGuide();
+      if (!listingPreview) return;
+      try {
+        const preview = currentDraftListing();
+        listingPreview.innerHTML = `<div class="listings"></div>`;
+        renderListingCards([preview], listingPreview.querySelector(".listings"), "", "");
+      } catch (error) {
+        listingPreview.innerHTML = `<div class="empty-state"><strong>Preview needs required fields.</strong>Complete title, location, rent, availability and description.</div>`;
+      }
+    }
+
+    function updateKindInput() {
+      const kindInput = document.getElementById("kindInput");
+      const type = document.getElementById("typeInput")?.value || "HDB";
+      const mode = document.getElementById("modeInput")?.value || "Whole unit";
+      if (kindInput) kindInput.value = typeModeToKind(type, mode);
+    }
+
+    function aiDraftDescription() {
+      const type = document.getElementById("typeInput")?.value || "HDB";
+      const mode = document.getElementById("modeInput")?.value || "Whole unit";
+      const estate = document.getElementById("estateInput")?.value.trim() || "this estate";
+      const address = document.getElementById("addressInput")?.value.trim() || estate;
+      const rooms = roomsForListing(mode);
+      const toilets = toiletsForListing();
+      const furnishing = document.getElementById("furnishingInput")?.value || "Furnished";
+      const availability = formatAvailability(document.getElementById("availableInput")?.value || "");
+      if (mode === "Room only") {
+        return capWords(`A practical ${furnishing.toLowerCase()} room at ${address}, suited to tenants who want a simple move-in and clear expectations. The listing offers ${toilets} toilet${toilets === 1 ? "" : "s"} access, convenient links around ${estate}, and ${availability.toLowerCase()}. Chat can confirm house rules, visitor policy, cooking arrangements and viewing slots before any commitment.`, 100);
+      }
+      return capWords(`${furnishing} ${type} at ${address} with ${rooms} room${rooms === 1 ? "" : "s"} and ${toilets} toilet${toilets === 1 ? "" : "s"}. The home is positioned for tenants comparing value in ${estate}, with enough detail to judge layout, move-in timing and daily convenience before arranging a viewing. ${availability}. Chat can confirm owner preferences, lease start flexibility and any final paperwork requirements.`, 100);
+    }
+
+    function polishListingDraft() {
+      const type = document.getElementById("typeInput")?.value || "HDB";
+      const mode = document.getElementById("modeInput")?.value || "Whole unit";
+      const estate = document.getElementById("estateInput")?.value.trim() || "Singapore";
+      const rooms = roomsForListing(mode);
+      const title = mode === "Room only"
+        ? `${estate} room, ready to view`
+        : `${rooms}-room ${type} in ${estate}`;
+      document.getElementById("titleInput").value = capChars(title, 42);
+      document.getElementById("descriptionInput").value = aiDraftDescription();
+      refreshListingPreview();
+      showToast("AI draft refreshed for review");
+    }
+
+    function fillWorkflowFromListing(item) {
+      if (!item) return;
+      document.getElementById("titleInput").value = item.title || "";
+      document.getElementById("typeInput").value = item.type || "HDB";
+      document.getElementById("modeInput").value = item.mode || "Whole unit";
+      document.getElementById("listerInput").value = String(item.lister || "Owner").toLowerCase();
+      document.getElementById("estateInput").value = item.area?.split(/\s+(?:Street|Avenue|Road|Close|Residences|Terrace)\b/i)[0] || item.area || "";
+      document.getElementById("addressInput").value = item.area || "";
+      document.getElementById("postcodeInput").value = item.postcode || "";
+      document.getElementById("availableInput").value = item.availableDate || "2026-09-01";
+      document.getElementById("roomsInput").value = Number.parseInt(roomFact(item), 10) || 1;
+      document.getElementById("toiletsInput").value = Number.parseInt(toiletFact(item), 10) || 1;
+      document.getElementById("furnishingInput").value = furnishingFact(item);
+      document.getElementById("rentInput").value = item.price || 3500;
+      document.getElementById("descriptionInput").value = capWords(detailCopy(item), 100);
+      syncFieldToggleButtons();
+      refreshListingPreview();
+    }
+
+    function syncFieldToggleButtons() {
+      document.querySelectorAll("[data-field-toggle]").forEach((button) => {
+        const input = document.getElementById(button.dataset.fieldToggle);
+        button.classList.toggle("active", input?.value === button.dataset.value);
+      });
+      updateKindInput();
+    }
+
+    function openListingWorkflow(editLatest = false) {
+      setView("list");
+      setWorkflowStep("capture");
+      if (editLatest && userListings[0]) {
+        fillWorkflowFromListing(userListings[0]);
+        setWorkflowStep("draft");
+        showToast("Latest listing loaded for editing");
+      } else {
+        refreshListingPreview();
+      }
     }
 
     async function loadListings() {
@@ -3132,9 +3530,9 @@
         if (!Array.isArray(body.listings) || !body.listings.length) throw new Error("No listings returned");
         const liveListings = body.listings.map(mapApiListing);
         const titles = new Set(liveListings.map((item) => item.title));
-        listings = [...liveListings, ...fallbackListings.filter((item) => !titles.has(item.title))];
+        listings = mergeUserListings([...liveListings, ...fallbackListings.filter((item) => !titles.has(item.title))]);
       } catch (error) {
-        listings = fallbackListings;
+        listings = mergeUserListings(fallbackListings);
       }
       renderListings();
     }
@@ -4308,7 +4706,24 @@
         if (!input) return;
         input.value = button.dataset.value || "";
         document.querySelectorAll(`[data-field-toggle="${cssEscape(button.dataset.fieldToggle)}"]`).forEach((item) => item.classList.toggle("active", item === button));
+        updateKindInput();
+        if (button.dataset.fieldToggle === "modeInput" && button.dataset.value === "Room only") {
+          document.getElementById("roomsInput").value = 1;
+        }
+        refreshListingPreview();
       });
+    });
+
+    ["titleInput", "estateInput", "addressInput", "postcodeInput", "availableInput", "roomsInput", "toiletsInput", "rentInput", "descriptionInput"].forEach((id) => {
+      document.getElementById(id)?.addEventListener("input", refreshListingPreview);
+    });
+
+    document.getElementById("aiPolishButton").addEventListener("click", polishListingDraft);
+    document.getElementById("aiRentButton").addEventListener("click", () => {
+      const guide = refreshRentGuide();
+      document.getElementById("rentInput").value = guide.guideMid;
+      refreshListingPreview();
+      showToast("Rent guide applied to draft");
     });
 
     document.getElementById("photos").addEventListener("change", (event) => {
@@ -4319,14 +4734,22 @@
     });
 
     document.getElementById("generate").addEventListener("click", () => {
-      document.getElementById("captureStep").classList.add("hidden");
-      document.getElementById("draftStep").classList.remove("hidden");
-      showToast("AI draft created from your property photos");
+      setWorkflowStep("draft");
+      polishListingDraft();
+      showToast("AI draft ready for human approval");
     });
 
     document.querySelector("[data-reset-listing]").addEventListener("click", () => {
-      document.getElementById("captureStep").classList.remove("hidden");
-      document.getElementById("draftStep").classList.add("hidden");
+      setWorkflowStep("capture");
+    });
+
+    document.querySelector("[data-preview-detail]").addEventListener("click", () => {
+      try {
+        setWorkflowStep("approve");
+        openListingDetail(currentDraftListing());
+      } catch (error) {
+        showToast(error instanceof Error ? error.message : "Complete required fields first");
+      }
     });
 
     publishButton.addEventListener("click", async () => {
@@ -4343,21 +4766,25 @@
             body: JSON.stringify(payload)
           });
           if (!response.ok) throw new Error(`API returned ${response.status}`);
-          const body = await response.json();
-          if (body.listing) newListing = mapApiListing(body.listing, 0);
+          await response.json().catch(() => ({}));
           showToast("Listing published to Neon");
         } catch (apiError) {
           showToast("Listing added locally; API save needs a retry");
         }
 
-        listings = [newListing, ...listings.filter((item) => item.title !== newListing.title)];
+        const existingOwnedIndex = userListings.findIndex((item) => item.title === newListing.title);
+        if (existingOwnedIndex >= 0) userListings.splice(existingOwnedIndex, 1);
+        userListings.unshift(newListing);
+        writeUserStorage("ownerListings", userListings.slice(0, 12));
+        updateOwnerListingButtons();
+        listings = mergeUserListings(listings.filter((item) => item.title !== newListing.title));
         renderListings();
         setView("browse");
       } catch (error) {
         showToast(error instanceof Error ? error.message : "Unable to publish listing");
       } finally {
         publishButton.disabled = false;
-        publishButton.textContent = "Publish listing →";
+        publishButton.textContent = "Approve & publish →";
       }
     });
 
