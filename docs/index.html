@@ -1107,6 +1107,44 @@
       font-size: 23px;
       letter-spacing: -.04em;
     }
+    .listing-card-flow { display: grid; }
+    .listing-question {
+      display: none;
+      gap: 16px;
+      min-height: 430px;
+      align-content: center;
+      padding: 6px 2px;
+    }
+    .listing-question.active { display: grid; }
+    .listing-question h2 { max-width: 460px; font-size: clamp(28px, 8vw, 38px); line-height: 1.04; }
+    .choice-stack { display: grid; gap: 10px; }
+    .choice-card {
+      min-height: 84px;
+      display: grid;
+      gap: 5px;
+      justify-items: start;
+      align-content: center;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      background: var(--paper);
+      color: var(--ink);
+      text-align: left;
+      box-shadow: 0 8px 20px rgba(16, 43, 54, .05);
+    }
+    .choice-card:hover, .choice-card:focus-visible { border-color: var(--coral); transform: translateY(-1px); }
+    .choice-card strong { font-size: 17px; }
+    .choice-card span { color: var(--ink-soft); font-size: 13px; line-height: 1.35; }
+    .muted-choice { background: var(--cream); }
+    .question-block { display: grid; gap: 9px; }
+    .question-block > strong { font-size: 13px; }
+    .large-toggle { width: 100%; }
+    .large-toggle button { min-height: 54px; flex: 1; font-size: 14px; }
+    .quick-number-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .quick-number-grid input { min-height: 56px; font-size: 20px; font-weight: 850; }
+    @media (min-width: 700px) {
+      .listing-question { min-height: 380px; max-width: 620px; margin: 0 auto; width: 100%; }
+    }
     .workflow-copy {
       margin: 0;
       color: var(--ink-soft);
@@ -2111,15 +2149,41 @@
             <p>Guided inputs first, AI-assisted copy second, human approval always before it appears beside other listings.</p>
           </section>
           <div class="workflow-steps" aria-label="Listing workflow progress">
-            <div class="workflow-step active" data-workflow-step="capture">1. Photos</div>
-            <div class="workflow-step" data-workflow-step="draft">2. Draft</div>
-            <div class="workflow-step" data-workflow-step="approve">3. Approve</div>
+            <div class="workflow-step active" data-workflow-step="capture">1. Tell us</div>
+            <div class="workflow-step" data-workflow-step="draft">2. Review</div>
+            <div class="workflow-step" data-workflow-step="approve">3. Publish</div>
           </div>
           <section id="captureStep" class="panel workflow-panel">
-            <h2>Start with honest photos</h2>
-            <p class="workflow-copy">For MVP, photos are selected locally and the assistant uses your structured inputs to draft a listing. Real image understanding can plug in later without changing this flow.</p>
-            <div class="desktop-grid">
-              <label class="capture">
+            <input id="listerInput" type="hidden" value="owner">
+            <input id="verificationInput" type="hidden" value="">
+            <div class="listing-card-flow">
+              <section class="listing-question active" data-listing-card="role">
+                <span class="eyebrow">First, who are you?</span>
+                <h2>Are you the owner or an authorised agent?</h2>
+                <p class="workflow-copy">This helps renters understand who they are dealing with from the first message.</p>
+                <div class="choice-stack" role="group" aria-label="Lister type">
+                  <button class="choice-card" type="button" data-role-choice="owner"><strong>I own this property</strong><span>List directly as the owner</span></button>
+                  <button class="choice-card" type="button" data-role-choice="agent"><strong>I'm an authorised agent</strong><span>List on behalf of the owner</span></button>
+                </div>
+              </section>
+              <section class="listing-question" data-listing-card="verification">
+                <span id="verificationEyebrow" class="eyebrow">Trust check</span>
+                <h2 id="verificationTitle">Verify that you own this home</h2>
+                <p id="verificationCopy" class="workflow-copy">A Singpass check can confirm ownership without showing personal details to renters.</p>
+                <div id="ownerVerificationChoices" class="choice-stack">
+                  <button class="choice-card" type="button" data-verification-choice="singpass"><strong>Verify with Singpass</strong><span>Prototype check; real Singpass connection comes with the backend</span></button>
+                  <button class="choice-card muted-choice" type="button" data-verification-choice="later"><strong>Verify later</strong><span>Your listing will be marked for follow-up review</span></button>
+                </div>
+                <div id="agentVerificationChoices" class="choice-stack hidden">
+                  <button class="choice-card" type="button" data-verification-choice="cea"><strong>Confirm CEA registration</strong><span>You'll be shown as an authorised agent</span></button>
+                  <button class="choice-card muted-choice" type="button" data-verification-choice="later"><strong>Verify later</strong><span>Your listing will be marked for follow-up review</span></button>
+                </div>
+              </section>
+              <section class="listing-question" data-listing-card="photos">
+                <span class="eyebrow">Photos</span>
+                <h2>Show the home as it really is</h2>
+                <p class="workflow-copy">Start with the spaces renters will care about most. You can add up to four photos.</p>
+                <label class="capture">
                 <input id="photos" type="file" accept="image/*" multiple>
                 <span class="mock-strip" aria-hidden="true">
                   <img src="./assets/listings/01-bishan-hdb-living.jpg" alt="">
@@ -2130,15 +2194,42 @@
                 <strong id="photoLabel">Tap to add property photos</strong>
                 <span id="photoHint">Living, bedroom, kitchen, toilet and view.</span>
                 <button class="button coral" type="button">Choose photos</button>
-              </label>
-              <div>
-                <div class="steps">
-                  <div class="step"><b>1</b><span>Confirm owner or agent, property type and rental mode</span></div>
-                  <div class="step"><b>2</b><span>Add location, room count, toilets, furnishing and availability</span></div>
-                  <div class="step"><b>3</b><span>AI drafts copy and rent guidance; you approve the final listing</span></div>
-                </div>
-                <button id="generate" class="button coral full" type="button" style="margin-top:14px">Continue to guided draft →</button>
-              </div>
+                </label>
+                <button class="button secondary full" type="button" data-next-listing-card>Continue</button>
+              </section>
+              <section class="listing-question" data-listing-card="home">
+                <span class="eyebrow">The home</span>
+                <h2>What are you renting out?</h2>
+                <div class="question-block"><strong>Property type</strong><span class="form-toggle large-toggle" role="group" aria-label="Property type">
+                  <input id="typeInput" type="hidden" value="HDB"><input id="kindInput" type="hidden" value="hdb_whole_unit">
+                  <button class="active" type="button" data-field-toggle="typeInput" data-value="HDB">HDB</button><button type="button" data-field-toggle="typeInput" data-value="Condo">Condo</button><button type="button" data-field-toggle="typeInput" data-value="Landed">Landed</button>
+                </span></div>
+                <div class="question-block"><strong>Rental mode</strong><span class="form-toggle large-toggle" role="group" aria-label="Rental mode">
+                  <input id="modeInput" type="hidden" value="Whole unit">
+                  <button class="active" type="button" data-field-toggle="modeInput" data-value="Whole unit">Whole unit</button><button type="button" data-field-toggle="modeInput" data-value="Room only">A room</button>
+                </span></div>
+                <button class="button coral full" type="button" data-next-listing-card>Continue</button>
+              </section>
+              <section class="listing-question" data-listing-card="details">
+                <span class="eyebrow">A few essentials</span>
+                <h2>Set the move-in basics</h2>
+                <div class="question-block"><strong>Furnishing</strong><span class="form-toggle large-toggle" role="group" aria-label="Furnishing">
+                  <input id="furnishingInput" type="hidden" value="Furnished">
+                  <button class="active" type="button" data-field-toggle="furnishingInput" data-value="Furnished">Furnished</button><button type="button" data-field-toggle="furnishingInput" data-value="Part-furnished">Part furnished</button><button type="button" data-field-toggle="furnishingInput" data-value="Unfurnished">Unfurnished</button>
+                </span></div>
+                <div class="quick-number-grid"><label>Rooms<input id="roomsInput" type="number" value="3" min="1" max="8"></label><label>Toilets<input id="toiletsInput" type="number" value="2" min="1" max="8"></label></div>
+                <label>Available from<input id="availableInput" type="date" value="2026-09-01"></label>
+                <button class="button coral full" type="button" data-next-listing-card>Continue</button>
+              </section>
+              <section class="listing-question" data-listing-card="location">
+                <span class="eyebrow">Location</span>
+                <h2>Where is the property?</h2>
+                <p class="workflow-copy">A postal code gives renters the right neighbourhood while keeping the full address private until a viewing is confirmed.</p>
+                <label>Postal code<input id="postcodeInput" inputmode="numeric" value="570013" maxlength="6" placeholder="e.g. 570013"></label>
+                <label>Street or project<input id="addressInput" value="Bishan Street 13"></label>
+                <label>Estate / neighbourhood<input id="estateInput" value="Bishan"></label>
+                <button id="generate" class="button coral full" type="button">Create my draft</button>
+              </section>
             </div>
           </section>
           <section id="draftStep" class="panel workflow-panel hidden">
@@ -2154,44 +2245,7 @@
             </div>
             <div class="desktop-grid">
               <div class="form two">
-                <label>Listed by
-                  <input id="listerInput" type="hidden" value="owner">
-                  <span class="form-toggle" role="group" aria-label="Lister type">
-                    <button class="active" type="button" data-field-toggle="listerInput" data-value="owner">Owner</button>
-                    <button type="button" data-field-toggle="listerInput" data-value="agent">Agent</button>
-                  </span>
-                </label>
-                <label>Rental mode
-                  <input id="modeInput" type="hidden" value="Whole unit">
-                  <span class="form-toggle" role="group" aria-label="Rental mode">
-                    <button class="active" type="button" data-field-toggle="modeInput" data-value="Whole unit">Whole unit</button>
-                    <button type="button" data-field-toggle="modeInput" data-value="Room only">Room only</button>
-                  </span>
-                </label>
-                <label>Property type
-                  <input id="typeInput" type="hidden" value="HDB">
-                  <input id="kindInput" type="hidden" value="hdb_whole_unit">
-                  <span class="form-toggle" role="group" aria-label="Property type">
-                    <button class="active" type="button" data-field-toggle="typeInput" data-value="HDB">HDB</button>
-                    <button type="button" data-field-toggle="typeInput" data-value="Condo">Condo</button>
-                    <button type="button" data-field-toggle="typeInput" data-value="Landed">Landed</button>
-                  </span>
-                </label>
                 <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT" maxlength="42"></label>
-                <label>Estate / neighbourhood<input id="estateInput" value="Bishan"></label>
-                <label>Street / project<input id="addressInput" value="Bishan Street 13"></label>
-                <label>Postal code<input id="postcodeInput" inputmode="numeric" value="570013" maxlength="6"></label>
-                <label>Available from<input id="availableInput" type="date" value="2026-09-01"></label>
-                <label>No. of rooms<input id="roomsInput" type="number" value="3" min="1" max="8"></label>
-                <label>No. of toilets<input id="toiletsInput" type="number" value="2" min="1" max="8"></label>
-                <label>Furnishing
-                  <input id="furnishingInput" type="hidden" value="Furnished">
-                  <span class="form-toggle" role="group" aria-label="Furnishing">
-                    <button class="active" type="button" data-field-toggle="furnishingInput" data-value="Furnished">Furnished</button>
-                    <button type="button" data-field-toggle="furnishingInput" data-value="Part-furnished">Part</button>
-                    <button type="button" data-field-toggle="furnishingInput" data-value="Unfurnished">Unfurnished</button>
-                  </span>
-                </label>
                 <label>Asking rent<input id="rentInput" type="number" value="3750" min="500" step="50"></label>
               </div>
               <aside class="rent-card">
@@ -3350,6 +3404,7 @@
         type,
         mode,
         listerKind: document.getElementById("listerInput").value,
+        verification: document.getElementById("verificationInput").value || "follow-up",
         status: "published",
         estate,
         addressHint,
@@ -3380,6 +3435,7 @@
         available: formatAvailability(payload.availableFrom),
         availableDate: payload.availableFrom,
         lister: titleCase(payload.listerKind),
+        verification: payload.verification,
         image: payload.photoUrls[0],
         images: imagesForListing(payload.title, 0, payload.photoUrls),
         photoUrls: payload.photoUrls,
@@ -3398,6 +3454,23 @@
       document.querySelectorAll("[data-workflow-step]").forEach((item) => item.classList.toggle("active", item.dataset.workflowStep === step));
       document.getElementById("captureStep").classList.toggle("hidden", step !== "capture");
       document.getElementById("draftStep").classList.toggle("hidden", step === "capture");
+    }
+
+    const listingCardOrder = ["role", "verification", "photos", "home", "details", "location"];
+
+    function setListingCard(card) {
+      document.querySelectorAll("[data-listing-card]").forEach((item) => item.classList.toggle("active", item.dataset.listingCard === card));
+    }
+
+    function setVerificationQuestion(role) {
+      const isOwner = role === "owner";
+      document.getElementById("verificationEyebrow").textContent = isOwner ? "Trust check" : "Authorisation check";
+      document.getElementById("verificationTitle").textContent = isOwner ? "Verify that you own this home" : "Confirm you are authorised to list it";
+      document.getElementById("verificationCopy").textContent = isOwner
+        ? "A Singpass check can confirm ownership without showing personal details to renters."
+        : "A registration check gives renters a clearer signal that you are acting for the owner.";
+      document.getElementById("ownerVerificationChoices").classList.toggle("hidden", !isOwner);
+      document.getElementById("agentVerificationChoices").classList.toggle("hidden", isOwner);
     }
 
     function currentDraftListing() {
@@ -3555,6 +3628,7 @@
       document.getElementById("typeInput").value = item.type || "HDB";
       document.getElementById("modeInput").value = item.mode || "Whole unit";
       document.getElementById("listerInput").value = String(item.lister || "Owner").toLowerCase();
+      document.getElementById("verificationInput").value = item.verification || "follow-up";
       document.getElementById("estateInput").value = item.area?.split(/\s+(?:Street|Avenue|Road|Close|Residences|Terrace)\b/i)[0] || item.area || "";
       document.getElementById("addressInput").value = item.area || "";
       document.getElementById("postcodeInput").value = item.postcode || "";
@@ -3566,6 +3640,7 @@
       document.getElementById("descriptionInput").value = capWords(detailCopy(item), 100);
       selectedListingPhotos = (item.photoUrls?.length ? item.photoUrls : item.images?.length ? item.images : item.image ? [item.image] : []).filter(Boolean);
       setListingPhotoSummary();
+      setVerificationQuestion(document.getElementById("listerInput").value);
       syncFieldToggleButtons();
       refreshListingPreview();
     }
@@ -3587,6 +3662,10 @@
         showToast("Latest listing loaded for editing");
       } else {
         selectedListingPhotos = [];
+        document.getElementById("listerInput").value = "owner";
+        document.getElementById("verificationInput").value = "";
+        setVerificationQuestion("owner");
+        setListingCard("role");
         setListingPhotoSummary();
         refreshListingPreview();
       }
@@ -4784,6 +4863,33 @@
       });
     });
 
+    document.querySelectorAll("[data-role-choice]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const role = button.dataset.roleChoice;
+        document.getElementById("listerInput").value = role;
+        document.getElementById("verificationInput").value = "";
+        setVerificationQuestion(role);
+        setListingCard("verification");
+      });
+    });
+
+    document.querySelectorAll("[data-verification-choice]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.getElementById("verificationInput").value = button.dataset.verificationChoice;
+        setListingCard("photos");
+        const confirmed = button.dataset.verificationChoice === "singpass" || button.dataset.verificationChoice === "cea";
+        showToast(confirmed ? "Verification recorded for this prototype" : "Verification follow-up recorded");
+      });
+    });
+
+    document.querySelectorAll("[data-next-listing-card]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const current = button.closest("[data-listing-card]")?.dataset.listingCard;
+        const next = listingCardOrder[listingCardOrder.indexOf(current) + 1];
+        if (next) setListingCard(next);
+      });
+    });
+
     ["titleInput", "estateInput", "addressInput", "postcodeInput", "availableInput", "roomsInput", "toiletsInput", "rentInput", "descriptionInput"].forEach((id) => {
       document.getElementById(id)?.addEventListener("input", refreshListingPreview);
     });
@@ -4808,6 +4914,11 @@
     });
 
     document.getElementById("generate").addEventListener("click", () => {
+      if (!document.getElementById("verificationInput").value) {
+        setListingCard("verification");
+        showToast("Choose a verification path first");
+        return;
+      }
       setWorkflowStep("draft");
       polishListingDraft();
       showToast("AI draft ready for human approval");
@@ -4815,6 +4926,7 @@
 
     document.querySelector("[data-reset-listing]").addEventListener("click", () => {
       setWorkflowStep("capture");
+      setListingCard("photos");
     });
 
     document.querySelector("[data-preview-detail]").addEventListener("click", () => {
