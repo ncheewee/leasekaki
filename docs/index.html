@@ -1075,8 +1075,8 @@
       line-height: 1.45;
     }
     .workflow-steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
+      flex-wrap: nowrap;
       gap: 7px;
     }
     .workflow-step {
@@ -1331,8 +1331,11 @@
       border-radius: 15px;
       background: transparent;
       color: var(--muted);
-      font-size: 12px;
+      overflow: hidden;
+      font-size: 11px;
       font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .nav button.active { background: var(--mint); color: var(--ink); }
     body.dark .nav button.active { color: #4b5f5c; }
@@ -1364,6 +1367,17 @@
     .selected-photo.dragging { opacity: .45; }
     .selected-photo img { width: 100%; height: 100%; object-fit: cover; }
     .photo-remove { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: rgba(16, 43, 54, .84); color: var(--paper); font-size: 17px; line-height: 1; }
+    .photo-drop { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .photo-drop input { position: absolute; opacity: 0; pointer-events: none; }
+    .photo-slot, .photo-add { display: grid; min-height: 68px; place-items: center; border: 2px dashed rgba(16, 43, 54, .22); border-radius: 8px; color: var(--muted); background: var(--cream); }
+    .photo-slot:first-of-type::after { content: "+"; font-size: 24px; color: var(--mint-deep); }
+    .photo-add { border-style: dashed; font-size: 24px; cursor: pointer; }
+    .tap-stepper { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; min-height: 56px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--paper); }
+    .tap-stepper button { height: 100%; border: 0; background: var(--cream); color: var(--mint-deep); font-size: 24px; font-weight: 800; }
+    .tap-stepper output { text-align: center; color: var(--ink); font-size: 20px; font-weight: 900; }
+    .availability-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .availability-picker button { min-height: 50px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink-soft); font-size: 13px; font-weight: 850; }
+    .availability-picker button.active { border-color: var(--mint); background: var(--mint); color: var(--mint-deep); }
     .toast {
       position: fixed;
       z-index: 30;
@@ -2176,27 +2190,15 @@
 
       <div id="list" class="view">
         <div class="listing-workflow">
-          <section class="workflow-head">
-            <span class="eyebrow">Owner / authorised agent</span>
-            <h1>List your property</h1>
-            <p>Guided inputs first, AI-assisted copy second, human approval always before it appears beside other listings.</p>
-          </section>
-          <div class="workflow-steps" aria-label="Listing workflow progress">
-            <div class="workflow-step active" data-workflow-step="capture">1. Tell us</div>
-            <div class="workflow-step" data-workflow-step="draft">2. Review</div>
-            <div class="workflow-step" data-workflow-step="approve">3. Publish</div>
-          </div>
           <section id="captureStep" class="panel workflow-panel">
             <input id="listerInput" type="hidden" value="owner">
             <input id="verificationInput" type="hidden" value="">
             <div class="listing-card-flow">
               <section class="listing-question active" data-listing-card="role">
-                <span class="eyebrow">First, who are you?</span>
-                <h2>Are you the owner or an authorised agent?</h2>
-                <p class="workflow-copy">This helps renters understand who they are dealing with from the first message.</p>
+                <h2>Who are you?</h2>
                 <div class="choice-stack" role="group" aria-label="Lister type">
-                  <button class="choice-card" type="button" data-role-choice="owner"><strong>I own this property</strong><span>List directly as the owner</span></button>
-                  <button class="choice-card" type="button" data-role-choice="agent"><strong>I'm an authorised agent</strong><span>List on behalf of the owner</span></button>
+                  <button class="choice-card" type="button" data-role-choice="owner"><strong>I own this property</strong></button>
+                  <button class="choice-card" type="button" data-role-choice="agent"><strong>I'm an authorised agent</strong></button>
                 </div>
               </section>
               <section class="listing-question" data-listing-card="verification">
@@ -2213,20 +2215,10 @@
                 </div>
               </section>
               <section class="listing-question" data-listing-card="photos">
-                <span class="eyebrow">Photos</span>
-                <h2>Show the home as it really is</h2>
-                <p class="workflow-copy">Start with the spaces renters will care about most. You can add up to four photos.</p>
-                <label class="capture">
-                <input id="photos" type="file" accept="image/*" multiple>
-                <span class="mock-strip" aria-hidden="true">
-                  <img src="./assets/listings/01-bishan-hdb-living.jpg" alt="">
-                  <img src="./assets/listings/05-queenstown-room.jpg" alt="">
-                  <img src="./assets/listings/03-paya-lebar-condo.jpg" alt="">
-                </span>
-                <span class="camera">◎</span>
-                <strong id="photoLabel">Tap to add property photos</strong>
-                <span id="photoHint">Living, bedroom, kitchen, toilet and view.</span>
-                <button class="button coral" type="button">Choose photos</button>
+                <h2>Photos</h2>
+                <label id="photoDrop" class="photo-drop">
+                  <input id="photos" type="file" accept="image/*" multiple>
+                  <span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span>
                 </label>
                 <div id="selectedPhotoGrid" class="selected-photo-grid" aria-label="Selected property photos"></div>
                 <button class="button secondary full" type="button" data-next-listing-card>Continue</button>
@@ -2251,8 +2243,8 @@
                   <input id="furnishingInput" type="hidden" value="Furnished">
                   <button class="active" type="button" data-field-toggle="furnishingInput" data-value="Furnished">Furnished</button><button type="button" data-field-toggle="furnishingInput" data-value="Part-furnished">Part furnished</button><button type="button" data-field-toggle="furnishingInput" data-value="Unfurnished">Unfurnished</button>
                 </span></div>
-                <div class="quick-number-grid"><label>Rooms<input id="roomsInput" type="number" value="3" min="1" max="8"></label><label>Toilets<input id="toiletsInput" type="number" value="2" min="1" max="8"></label></div>
-                <label>Available from<input id="availableInput" type="date" value="2026-09-01"></label>
+                <div class="quick-number-grid"><label>Rooms<input id="roomsInput" type="hidden" value="3"><span class="tap-stepper"><button type="button" data-step-target="roomsInput" data-step-delta="-1" aria-label="Decrease rooms">−</button><output id="roomsValue">3</output><button type="button" data-step-target="roomsInput" data-step-delta="1" aria-label="Increase rooms">+</button></span></label><label>Toilets<input id="toiletsInput" type="hidden" value="2"><span class="tap-stepper"><button type="button" data-step-target="toiletsInput" data-step-delta="-1" aria-label="Decrease toilets">−</button><output id="toiletsValue">2</output><button type="button" data-step-target="toiletsInput" data-step-delta="1" aria-label="Increase toilets">+</button></span></label></div>
+                <label>Available from<input id="availableInput" type="hidden" value="2026-09-01"><span id="availabilityPicker" class="availability-picker" role="group" aria-label="Available from"><button type="button" data-available-date="2026-07-21">Now</button><button type="button" data-available-date="2026-08-01">1 Aug</button><button class="active" type="button" data-available-date="2026-09-01">1 Sep</button><button type="button" data-available-date="2026-10-01">1 Oct</button></span></label>
                 <button class="button coral full" type="button" data-next-listing-card>Continue</button>
               </section>
               <section class="listing-question" data-listing-card="location">
@@ -3496,6 +3488,19 @@
       document.querySelectorAll("[data-listing-card]").forEach((item) => item.classList.toggle("active", item.dataset.listingCard === card));
     }
 
+    function syncStepperValues() {
+      ["rooms", "toilets"].forEach((name) => {
+        const input = document.getElementById(`${name}Input`);
+        const output = document.getElementById(`${name}Value`);
+        if (input && output) output.textContent = input.value;
+      });
+    }
+
+    function syncAvailabilityPicker() {
+      const value = document.getElementById("availableInput")?.value;
+      document.querySelectorAll("[data-available-date]").forEach((button) => button.classList.toggle("active", button.dataset.availableDate === value));
+    }
+
     function setVerificationQuestion(role) {
       const isOwner = role === "owner";
       document.getElementById("verificationEyebrow").textContent = isOwner ? "Trust check" : "Authorisation check";
@@ -3518,17 +3523,18 @@
     function setListingPhotoSummary(files = []) {
       const photoLabel = document.getElementById("photoLabel");
       const photoHint = document.getElementById("photoHint");
-      if (!photoLabel || !photoHint) return;
-      if (files.length) {
+      const photoDrop = document.getElementById("photoDrop");
+      if (photoLabel && photoHint && files.length) {
         photoLabel.textContent = `${files.length} photo${files.length > 1 ? "s" : ""} selected`;
         photoHint.textContent = files.slice(0, 3).map((file) => file.name).join(" · ");
-      } else if (selectedListingPhotos.length) {
+      } else if (photoLabel && photoHint && selectedListingPhotos.length) {
         photoLabel.textContent = `${selectedListingPhotos.length} saved photo${selectedListingPhotos.length > 1 ? "s" : ""} loaded`;
         photoHint.textContent = "These photos will appear in preview and Explore.";
-      } else {
+      } else if (photoLabel && photoHint) {
         photoLabel.textContent = "Tap to add property photos";
         photoHint.textContent = "Living, bedroom, kitchen, toilet and view.";
       }
+      photoDrop?.classList.toggle("hidden", selectedListingPhotos.length > 0);
       renderSelectedPhotoGrid();
     }
 
@@ -3548,7 +3554,7 @@
           <img src="${escapeHtml(photo)}" alt="Selected property photo ${index + 1}">
           <button class="photo-remove" type="button" data-remove-photo-index="${index}" aria-label="Remove photo ${index + 1}">×</button>
         </div>
-      `).join("");
+      `).join("") + (selectedListingPhotos.length && selectedListingPhotos.length < 4 ? `<label class="selected-photo photo-add" for="photos" aria-label="Add another photo">+</label>` : "");
       target.querySelectorAll("[data-remove-photo-index]").forEach((button) => {
         button.addEventListener("click", () => {
           selectedListingPhotos.splice(Number(button.dataset.removePhotoIndex), 1);
@@ -3733,6 +3739,8 @@
       setListingPhotoSummary();
       setVerificationQuestion(document.getElementById("listerInput").value);
       syncFieldToggleButtons();
+      syncStepperValues();
+      syncAvailabilityPicker();
       refreshListingPreview();
     }
 
@@ -4990,6 +4998,7 @@
         updateKindInput();
         if (button.dataset.fieldToggle === "modeInput" && button.dataset.value === "Room only") {
           document.getElementById("roomsInput").value = 1;
+          syncStepperValues();
         }
         refreshListingPreview();
       });
@@ -5019,6 +5028,25 @@
         const current = button.closest("[data-listing-card]")?.dataset.listingCard;
         const next = listingCardOrder[listingCardOrder.indexOf(current) + 1];
         if (next) setListingCard(next);
+      });
+    });
+
+    document.querySelectorAll("[data-step-target]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const input = document.getElementById(button.dataset.stepTarget);
+        if (!input) return;
+        const next = Math.max(1, Math.min(8, Number(input.value || 1) + Number(button.dataset.stepDelta || 0)));
+        input.value = next;
+        syncStepperValues();
+        refreshListingPreview();
+      });
+    });
+
+    document.querySelectorAll("[data-available-date]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.getElementById("availableInput").value = button.dataset.availableDate;
+        syncAvailabilityPicker();
+        refreshListingPreview();
       });
     });
 
