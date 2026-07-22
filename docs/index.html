@@ -1365,7 +1365,7 @@
     .owned-listing .mini-action { min-height: 34px; padding: 0 10px; }
     .owned-listing .delete-listing { color: var(--bad); border-color: rgba(202, 76, 67, .22); }
     .selected-photo-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-    .selected-photo { position: relative; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+    .selected-photo { position: relative; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; transition: transform .18s ease; }
     .selected-photo.dragging { opacity: .35; outline: 2px solid var(--mint-deep); outline-offset: 2px; }
     .selected-photo img { width: 100%; height: 100%; object-fit: cover; }
     .photo-drag-ghost { position: fixed; z-index: 90; width: 92px; aspect-ratio: 1; overflow: hidden; border: 2px solid var(--paper); border-radius: 10px; box-shadow: 0 12px 28px rgba(16, 43, 54, .32); pointer-events: none; transform: translate(-50%, -50%) rotate(3deg) scale(1.05); }
@@ -1380,9 +1380,9 @@
     .tap-stepper { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; min-height: 56px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--paper); }
     .tap-stepper button { height: 100%; border: 0; background: var(--cream); color: var(--mint-deep); font-size: 24px; font-weight: 800; }
     .tap-stepper output { text-align: center; color: var(--ink); font-size: 20px; font-weight: 900; }
-    .date-picker-trigger { display: flex; align-items: center; justify-content: space-between; min-height: 56px; width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; background: var(--paper); color: var(--ink); font: inherit; font-weight: 850; }
-    .date-picker-trigger::after { content: "Choose"; color: var(--muted); font-size: 12px; }
-    .date-picker-trigger.has-value::after { content: "Change"; }
+    .date-picker-trigger { display: flex; align-items: center; justify-content: center; min-height: 56px; width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; background: var(--paper); color: var(--coral); font: inherit; font-weight: 850; }
+    .date-picker-trigger.has-value { justify-content: space-between; }
+    .date-picker-trigger.has-value::after { content: "Change"; color: var(--coral); font-size: 12px; }
     .availability-picker { display: grid; gap: 10px; margin-top: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); }
     .availability-picker.hidden { display: none; }
     .calendar-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1400,7 +1400,16 @@
     .currency-field span { position: absolute; z-index: 1; top: 50%; left: 14px; transform: translateY(-50%); color: var(--muted); font-weight: 900; pointer-events: none; }
     .currency-field input { padding-left: 30px; }
     .ai-assist-actions { display: flex; justify-content: center; }
-    .ai-draft-button { min-width: 230px; min-height: 58px; border: 2px solid transparent; border-radius: 999px; background: linear-gradient(var(--paper), var(--paper)) padding-box, conic-gradient(from 210deg, #1aa7ec, #7b61ff, #ed6a8a, #f1a45b, #1aa7ec) border-box; color: var(--ink); box-shadow: 0 6px 18px rgba(45, 112, 150, .18); font-size: 16px; font-weight: 900; }
+    .ai-draft-button { min-width: 230px; min-height: 58px; border: 0; border-radius: 999px; background: linear-gradient(100deg, #2788e6, #805bd9, #e867a0, #ef9858, #3a9ee4); background-size: 220% 100%; color: var(--paper); box-shadow: 0 6px 18px rgba(45, 112, 150, .24); font-size: 16px; font-weight: 900; animation: ai-draft-breathe 2.4s ease-in-out infinite; }
+    @keyframes ai-draft-breathe { 0%, 100% { background-position: 0% 50%; box-shadow: 0 6px 18px rgba(45, 112, 150, .24); } 50% { background-position: 100% 50%; box-shadow: 0 10px 28px rgba(128, 91, 217, .42); } }
+    .listing-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .rent-card { gap: 8px; }
+    .rent-card strong { color: var(--muted); font-weight: 700; }
+    .rent-scatter { position: relative; height: 46px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .rent-scatter-dot { position: absolute; bottom: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--mint-deep); transform: translateX(-50%); }
+    .rent-scatter-median { position: absolute; inset: 0 auto 0 0; width: 2px; background: var(--coral); }
+    .rent-scatter-median::after { content: "Median"; position: absolute; top: 3px; left: 5px; color: var(--coral); font-size: 10px; font-weight: 900; }
+    .rent-card small { color: var(--muted); font-size: 11px; font-weight: 750; }
     #descriptionInput { min-height: min(52dvh, 430px); }
     .draft-card { display: none; gap: 16px; }
     .draft-card.active { display: grid; }
@@ -2224,7 +2233,6 @@
           <section id="captureStep" class="panel workflow-panel">
             <input id="listerInput" type="hidden" value="owner">
             <input id="verificationInput" type="hidden" value="">
-            <button id="listingBackButton" class="mini-action listing-back" type="button">← Back</button>
             <div class="listing-card-flow">
               <section class="listing-question active" data-listing-card="role">
                 <h2>Who are you?</h2>
@@ -2254,7 +2262,7 @@
                 </label>
                 <div id="selectedPhotoGrid" class="selected-photo-grid" aria-label="Selected property photos"></div>
                 <p class="photo-reorder-hint">Tap and hold a photo, then drag it to reorder.</p>
-                <button class="button secondary full" type="button" data-next-listing-card>Continue</button>
+                <div class="listing-actions"><button class="button secondary" type="button" data-listing-back>Back</button><button class="button coral" type="button" data-next-listing-card>Continue</button></div>
               </section>
               <section class="listing-question" data-listing-card="home">
                 <h2>What are you renting out?</h2>
@@ -2266,7 +2274,7 @@
                   <input id="modeInput" type="hidden" value="Whole unit">
                   <button class="active" type="button" data-field-toggle="modeInput" data-value="Whole unit">Whole unit</button><button type="button" data-field-toggle="modeInput" data-value="Room only">A room</button>
                 </span></div>
-                <button class="button coral full" type="button" data-next-listing-card>Continue</button>
+                <div class="listing-actions"><button class="button secondary" type="button" data-listing-back>Back</button><button class="button coral" type="button" data-next-listing-card>Continue</button></div>
               </section>
               <section class="listing-question" data-listing-card="details">
                 <h2>Set the move-in basics</h2>
@@ -2275,20 +2283,19 @@
                   <button class="active" type="button" data-field-toggle="furnishingInput" data-value="Furnished">Furnished</button><button type="button" data-field-toggle="furnishingInput" data-value="Unfurnished">Unfurnished</button>
                 </span></div>
                 <div class="quick-number-grid"><label>Rooms<input id="roomsInput" type="hidden" value="3"><span class="tap-stepper"><button type="button" data-step-target="roomsInput" data-step-delta="-1" aria-label="Decrease rooms">−</button><output id="roomsValue">3</output><button type="button" data-step-target="roomsInput" data-step-delta="1" aria-label="Increase rooms">+</button></span></label><label>Toilets<input id="toiletsInput" type="hidden" value="2"><span class="tap-stepper"><button type="button" data-step-target="toiletsInput" data-step-delta="-1" aria-label="Decrease toilets">−</button><output id="toiletsValue">2</output><button type="button" data-step-target="toiletsInput" data-step-delta="1" aria-label="Increase toilets">+</button></span></label></div>
-                <label>Available from<input id="availableInput" type="hidden" value=""><button id="availabilityButton" class="date-picker-trigger" type="button" aria-expanded="false">Choose a date</button><div id="availabilityPicker" class="availability-picker hidden" role="dialog" aria-label="Choose available date"><div class="calendar-controls"><select id="availabilityMonth" aria-label="Month"></select><select id="availabilityYear" aria-label="Year"></select></div><div class="calendar-weekdays" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div><div id="availabilityDays" class="calendar-days"></div></div></label>
-                <button class="button coral full" type="button" data-next-listing-card>Continue</button>
+                <label>Available from<input id="availableInput" type="hidden" value=""><button id="availabilityButton" class="date-picker-trigger" type="button" aria-expanded="false">Choose</button><div id="availabilityPicker" class="availability-picker hidden" role="dialog" aria-label="Choose available date"><div class="calendar-controls"><select id="availabilityMonth" aria-label="Month"></select><select id="availabilityYear" aria-label="Year"></select></div><div class="calendar-weekdays" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div><div id="availabilityDays" class="calendar-days"></div></div></label>
+                <div class="listing-actions"><button class="button secondary" type="button" data-listing-back>Back</button><button class="button coral" type="button" data-next-listing-card>Continue</button></div>
               </section>
               <section class="listing-question" data-listing-card="location">
                 <label>Postal code<span class="postcode-control"><input id="postcodeInput" inputmode="numeric" value="" maxlength="6" placeholder="e.g. 570013"><button id="postcodeSearch" type="button" disabled>Search</button></span></label>
                 <label>Street<input id="addressInput" value="" readonly></label>
                 <label>District<input id="estateInput" value="" readonly></label>
                 <p id="postcodeStatus" class="workflow-copy"></p>
-                <button id="generate" class="button coral full" type="button">Continue</button>
+                <div class="listing-actions"><button class="button secondary" type="button" data-listing-back>Back</button><button id="generate" class="button coral" type="button">Continue</button></div>
               </section>
             </div>
           </section>
           <section id="draftStep" class="panel workflow-panel hidden">
-            <button id="draftBackButton" class="mini-action listing-back" type="button">← Back</button>
             <section class="draft-card active" data-draft-card="title">
               <div class="form two">
                 <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT" maxlength="42"></label>
@@ -2297,13 +2304,17 @@
               <aside class="rent-card">
                 <span class="eyebrow">Suggested asking rent</span>
                 <strong id="rentGuide">$3,650-$3,900</strong>
+                <div id="rentScatter" class="rent-scatter" aria-label="Comparable rental prices"></div>
+                <small>Comparable homes of a similar size</small>
               </aside>
-              <button id="continueDescription" class="button coral full" type="button">Continue</button>
+              <div class="listing-actions"><button class="button secondary" type="button" data-listing-back>Back</button><button id="continueDescription" class="button coral" type="button">Continue</button></div>
             </section>
             <section class="draft-card" data-draft-card="description">
               <div class="ai-assist-actions"><button id="aiPolishButton" class="ai-draft-button" type="button">AI draft</button></div>
+              <label>Who this suits<textarea id="whoThisSuitsInput" maxlength="180" placeholder="Who would feel at home here?"></textarea></label>
               <label>Description<textarea id="descriptionInput" maxlength="850" placeholder="Write your description"></textarea><span class="form-hint-row"><span>Up to 100 words.</span><span id="descriptionCount">0 words</span></span></label>
-              <div class="actions"><button class="button secondary" type="button" data-preview-detail>Preview</button><button class="button coral" type="button" data-publish>Publish</button></div>
+              <div class="listing-actions"><button class="button secondary" type="button" data-listing-back>Back</button><button class="button coral" type="button" data-preview-detail>Preview</button></div>
+              <button class="button coral full" type="button" data-publish>Publish</button>
             </section>
           </section>
         </div>
@@ -2534,6 +2545,7 @@
     const publishButton = document.querySelector("[data-publish]");
     const listingPreview = document.getElementById("listingPreview");
     const rentGuide = document.getElementById("rentGuide");
+    const rentScatter = document.getElementById("rentScatter");
     const rentConfidence = document.getElementById("rentConfidence");
     const descriptionCount = document.getElementById("descriptionCount");
     let selectedListing = null;
@@ -2598,7 +2610,8 @@
       ["11 12 13", "D05"], ["17", "D06"], ["18 19", "D07"], ["20 21", "D08"], ["22 23", "D09"],
       ["24 25 26 27", "D10"], ["28 29 30", "D11"], ["31 32 33", "D12"], ["34 35 36 37", "D13"],
       ["38 39 40 41", "D14"], ["42 43 44 45", "D15"], ["46 47 48", "D16"], ["49 50 81", "D17"],
-      ["51 52", "D18"], ["53 54 55 82", "D19"], ["56 57", "D20"], ["58 59", "D21"], ["60 61 62 63 64", "D22"]
+      ["51 52", "D18"], ["53 54 55 82", "D19"], ["56 57", "D20"], ["58 59", "D21"], ["60 61 62 63 64", "D22"],
+      ["65", "D23"], ["66 67 68", "D22"], ["69 70 71", "D24"], ["72 73", "D25"], ["75 76", "D27"], ["77 78 79 80", "D28"]
     ];
     const sortOptions = [
       ["newest", "Sort: Newest"],
@@ -2907,7 +2920,7 @@
       }
       const address = String(result.address || "").replace(/\s+Singapore\s+\d{6}$/i, "").trim();
       document.getElementById("addressInput").value = address;
-      document.getElementById("estateInput").value = districtLabelForPostcode(postal) || result.district || "";
+      document.getElementById("estateInput").value = districtLabelForPostcode(postal) || districtLabelForCode(districtForEstate(address)) || result.district || "";
       status.textContent = "Address found";
       refreshListingPreview();
     }
@@ -3245,6 +3258,10 @@
       return districtOptions.find(([value]) => value === district)?.[1] || district;
     }
 
+    function districtLabelForCode(district) {
+      return districtOptions.find(([value]) => value === district)?.[1] || district;
+    }
+
     function mapForIndex(index) {
       return { x: 15 + ((index * 17) % 72), y: 24 + ((index * 13) % 54) };
     }
@@ -3282,6 +3299,11 @@
       return `Available ${date.toLocaleDateString("en-SG", { day: "numeric", month: "short" })}`;
     }
 
+    function formatPickerDate(value) {
+      const date = new Date(`${value}T00:00:00`);
+      return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" });
+    }
+
     function mapApiListing(item, index) {
       return {
         title: item.title,
@@ -3315,6 +3337,9 @@
       if (text.includes("tampines")) return "D18";
       if (text.includes("serangoon")) return "D19";
       if (text.includes("bishan")) return "D20";
+      if (text.includes("yishun")) return "D27";
+      if (text.includes("woodlands")) return "D25";
+      if (text.includes("seletar")) return "D28";
       if (text.includes("jurong")) return "D22";
       return "D20";
     }
@@ -3374,10 +3399,10 @@
 
     function detailRichCopy(item) {
       const summary = capWords(detailCopy(item), 100);
-      const fitLine = item.mode === "Room only"
+      const fitLine = item.whoThisSuits || (item.mode === "Room only"
         ? "Best for a tenant who wants a straightforward room search, clear house expectations and a lighter monthly commitment."
-        : "Best for tenants who want the privacy of a whole home, a clear move-in timeline and enough space for daily routines.";
-      const locationLine = `${item.area} · ${item.mrt} · ${item.district}${item.postcode ? ` · ${item.postcode}` : ""}.`;
+        : "Best for tenants who want the privacy of a whole home, a clear move-in timeline and enough space for daily routines.");
+      const locationLine = `${item.area} · ${item.district}.`;
       const bullets = [
         roomFact(item),
         toiletFact(item),
@@ -3528,6 +3553,7 @@
       const postcode = document.getElementById("postcodeInput").value.trim();
       const availableFrom = document.getElementById("availableInput").value;
       const askingRent = Number(document.getElementById("rentInput").value);
+      const whoThisSuits = document.getElementById("whoThisSuitsInput").value.trim();
       const description = capWords(document.getElementById("descriptionInput").value.trim(), 100);
       const rooms = roomsForListing(mode);
       const toilets = toiletsForListing();
@@ -3560,6 +3586,7 @@
         furnishing,
         availableFrom,
         askingRent,
+        whoThisSuits,
         suggestedRentMin: Math.max(500, Math.round((askingRent * 0.94) / 50) * 50),
         suggestedRentMax: Math.round((askingRent * 1.04) / 50) * 50,
         photoUrls: selectedPhotoUrls()
@@ -3584,11 +3611,12 @@
         image: payload.photoUrls[0],
         images: imagesForListing(payload.title, 0, payload.photoUrls),
         photoUrls: payload.photoUrls,
-        district: districtForEstate(`${payload.estate} ${payload.addressHint}`),
+        district: districtFromPostcode(payload.postcode) || districtForEstate(`${payload.estate} ${payload.addressHint}`),
         postcode: payload.postcode || postcodeForEstate(`${payload.estate} ${payload.addressHint}`),
         mrt: `${payload.estate} MRT`,
         map: mapForIndex(0),
         description: payload.description,
+        whoThisSuits: payload.whoThisSuits,
         rentRange: `$${Number(payload.suggestedRentMin).toLocaleString()}-$${Number(payload.suggestedRentMax).toLocaleString()}`,
         tone: "sunset",
         postedAt: 101
@@ -3633,6 +3661,18 @@
       else setView("listed");
     }
 
+    function validateListingCard(card) {
+      if (card === "photos" && !selectedListingPhotos.length) return "Add at least one photo to continue.";
+      if (card === "details" && !document.getElementById("availableInput").value) return "Choose an available-from date to continue.";
+      if (card === "location") {
+        const postcode = document.getElementById("postcodeInput").value.trim();
+        const street = document.getElementById("addressInput").value.trim();
+        const district = document.getElementById("estateInput").value.trim();
+        if (!/^\d{6}$/.test(postcode) || !street || !district) return "Search a valid postal code to fill Street and District.";
+      }
+      return "";
+    }
+
     function syncStepperValues() {
       ["rooms", "toilets"].forEach((name) => {
         const input = document.getElementById(`${name}Input`);
@@ -3647,7 +3687,7 @@
       const trigger = document.getElementById("availabilityButton");
       if (!input || !picker || !trigger) return;
       const value = input.value;
-      trigger.textContent = value ? formatAvailability(value) : "Choose a date";
+      trigger.textContent = value ? formatPickerDate(value) : "Choose";
       trigger.classList.toggle("has-value", Boolean(value));
       trigger.setAttribute("aria-expanded", String(!picker.classList.contains("hidden")));
       picker.querySelectorAll("[data-available-date]").forEach((button) => button.classList.toggle("active", button.dataset.availableDate === value));
@@ -3764,6 +3804,32 @@
       updatePhotoDragGhost(x, y);
     }
 
+    function shiftPhotoDuringDrag(photo, destination) {
+      const grid = document.getElementById("selectedPhotoGrid");
+      if (!grid || !destination || photo === destination) return;
+      const tiles = [...grid.querySelectorAll("[data-selected-photo-index]")];
+      const fromIndex = tiles.indexOf(photo);
+      const toIndex = tiles.indexOf(destination);
+      if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return;
+      const previousRects = new Map(tiles.map((tile) => [tile, tile.getBoundingClientRect()]));
+      const [moved] = selectedListingPhotos.splice(fromIndex, 1);
+      selectedListingPhotos.splice(toIndex, 0, moved);
+      grid.insertBefore(photo, fromIndex < toIndex ? destination.nextSibling : destination);
+      [...grid.querySelectorAll("[data-selected-photo-index]")].forEach((tile, index) => {
+        tile.dataset.selectedPhotoIndex = String(index);
+        tile.querySelector("[data-remove-photo-index]").dataset.removePhotoIndex = String(index);
+        const before = previousRects.get(tile);
+        const after = tile.getBoundingClientRect();
+        if (before) {
+          const deltaX = before.left - after.left;
+          const deltaY = before.top - after.top;
+          if (deltaX || deltaY) tile.animate([{ transform: `translate(${deltaX}px, ${deltaY}px)` }, { transform: "translate(0, 0)" }], { duration: 180, easing: "ease-out" });
+        }
+      });
+      photo.dataset.dragSource = String(toIndex);
+      photo.dataset.reordered = "true";
+    }
+
     function renderSelectedPhotoGrid() {
       const target = document.getElementById("selectedPhotoGrid");
       if (!target) return;
@@ -3795,22 +3861,28 @@
           if (!photo.classList.contains("dragging")) return;
           event.preventDefault();
           updatePhotoDragGhost(event.clientX, event.clientY);
+          const destination = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-selected-photo-index]");
+          if (destination) shiftPhotoDuringDrag(photo, destination);
         });
         photo.addEventListener("pointerup", (event) => {
           window.clearTimeout(Number(photo.dataset.holdTimer));
           const fromIndex = Number(photo.dataset.dragSource);
+          const reordered = photo.dataset.reordered === "true";
           delete photo.dataset.dragSource;
           delete photo.dataset.holdTimer;
+          delete photo.dataset.reordered;
           if (!photo.classList.contains("dragging")) return;
           photo.classList.remove("dragging");
           removePhotoDragGhost();
           const destination = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-selected-photo-index]");
-          if (destination) moveListingPhoto(fromIndex, Number(destination.dataset.selectedPhotoIndex));
+          if (destination && !reordered) moveListingPhoto(fromIndex, Number(destination.dataset.selectedPhotoIndex));
+          else if (reordered) setListingPhotoSummary();
         });
         photo.addEventListener("pointercancel", () => {
           window.clearTimeout(Number(photo.dataset.holdTimer));
           delete photo.dataset.dragSource;
           delete photo.dataset.holdTimer;
+          delete photo.dataset.reordered;
           photo.classList.remove("dragging");
           removePhotoDragGhost();
         });
@@ -3889,8 +3961,18 @@
       const low = Math.max(500, Math.round((guideMid * 0.94) / 50) * 50);
       const high = Math.round((guideMid * 1.06) / 50) * 50;
       if (rentGuide) rentGuide.textContent = `$${low.toLocaleString()}-$${high.toLocaleString()}`;
+      if (rentScatter) renderRentScatter(sample, guideMid);
       if (rentConfidence) rentConfidence.textContent = sample.length >= 6 ? "Medium-high confidence" : "Medium confidence";
       return { low, high, guideMid };
+    }
+
+    function renderRentScatter(sample, median) {
+      const values = sample.map((item) => Number(item.price || 0)).filter(Number.isFinite).slice(0, 14);
+      const range = [...values, median];
+      const min = Math.min(...range) - 150;
+      const max = Math.max(...range) + 150;
+      const position = (value) => Math.max(4, Math.min(96, ((value - min) / Math.max(1, max - min)) * 100));
+      rentScatter.innerHTML = `${values.map((value, index) => `<i class="rent-scatter-dot" style="left:${position(value)}%;bottom:${8 + (index % 3) * 10}px"></i>`).join("")}<b class="rent-scatter-median" style="left:${position(median)}%"></b>`;
     }
 
     function refreshListingPreview() {
@@ -3938,6 +4020,9 @@
         ? `${estate} room, ready to view`
         : `${rooms}-room ${type} in ${estate}`;
       document.getElementById("titleInput").value = capChars(title, 42);
+      document.getElementById("whoThisSuitsInput").value = mode === "Room only"
+        ? "One person who values a straightforward home base and clear house expectations."
+        : "A couple, small family or sharers who want a practical whole-home move-in.";
       document.getElementById("descriptionInput").value = aiDraftDescription();
       refreshListingPreview();
       showToast("AI draft refreshed for review");
@@ -3958,6 +4043,7 @@
       document.getElementById("toiletsInput").value = Number.parseInt(toiletFact(item), 10) || 1;
       document.getElementById("furnishingInput").value = furnishingFact(item);
       document.getElementById("rentInput").value = item.price || 3500;
+      document.getElementById("whoThisSuitsInput").value = item.whoThisSuits || "";
       document.getElementById("descriptionInput").value = capWords(detailCopy(item), 100);
       selectedListingPhotos = (item.photoUrls?.length ? item.photoUrls : item.images?.length ? item.images : item.image ? [item.image] : []).filter(Boolean);
       setListingPhotoSummary();
@@ -3995,6 +4081,7 @@
         document.getElementById("addressInput").value = "";
         document.getElementById("estateInput").value = "";
         document.getElementById("availableInput").value = "";
+        document.getElementById("whoThisSuitsInput").value = "";
         setVerificationQuestion("owner");
         setListingCard("role");
         setListingPhotoSummary();
@@ -5258,10 +5345,17 @@
     document.querySelectorAll("[data-next-listing-card]").forEach((button) => {
       button.addEventListener("click", () => {
         const current = button.closest("[data-listing-card]")?.dataset.listingCard;
+        const validationMessage = validateListingCard(current);
+        if (validationMessage) {
+          showToast(validationMessage);
+          return;
+        }
         const next = listingCardOrder[listingCardOrder.indexOf(current) + 1];
         if (next) setListingCard(next);
       });
     });
+
+    document.querySelectorAll("[data-listing-back]").forEach((button) => button.addEventListener("click", goBackInListing));
 
     document.querySelectorAll("[data-step-target]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -5298,7 +5392,7 @@
       refreshListingPreview();
     });
 
-    ["titleInput", "estateInput", "addressInput", "postcodeInput", "availableInput", "roomsInput", "toiletsInput", "rentInput", "descriptionInput"].forEach((id) => {
+    ["titleInput", "estateInput", "addressInput", "postcodeInput", "availableInput", "roomsInput", "toiletsInput", "rentInput", "whoThisSuitsInput", "descriptionInput"].forEach((id) => {
       document.getElementById(id)?.addEventListener("input", refreshListingPreview);
     });
     document.getElementById("postcodeInput").addEventListener("input", (event) => {
@@ -5310,11 +5404,20 @@
       document.getElementById("postcodeStatus").textContent = ready ? "Search to fill Street and District." : "";
     });
     document.getElementById("postcodeSearch").addEventListener("click", () => resolveListingPostcode(document.getElementById("postcodeInput").value.trim()));
+    document.getElementById("descriptionInput").addEventListener("input", (event) => {
+      const textarea = event.currentTarget;
+      const nextValue = textarea.value.replace(/(^|\n)-\s/g, "$1• ");
+      if (nextValue !== textarea.value) textarea.value = nextValue;
+    });
 
     document.getElementById("aiPolishButton").addEventListener("click", polishListingDraft);
-    document.getElementById("listingBackButton").addEventListener("click", goBackInListing);
-    document.getElementById("draftBackButton").addEventListener("click", goBackInListing);
     document.getElementById("continueDescription").addEventListener("click", () => {
+      const title = document.getElementById("titleInput").value.trim();
+      const rent = Number(document.getElementById("rentInput").value);
+      if (!title || !Number.isFinite(rent)) {
+        showToast("Complete listing title and asking rent to continue.");
+        return;
+      }
       refreshListingPreview();
       setDraftCard("description");
     });
@@ -5339,7 +5442,7 @@
       }
       const postcode = document.getElementById("postcodeInput").value.trim();
       if (!document.getElementById("addressInput").value.trim()) await resolveListingPostcode(postcode);
-      if (!document.getElementById("addressInput").value.trim()) {
+      if (!document.getElementById("addressInput").value.trim() || !document.getElementById("estateInput").value.trim()) {
         showToast("Enter a valid postal code to find the address");
         return;
       }
@@ -5373,10 +5476,7 @@
           });
           if (!response.ok) throw new Error(`API returned ${response.status}`);
           await response.json().catch(() => ({}));
-          showToast("Listing published to Neon");
-        } catch (apiError) {
-          showToast("Listing added locally; API save needs a retry");
-        }
+        } catch (apiError) {}
 
         const existingOwnedIndex = userListings.findIndex((item) => item.title === (editingListingTitle || newListing.title));
         if (existingOwnedIndex >= 0) userListings.splice(existingOwnedIndex, 1);
@@ -5387,6 +5487,7 @@
         listings = mergeUserListings(listings.filter((item) => item.title !== newListing.title));
         renderListings();
         setView("listed");
+        showToast("Successfully published");
       } catch (error) {
         showToast(error instanceof Error ? error.message : "Unable to publish listing");
       } finally {
