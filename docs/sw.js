@@ -1,4 +1,4 @@
-const CACHE_NAME = "leasekaki-pwa-v41";
+const CACHE_NAME = "leasekaki-pwa-v42";
 const CORE_ASSETS = [
   "./",
   "./index.html",

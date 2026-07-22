@@ -1403,21 +1403,24 @@
     @keyframes ai-draft-breathe { 0%, 100% { background-position: 0% 50%; box-shadow: 0 6px 18px rgba(45, 112, 150, .24); } 50% { background-position: 100% 50%; box-shadow: 0 10px 28px rgba(128, 91, 217, .42); } }
     .listing-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .listing-workflow input, .listing-workflow textarea, .listing-workflow select { font-weight: 400; }
-    .rent-card { gap: 6px; background: var(--ink); border-color: rgba(255, 253, 248, .14); }
-    .rent-card .eyebrow, .rent-card strong, .rent-card small { color: rgba(255, 253, 248, .72); }
-    .rent-card strong { font-weight: 500; }
-    .rent-histogram { min-height: 86px; padding: 6px; border: 1px solid rgba(255, 253, 248, .14); border-radius: 10px; background: rgba(255, 253, 248, .08); overflow: hidden; }
-    .rent-histogram canvas { display: block; width: 100%; height: 72px; }
-    .rent-slider-row { display: block; height: 18px; padding: 7px 2px 8px; }
-    #rentSlider { width: 100%; height: 3px; border-radius: 999px; appearance: none; background: var(--line); }
-    #rentSlider::-webkit-slider-thumb { width: 18px; height: 18px; border: 2px solid var(--paper); border-radius: 50%; appearance: none; background: var(--coral); box-shadow: 0 1px 5px rgba(16, 43, 54, .22); }
-    #rentSlider::-moz-range-thumb { width: 14px; height: 14px; border: 2px solid var(--paper); border-radius: 50%; background: var(--coral); box-shadow: 0 1px 5px rgba(16, 43, 54, .22); }
-    .description-card.active { height: calc(100dvh - 132px); min-height: 430px; gap: 5px; grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
-    .description-card label:has(#descriptionInput) { min-height: 0; }
-    .description-card #descriptionInput { height: 100%; min-height: 0; resize: none; overflow-y: auto; }
-    .description-card #whoThisSuitsInput { min-height: 62px; }
-    .description-card label { gap: 5px; }
-    .description-card .ai-assist-actions { margin-bottom: 20px; }
+    .rent-card { gap: 6px; background: var(--cream); border-color: var(--line); }
+    .rent-card .eyebrow { color: var(--muted); }
+    .rent-card strong { color: var(--ink); font-weight: 500; }
+    .rent-price-control { position: relative; height: 104px; margin-top: 2px; }
+    .rent-histogram { position: absolute; inset: 0; overflow: hidden; }
+    .rent-histogram canvas { display: block; width: 100%; height: 100%; }
+    #rentSlider { position: absolute; z-index: 2; right: 0; bottom: 2px; left: 0; width: 100%; height: 24px; appearance: none; background: transparent; }
+    #rentSlider::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: transparent; }
+    #rentSlider::-webkit-slider-thumb { width: 28px; height: 28px; margin-top: -12px; border: 3px solid var(--paper); border-radius: 50%; appearance: none; background: var(--coral); box-shadow: 0 1px 5px rgba(16, 43, 54, .28); }
+    #rentSlider::-moz-range-track { height: 4px; border-radius: 999px; background: transparent; }
+    #rentSlider::-moz-range-thumb { width: 22px; height: 22px; border: 3px solid var(--paper); border-radius: 50%; background: var(--coral); box-shadow: 0 1px 5px rgba(16, 43, 54, .28); }
+    .description-card.active { height: calc(100dvh - 126px); min-height: 420px; gap: 12px; grid-template-rows: auto minmax(0, 1fr) auto auto; }
+    .description-card .ai-assist-actions { margin: 0; }
+    .description-form { display: grid; min-height: 0; gap: 12px; grid-template-rows: auto minmax(0, 1fr); }
+    .description-form label { gap: 6px; }
+    .description-form #whoThisSuitsInput { min-height: 44px; }
+    .description-editor { min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto; }
+    .description-editor #descriptionInput { height: 100%; min-height: 0; resize: none; overflow-y: auto; }
     .button.final-publish { background: var(--ink); color: var(--paper); }
     .detail-owner-actions { position: fixed; z-index: 46; top: calc(5dvh + 10px); left: 16px; right: 16px; display: flex; justify-content: center; gap: 8px; }
     .detail-owner-actions .button { min-height: 36px; }
@@ -2318,18 +2321,19 @@
                 <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT" maxlength="42"></label>
                 <label>Asking rent<span class="currency-field"><span>$</span><input id="rentInput" type="number" value="3750" min="500" step="100"></span></label>
               </div>
-              <div class="rent-slider-row"><input id="rentSlider" type="range" min="500" max="10000" step="100" value="3800" aria-label="Adjust asking rent"></div>
               <aside class="rent-card">
                 <span class="eyebrow">Suggested asking rent</span>
                 <strong id="rentGuide">$3,650-$3,900</strong>
-                <div id="rentHistogram" class="rent-histogram" aria-label="Nearby transactions of similar size"></div>
+                <div class="rent-price-control"><div id="rentHistogram" class="rent-histogram" aria-label="Nearby transactions of similar size"></div><input id="rentSlider" type="range" min="500" max="10000" step="100" value="3800" aria-label="Adjust asking rent"></div>
               </aside>
               <div class="listing-actions"><button class="button secondary" type="button" data-listing-back>Back</button><button id="continueDescription" class="button coral" type="button">Continue</button></div>
             </section>
             <section class="draft-card description-card" data-draft-card="description">
               <div class="ai-assist-actions"><button id="aiPolishButton" class="ai-draft-button" type="button">AI draft</button></div>
-              <label>Who this suits<textarea id="whoThisSuitsInput" maxlength="180" placeholder="Who would feel at home here?"></textarea></label>
-              <label>Description<textarea id="descriptionInput" maxlength="850" placeholder="Write your description"></textarea><span class="form-hint-row"><span>Up to 100 words.</span><span id="descriptionCount">0 words</span></span></label>
+              <div class="description-form">
+                <label>Who this suits<input id="whoThisSuitsInput" maxlength="180" placeholder="Who would feel at home here?"></label>
+                <label class="description-editor">Description<textarea id="descriptionInput" maxlength="850" placeholder="Write your description"></textarea><span class="form-hint-row"><span>Up to 100 words.</span><span id="descriptionCount">0 words</span></span></label>
+              </div>
               <div class="listing-actions"><button class="button secondary" type="button" data-listing-back>Back</button><button class="button coral" type="button" data-preview-detail>Preview</button></div>
               <button class="button final-publish full" type="button" data-publish>Publish</button>
             </section>
@@ -3986,29 +3990,23 @@
       const guideMid = Math.round((average * roomAdjustment * furnishAdjustment) / 50) * 50;
       const low = Math.max(500, Math.round((guideMid * 0.94) / 50) * 50);
       const high = Math.round((guideMid * 1.06) / 50) * 50;
+      const sliderMin = Math.max(500, Math.floor((guideMid * .5) / 100) * 100);
+      const sliderMax = Math.ceil((guideMid * 2) / 100) * 100;
       if (rentGuide) rentGuide.textContent = `$${low.toLocaleString()}-$${high.toLocaleString()}`;
-      if (rentHistogram) renderRentHistogram(sample, low, high);
+      if (rentHistogram) renderRentHistogram(sample, low, high, sliderMin, sliderMax);
       if (rentSlider) {
-        const sliderMin = Math.max(500, Math.floor((guideMid * .5) / 100) * 100);
-        const sliderMax = Math.ceil((guideMid * 2) / 100) * 100;
         rentSlider.min = String(sliderMin);
         rentSlider.max = String(sliderMax);
         const value = Number(document.getElementById("rentInput")?.value || guideMid);
         rentSlider.value = String(Math.max(sliderMin, Math.min(sliderMax, Math.round(value / 100) * 100)));
-        const start = Math.max(0, Math.min(100, ((low - sliderMin) / (sliderMax - sliderMin)) * 100));
-        const end = Math.max(0, Math.min(100, ((high - sliderMin) / (sliderMax - sliderMin)) * 100));
-        const tickStep = 100 / Math.max(1, (sliderMax - sliderMin) / 100);
-        rentSlider.style.background = `radial-gradient(circle, rgba(16, 43, 54, .42) 1px, transparent 1.4px) 0 50% / ${tickStep}% 3px repeat-x, linear-gradient(to right, var(--line) 0 ${start}%, rgba(255, 123, 93, .72) ${start}% ${end}%, var(--line) ${end}% 100%)`;
       }
       if (rentConfidence) rentConfidence.textContent = sample.length >= 6 ? "Medium-high confidence" : "Medium confidence";
       return { low, high, guideMid };
     }
 
-    function renderRentHistogram(sample, low, high) {
+    function renderRentHistogram(sample, low, high, min, max) {
       const values = sample.map((item) => Number(item.price || 0)).filter(Number.isFinite);
       if (!values.length) return;
-      const min = Math.min(...values, low);
-      const max = Math.max(...values, high);
       const bins = Array.from({ length: 18 }, () => 0);
       values.forEach((value) => {
         const index = Math.max(0, Math.min(bins.length - 1, Math.floor(((value - min) / Math.max(1, max - min)) * bins.length)));
@@ -4020,12 +4018,19 @@
       const peak = Math.max(...bins, 1);
       const gap = 3;
       const barWidth = (width - gap * (bins.length - 1)) / bins.length;
+      const baseline = height - 14;
       context.clearRect(0, 0, width, height);
+      context.strokeStyle = "rgba(16, 43, 54, .2)";
+      context.lineWidth = 3;
+      context.beginPath();
+      context.moveTo(0, baseline);
+      context.lineTo(width, baseline);
+      context.stroke();
       bins.forEach((count, index) => {
         const price = min + ((index + .5) / bins.length) * (max - min);
-        const barHeight = Math.max(3, (count / peak) * (height - 4));
-        context.fillStyle = price >= low && price <= high ? "#ff735f" : "rgba(255, 253, 248, .36)";
-        context.fillRect(index * (barWidth + gap), height - barHeight, barWidth, barHeight);
+        const barHeight = Math.max(3, (count / peak) * (baseline - 5));
+        context.fillStyle = price >= low && price <= high ? "#ff735f" : "rgba(16, 43, 54, .34)";
+        context.fillRect(index * (barWidth + gap), baseline - barHeight, barWidth, barHeight);
       });
     }
 
