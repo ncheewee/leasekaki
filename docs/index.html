@@ -1134,6 +1134,7 @@
       box-shadow: 0 8px 20px rgba(16, 43, 54, .05);
     }
     .choice-card:hover, .choice-card:focus-visible { border-color: var(--coral); transform: translateY(-1px); }
+    .choice-card.selected { border-color: var(--coral); background: rgba(255, 123, 93, .1); box-shadow: inset 0 0 0 1px rgba(255, 123, 93, .28); }
     .choice-card strong { font-size: 17px; }
     .choice-card span { color: var(--ink-soft); font-size: 13px; line-height: 1.35; }
     .muted-choice { background: var(--cream); }
@@ -1398,7 +1399,7 @@
     .currency-field span { position: absolute; z-index: 1; top: 50%; left: 14px; transform: translateY(-50%); color: var(--muted); font-weight: 900; pointer-events: none; }
     .currency-field input { padding-left: 30px; }
     .ai-assist-actions { display: flex; justify-content: center; }
-    .ai-draft-button { min-width: 230px; min-height: 58px; border: 0; border-radius: 999px; background: linear-gradient(100deg, #2788e6, #805bd9, #e867a0, #ef9858, #3a9ee4); background-size: 220% 100%; color: var(--paper); box-shadow: 0 6px 18px rgba(45, 112, 150, .24); font-size: 16px; font-weight: 900; animation: ai-draft-breathe 2.4s ease-in-out infinite; }
+    .ai-draft-button { min-width: 186px; min-height: 46px; border: 0; border-radius: 999px; background: linear-gradient(100deg, #2788e6, #805bd9, #e867a0, #ef9858, #3a9ee4); background-size: 220% 100%; color: var(--paper); box-shadow: 0 6px 18px rgba(45, 112, 150, .24); font-size: 14px; font-weight: 800; animation: ai-draft-breathe 2.4s ease-in-out infinite; }
     @keyframes ai-draft-breathe { 0%, 100% { background-position: 0% 50%; box-shadow: 0 6px 18px rgba(45, 112, 150, .24); } 50% { background-position: 100% 50%; box-shadow: 0 10px 28px rgba(128, 91, 217, .42); } }
     .listing-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .listing-workflow input, .listing-workflow textarea, .listing-workflow select { font-weight: 400; }
@@ -1407,17 +1408,19 @@
     .rent-card strong { font-weight: 500; }
     .rent-scatter { min-height: 118px; padding: 6px; border: 1px solid rgba(255, 253, 248, .14); border-radius: 10px; background: rgba(255, 253, 248, .08); overflow: hidden; }
     .rent-scatter canvas { display: block; width: 100%; height: 104px; }
-    .rent-slider-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .rent-slider-row { display: block; height: 18px; padding: 7px 2px 8px; }
     #rentSlider { width: 100%; height: 3px; border-radius: 999px; appearance: none; background: var(--line); }
     #rentSlider::-webkit-slider-thumb { width: 18px; height: 18px; border: 2px solid var(--paper); border-radius: 50%; appearance: none; background: var(--coral); box-shadow: 0 1px 5px rgba(16, 43, 54, .22); }
     #rentSlider::-moz-range-thumb { width: 14px; height: 14px; border: 2px solid var(--paper); border-radius: 50%; background: var(--coral); box-shadow: 0 1px 5px rgba(16, 43, 54, .22); }
-    .description-card.active { height: calc(100dvh - 132px); min-height: 460px; gap: 8px; grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
+    .description-card.active { height: calc(100dvh - 132px); min-height: 430px; gap: 5px; grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
     .description-card label:has(#descriptionInput) { min-height: 0; }
     .description-card #descriptionInput { height: 100%; min-height: 0; resize: none; overflow-y: auto; }
-    .button.final-publish { background: var(--mint-deep); color: var(--paper); }
-    .detail-owner-actions { position: fixed; z-index: 46; top: calc(5dvh + 10px); left: calc(5vw + 10px); display: flex; gap: 8px; }
+    .description-card #whoThisSuitsInput { min-height: 62px; }
+    .button.final-publish { background: var(--ink); color: var(--paper); }
+    .detail-owner-actions { position: fixed; z-index: 46; top: calc(5dvh + 10px); left: 16px; right: 16px; display: flex; justify-content: center; gap: 8px; }
     .detail-owner-actions .button { min-height: 36px; }
     .detail-owner-actions .delete-listing { color: var(--bad); border-color: rgba(202, 76, 67, .35); }
+    .detail-backdrop:has(.detail-owner-actions:not(.hidden)) .detail-sheet { height: min(80dvh, 680px); max-height: 80dvh; margin-top: 72px; }
     #descriptionInput { min-height: 0; }
     .draft-card { display: none; gap: 16px; }
     .draft-card.active { display: grid; }
@@ -2313,7 +2316,7 @@
                 <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT" maxlength="42"></label>
                 <label>Asking rent<span class="currency-field"><span>$</span><input id="rentInput" type="number" value="3750" min="500" step="100"></span></label>
               </div>
-              <div class="rent-slider-row"><span>Adjust rent</span><input id="rentSlider" type="range" min="500" max="10000" step="100" value="3800" aria-label="Adjust asking rent"></div>
+              <div class="rent-slider-row"><input id="rentSlider" type="range" min="500" max="10000" step="100" value="3800" aria-label="Adjust asking rent"></div>
               <aside class="rent-card">
                 <span class="eyebrow">Suggested asking rent</span>
                 <strong id="rentGuide">$3,650-$3,900</strong>
@@ -3755,6 +3758,7 @@
 
     function setVerificationQuestion(role) {
       const isOwner = role === "owner";
+      document.querySelectorAll("[data-role-choice]").forEach((button) => button.classList.toggle("selected", button.dataset.roleChoice === role));
       document.getElementById("verificationEyebrow").textContent = isOwner ? "Trust check" : "Authorisation check";
       document.getElementById("verificationTitle").textContent = isOwner ? "Verify that you own this home" : "Confirm you are authorised to list it";
       document.getElementById("verificationCopy").textContent = isOwner
@@ -3980,11 +3984,16 @@
       if (rentGuide) rentGuide.textContent = `$${low.toLocaleString()}-$${high.toLocaleString()}`;
       if (rentScatter) renderRentScatter(sample, guideMid);
       if (rentSlider) {
+        const sliderMin = Math.max(500, Math.floor((guideMid * .5) / 100) * 100);
+        const sliderMax = Math.ceil((guideMid * 2) / 100) * 100;
+        rentSlider.min = String(sliderMin);
+        rentSlider.max = String(sliderMax);
         const value = Number(document.getElementById("rentInput")?.value || guideMid);
-        rentSlider.value = String(Math.max(Number(rentSlider.min), Math.min(Number(rentSlider.max), Math.round(value / 100) * 100)));
-        const start = Math.max(0, Math.min(100, ((low - Number(rentSlider.min)) / (Number(rentSlider.max) - Number(rentSlider.min))) * 100));
-        const end = Math.max(0, Math.min(100, ((high - Number(rentSlider.min)) / (Number(rentSlider.max) - Number(rentSlider.min))) * 100));
-        rentSlider.style.background = `linear-gradient(to right, var(--line) 0 ${start}%, rgba(255, 123, 93, .42) ${start}% ${end}%, var(--line) ${end}% 100%)`;
+        rentSlider.value = String(Math.max(sliderMin, Math.min(sliderMax, Math.round(value / 100) * 100)));
+        const start = Math.max(0, Math.min(100, ((low - sliderMin) / (sliderMax - sliderMin)) * 100));
+        const end = Math.max(0, Math.min(100, ((high - sliderMin) / (sliderMax - sliderMin)) * 100));
+        const tickStep = 100 / Math.max(1, (sliderMax - sliderMin) / 100);
+        rentSlider.style.background = `radial-gradient(circle, rgba(16, 43, 54, .42) 1px, transparent 1.4px) 0 50% / ${tickStep}% 3px repeat-x, linear-gradient(to right, var(--line) 0 ${start}%, rgba(255, 123, 93, .72) ${start}% ${end}%, var(--line) ${end}% 100%)`;
       }
       if (rentConfidence) rentConfidence.textContent = sample.length >= 6 ? "Medium-high confidence" : "Medium confidence";
       return { low, high, guideMid };
@@ -4062,7 +4071,19 @@
       return capWords(`${furnishing} ${type} at ${address} with ${rooms} room${rooms === 1 ? "" : "s"} and ${toilets} toilet${toilets === 1 ? "" : "s"}. The home is positioned for tenants comparing value in ${estate}, with enough detail to judge layout, move-in timing and daily convenience before arranging a viewing. ${availability}. Chat can confirm owner preferences, lease start flexibility and any final paperwork requirements.`, 100);
     }
 
-    function polishListingDraft() {
+    async function polishListingDraft() {
+      const button = document.getElementById("aiPolishButton");
+      if (button.disabled) return;
+      button.disabled = true;
+      const states = ["Pondering...", "Curating...", "Drafting..."];
+      let stateIndex = 0;
+      button.textContent = states[stateIndex];
+      const timer = window.setInterval(() => {
+        stateIndex = (stateIndex + 1) % states.length;
+        button.textContent = states[stateIndex];
+      }, 900);
+      await new Promise((resolve) => window.setTimeout(resolve, 3000));
+      window.clearInterval(timer);
       const type = document.getElementById("typeInput")?.value || "HDB";
       const mode = document.getElementById("modeInput")?.value || "Whole unit";
       const estate = document.getElementById("estateInput")?.value.trim() || "Singapore";
@@ -4076,7 +4097,9 @@
         : "A couple, small family or sharers who want a practical whole-home move-in.";
       document.getElementById("descriptionInput").value = aiDraftDescription();
       refreshListingPreview();
-      showToast("AI draft refreshed for review");
+      button.disabled = false;
+      button.textContent = "AI draft";
+      showToast("AI draft ready for review");
     }
 
     function fillWorkflowFromListing(item) {
