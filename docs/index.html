@@ -1363,14 +1363,14 @@
     .owned-listing img { width: 72px; height: 62px; border-radius: 7px; object-fit: cover; background: var(--cream); }
     .owned-listing strong { display: block; font-size: 14px; line-height: 1.25; }
     .owned-listing small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 750; }
-    .selected-photo-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .selected-photo-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .selected-photo { position: relative; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; transition: transform .18s ease; }
     .selected-photo.dragging { opacity: .35; outline: 2px solid var(--mint-deep); outline-offset: 2px; }
     .selected-photo img { width: 100%; height: 100%; object-fit: cover; }
     .photo-drag-ghost { position: fixed; z-index: 90; width: 92px; aspect-ratio: 1; overflow: hidden; border: 2px solid var(--paper); border-radius: 10px; box-shadow: 0 12px 28px rgba(16, 43, 54, .32); pointer-events: none; transform: translate(-50%, -50%) rotate(3deg) scale(1.05); }
     .photo-drag-ghost img { width: 100%; height: 100%; object-fit: cover; }
     .photo-remove { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: rgba(16, 43, 54, .84); color: var(--paper); font-size: 17px; line-height: 1; }
-    .photo-drop { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .photo-drop { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .photo-drop input { position: absolute; opacity: 0; pointer-events: none; }
     .photo-slot, .photo-add { display: grid; min-height: 68px; place-items: center; border: 2px dashed rgba(16, 43, 54, .22); border-radius: 8px; color: var(--muted); background: var(--cream); }
     .photo-slot:first-of-type::after { content: "+"; font-size: 24px; color: var(--mint-deep); }
@@ -1406,8 +1406,8 @@
     .rent-card { gap: 6px; background: var(--ink); border-color: rgba(255, 253, 248, .14); }
     .rent-card .eyebrow, .rent-card strong, .rent-card small { color: rgba(255, 253, 248, .72); }
     .rent-card strong { font-weight: 500; }
-    .rent-scatter { min-height: 118px; padding: 6px; border: 1px solid rgba(255, 253, 248, .14); border-radius: 10px; background: rgba(255, 253, 248, .08); overflow: hidden; }
-    .rent-scatter canvas { display: block; width: 100%; height: 104px; }
+    .rent-histogram { min-height: 86px; padding: 6px; border: 1px solid rgba(255, 253, 248, .14); border-radius: 10px; background: rgba(255, 253, 248, .08); overflow: hidden; }
+    .rent-histogram canvas { display: block; width: 100%; height: 72px; }
     .rent-slider-row { display: block; height: 18px; padding: 7px 2px 8px; }
     #rentSlider { width: 100%; height: 3px; border-radius: 999px; appearance: none; background: var(--line); }
     #rentSlider::-webkit-slider-thumb { width: 18px; height: 18px; border: 2px solid var(--paper); border-radius: 50%; appearance: none; background: var(--coral); box-shadow: 0 1px 5px rgba(16, 43, 54, .22); }
@@ -1416,6 +1416,8 @@
     .description-card label:has(#descriptionInput) { min-height: 0; }
     .description-card #descriptionInput { height: 100%; min-height: 0; resize: none; overflow-y: auto; }
     .description-card #whoThisSuitsInput { min-height: 62px; }
+    .description-card label { gap: 5px; }
+    .description-card .ai-assist-actions { margin-bottom: 20px; }
     .button.final-publish { background: var(--ink); color: var(--paper); }
     .detail-owner-actions { position: fixed; z-index: 46; top: calc(5dvh + 10px); left: 16px; right: 16px; display: flex; justify-content: center; gap: 8px; }
     .detail-owner-actions .button { min-height: 36px; }
@@ -2246,7 +2248,7 @@
         <div class="listing-workflow">
           <button id="listingExit" class="listing-exit" type="button" aria-label="Exit listing">×</button>
           <section id="captureStep" class="panel workflow-panel">
-            <input id="listerInput" type="hidden" value="owner">
+            <input id="listerInput" type="hidden" value="">
             <input id="verificationInput" type="hidden" value="">
             <div class="listing-card-flow">
               <section class="listing-question active" data-listing-card="role">
@@ -2273,7 +2275,7 @@
                 <h2>Photos</h2>
                 <label id="photoDrop" class="photo-drop">
                   <input id="photos" type="file" accept="image/*" multiple>
-                  <span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span>
+                  <span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span><span class="photo-slot" aria-hidden="true"></span>
                 </label>
                 <div id="selectedPhotoGrid" class="selected-photo-grid" aria-label="Selected property photos"></div>
                 <p class="photo-reorder-hint">Tap and hold a photo, then drag it to reorder.</p>
@@ -2320,7 +2322,7 @@
               <aside class="rent-card">
                 <span class="eyebrow">Suggested asking rent</span>
                 <strong id="rentGuide">$3,650-$3,900</strong>
-                <div id="rentScatter" class="rent-scatter" aria-label="Comparable rental prices"></div>
+                <div id="rentHistogram" class="rent-histogram" aria-label="Nearby transactions of similar size"></div>
               </aside>
               <div class="listing-actions"><button class="button secondary" type="button" data-listing-back>Back</button><button id="continueDescription" class="button coral" type="button">Continue</button></div>
             </section>
@@ -2561,12 +2563,13 @@
     const publishButton = document.querySelector("[data-publish]");
     const listingPreview = document.getElementById("listingPreview");
     const rentGuide = document.getElementById("rentGuide");
-    const rentScatter = document.getElementById("rentScatter");
+    const rentHistogram = document.getElementById("rentHistogram");
     const rentSlider = document.getElementById("rentSlider");
     const detailOwnerActions = document.getElementById("detailOwnerActions");
     const rentConfidence = document.getElementById("rentConfidence");
     const descriptionCount = document.getElementById("descriptionCount");
     let selectedListing = null;
+    let isDraftPreview = false;
     let pendingConfirmation = null;
     let currentView = "browse";
     let editingListingTitle = "";
@@ -3470,8 +3473,9 @@
       detailSheet.scrollTop = 0;
     }
 
-    function openListingDetail(item) {
+    function openListingDetail(item, draftPreview = false) {
       selectedListing = item;
+      isDraftPreview = draftPreview;
       resetDetailScroll();
       document.getElementById("detailCarousel").innerHTML = renderPhotoTrack(item);
       document.getElementById("detailPhotoDots").innerHTML = renderPhotoDots(item);
@@ -3485,6 +3489,7 @@
       document.getElementById("detailModeRow").innerHTML = `<span class="mode-pill ${modeClass(item)}">${escapeHtml(item.mode)}</span>`;
       document.getElementById("detailCopy").innerHTML = detailRichCopy(item);
       detailOwnerActions.classList.toggle("hidden", !userListings.some((listing) => listing.title === item.title));
+      document.getElementById("detailChat").textContent = draftPreview ? "Publish" : "Chat";
       renderPriceInsights(item);
       renderDetailMap(item);
       detailBackdrop.classList.add("open");
@@ -3859,7 +3864,7 @@
           <img src="${escapeHtml(photo)}" alt="Selected property photo ${index + 1}">
           <button class="photo-remove" type="button" data-remove-photo-index="${index}" aria-label="Remove photo ${index + 1}">×</button>
         </div>
-      `).join("") + (selectedListingPhotos.length && selectedListingPhotos.length < 4 ? `<label class="selected-photo photo-add" for="photos" aria-label="Add another photo">+</label>` : "");
+      `).join("") + (selectedListingPhotos.length && selectedListingPhotos.length < 6 ? `<label class="selected-photo photo-add" for="photos" aria-label="Add another photo">+</label>` : "");
       target.querySelectorAll("[data-remove-photo-index]").forEach((button) => {
         button.addEventListener("click", () => {
           selectedListingPhotos.splice(Number(button.dataset.removePhotoIndex), 1);
@@ -3942,7 +3947,7 @@
     }
 
     async function captureSelectedListingPhotos(fileList) {
-      const slotsRemaining = Math.max(0, 4 - selectedListingPhotos.length);
+      const slotsRemaining = Math.max(0, 6 - selectedListingPhotos.length);
       const files = Array.from(fileList || []).slice(0, slotsRemaining);
       setListingPhotoSummary(files);
       if (!files.length) {
@@ -3982,7 +3987,7 @@
       const low = Math.max(500, Math.round((guideMid * 0.94) / 50) * 50);
       const high = Math.round((guideMid * 1.06) / 50) * 50;
       if (rentGuide) rentGuide.textContent = `$${low.toLocaleString()}-$${high.toLocaleString()}`;
-      if (rentScatter) renderRentScatter(sample, guideMid);
+      if (rentHistogram) renderRentHistogram(sample, low, high);
       if (rentSlider) {
         const sliderMin = Math.max(500, Math.floor((guideMid * .5) / 100) * 100);
         const sliderMax = Math.ceil((guideMid * 2) / 100) * 100;
@@ -3999,40 +4004,29 @@
       return { low, high, guideMid };
     }
 
-    function renderRentScatter(sample, median) {
-      const comps = sample.slice(0, 48).map((item, index) => ({ rent: Number(item.price || 0), size: 48 + (Number(item.rooms) || (index % 4) + 2) * 18 + (index % 3) * 5 })).filter((point) => Number.isFinite(point.rent));
-      const selectedSize = 48 + roomsForListing(document.getElementById("modeInput")?.value || "Whole unit") * 18;
-      const rents = comps.map((point) => point.rent).concat(median);
-      const sizes = comps.map((point) => point.size).concat(selectedSize);
-      const minRent = Math.min(...rents);
-      const maxRent = Math.max(...rents);
-      const minSize = Math.min(...sizes);
-      const maxSize = Math.max(...sizes);
-      rentScatter.innerHTML = "<canvas aria-hidden=\"true\"></canvas>";
-      const canvas = rentScatter.querySelector("canvas");
+    function renderRentHistogram(sample, low, high) {
+      const values = sample.map((item) => Number(item.price || 0)).filter(Number.isFinite);
+      if (!values.length) return;
+      const min = Math.min(...values, low);
+      const max = Math.max(...values, high);
+      const bins = Array.from({ length: 18 }, () => 0);
+      values.forEach((value) => {
+        const index = Math.max(0, Math.min(bins.length - 1, Math.floor(((value - min) / Math.max(1, max - min)) * bins.length)));
+        bins[index] += 1;
+      });
+      rentHistogram.innerHTML = "<canvas aria-hidden=\"true\"></canvas>";
+      const canvas = rentHistogram.querySelector("canvas");
       const { context, width, height } = prepareCanvas(canvas);
-      const margins = { top: 16, right: 12, bottom: 28, left: 42 };
-      const plotWidth = width - margins.left - margins.right;
-      const plotHeight = height - margins.top - margins.bottom;
-      const xFor = (size) => margins.left + ((size - minSize) / Math.max(1, maxSize - minSize)) * plotWidth;
-      const yFor = (rent) => margins.top + (1 - (rent - minRent) / Math.max(1, maxRent - minRent)) * plotHeight;
+      const peak = Math.max(...bins, 1);
+      const gap = 3;
+      const barWidth = (width - gap * (bins.length - 1)) / bins.length;
       context.clearRect(0, 0, width, height);
-      context.font = "10px Nunito Sans, Avenir Next, Helvetica Neue, Arial, sans-serif";
-      context.strokeStyle = "rgba(255, 253, 248, .16)";
-      context.fillStyle = "rgba(255, 253, 248, .76)";
-      for (let index = 0; index <= 3; index += 1) {
-        const y = margins.top + (plotHeight / 3) * index;
-        context.beginPath(); context.moveTo(margins.left, y); context.lineTo(width - margins.right, y); context.stroke();
-      }
-      context.textAlign = "right";
-      context.fillText(moneyAxis(maxRent), margins.left - 7, margins.top + 4);
-      context.fillText(moneyAxis(minRent), margins.left - 7, height - margins.bottom);
-      context.textAlign = "left";
-      context.fillText(`${Math.round(minSize)}sqm`, margins.left, height - 6);
-      context.textAlign = "right";
-      context.fillText(`${Math.round(maxSize)}sqm`, width - margins.right, height - 6);
-      comps.forEach((point) => { context.beginPath(); context.fillStyle = "rgba(187, 241, 209, .58)"; context.arc(xFor(point.size), yFor(point.rent), 3, 0, Math.PI * 2); context.fill(); });
-      context.beginPath(); context.fillStyle = "#ff735f"; context.strokeStyle = "#fffdf8"; context.lineWidth = 2; context.arc(xFor(selectedSize), yFor(median), 5.5, 0, Math.PI * 2); context.fill(); context.stroke();
+      bins.forEach((count, index) => {
+        const price = min + ((index + .5) / bins.length) * (max - min);
+        const barHeight = Math.max(3, (count / peak) * (height - 4));
+        context.fillStyle = price >= low && price <= high ? "#ff735f" : "rgba(255, 253, 248, .36)";
+        context.fillRect(index * (barWidth + gap), height - barHeight, barWidth, barHeight);
+      });
     }
 
     function refreshListingPreview() {
@@ -4149,14 +4143,14 @@
       } else {
         editingListingTitle = "";
         selectedListingPhotos = [];
-        document.getElementById("listerInput").value = "owner";
+        document.getElementById("listerInput").value = "";
         document.getElementById("verificationInput").value = "";
         document.getElementById("postcodeInput").value = "";
         document.getElementById("addressInput").value = "";
         document.getElementById("estateInput").value = "";
         document.getElementById("availableInput").value = "";
         document.getElementById("whoThisSuitsInput").value = "";
-        setVerificationQuestion("owner");
+        setVerificationQuestion("");
         setListingCard("role");
         setListingPhotoSummary();
         syncAvailabilityPicker();
@@ -5530,7 +5524,7 @@
       try {
         const draft = currentDraftListing();
         setWorkflowStep("approve");
-        openListingDetail(draft);
+        openListingDetail(draft, true);
       } catch (error) {
         showToast(error instanceof Error ? error.message : "Complete required fields first");
       }
@@ -5538,6 +5532,7 @@
 
     publishButton.addEventListener("click", async () => {
       try {
+        isDraftPreview = false;
         const payload = buildListingPayload();
         publishButton.disabled = true;
         publishButton.textContent = "Publishing...";
@@ -5591,6 +5586,11 @@
       if (event.key === "Escape" && chatWindow.classList.contains("open")) closeChat();
     });
     document.getElementById("detailChat").addEventListener("click", () => {
+      if (isDraftPreview) {
+        closeListingDetail(true);
+        publishButton.click();
+        return;
+      }
       if (selectedListing) openChat(selectedListing);
     });
     document.getElementById("chatClose").addEventListener("click", closeChat);
