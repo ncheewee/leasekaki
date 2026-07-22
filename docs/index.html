@@ -1376,10 +1376,10 @@
     .photo-add { border-style: dashed; font-size: 24px; cursor: pointer; }
     .photo-reorder-hint { margin: -4px 0 0; color: var(--muted); font-size: 12px; }
     .tap-stepper { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; min-height: 56px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--paper); }
-    .tap-stepper button { height: 100%; border: 0; background: var(--cream); color: var(--mint-deep); font-size: 24px; font-weight: 800; }
-    .tap-stepper output { text-align: center; color: var(--ink); font-size: 20px; font-weight: 900; }
+    .tap-stepper button { height: 100%; border: 0; background: var(--cream); color: var(--mint-deep); font-size: 20px; font-weight: 700; }
+    .tap-stepper output { text-align: center; color: var(--ink); font-size: 16px; font-weight: 600; }
     .date-picker-trigger { display: flex; align-items: center; justify-content: center; min-height: 56px; width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; background: var(--paper); color: var(--coral); font: inherit; font-weight: 850; }
-    .date-picker-trigger.has-value { justify-content: space-between; }
+    .date-picker-trigger.has-value { justify-content: space-between; color: var(--ink); }
     .date-picker-trigger.has-value::after { content: "Change"; color: var(--coral); font-size: 12px; }
     .availability-picker { display: grid; gap: 10px; margin-top: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--cream); }
     .availability-picker.hidden { display: none; }
@@ -1402,22 +1402,23 @@
     @keyframes ai-draft-breathe { 0%, 100% { background-position: 0% 50%; box-shadow: 0 6px 18px rgba(45, 112, 150, .24); } 50% { background-position: 100% 50%; box-shadow: 0 10px 28px rgba(128, 91, 217, .42); } }
     .listing-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .listing-workflow input, .listing-workflow textarea, .listing-workflow select { font-weight: 400; }
-    .rent-card { gap: 8px; background: var(--ink); border-color: rgba(255, 253, 248, .14); }
+    .rent-card { gap: 6px; background: var(--ink); border-color: rgba(255, 253, 248, .14); }
     .rent-card .eyebrow, .rent-card strong, .rent-card small { color: rgba(255, 253, 248, .72); }
     .rent-card strong { font-weight: 500; }
-    .rent-scatter { min-height: 164px; padding: 8px; border: 1px solid rgba(255, 253, 248, .14); border-radius: 10px; background: rgba(255, 253, 248, .08); overflow: hidden; }
-    .rent-scatter canvas { display: block; width: 100%; height: 148px; }
-    .rent-slider-label { display: grid; gap: 7px; }
-    #rentSlider { width: 100%; accent-color: var(--coral); }
-    .description-card.active { height: calc(100dvh - 156px); min-height: 520px; grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
+    .rent-scatter { min-height: 118px; padding: 6px; border: 1px solid rgba(255, 253, 248, .14); border-radius: 10px; background: rgba(255, 253, 248, .08); overflow: hidden; }
+    .rent-scatter canvas { display: block; width: 100%; height: 104px; }
+    .rent-slider-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; color: var(--muted); font-size: 12px; font-weight: 700; }
+    #rentSlider { width: 100%; height: 3px; border-radius: 999px; appearance: none; background: var(--line); }
+    #rentSlider::-webkit-slider-thumb { width: 18px; height: 18px; border: 2px solid var(--paper); border-radius: 50%; appearance: none; background: var(--coral); box-shadow: 0 1px 5px rgba(16, 43, 54, .22); }
+    #rentSlider::-moz-range-thumb { width: 14px; height: 14px; border: 2px solid var(--paper); border-radius: 50%; background: var(--coral); box-shadow: 0 1px 5px rgba(16, 43, 54, .22); }
+    .description-card.active { height: calc(100dvh - 132px); min-height: 460px; gap: 8px; grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
     .description-card label:has(#descriptionInput) { min-height: 0; }
     .description-card #descriptionInput { height: 100%; min-height: 0; resize: none; overflow-y: auto; }
     .button.final-publish { background: var(--mint-deep); color: var(--paper); }
-    .detail-owner-actions { position: sticky; top: 0; z-index: 5; display: flex; justify-content: flex-end; gap: 8px; padding: 8px 12px; background: rgba(255, 253, 248, .94); backdrop-filter: blur(10px); }
+    .detail-owner-actions { position: fixed; z-index: 46; top: calc(5dvh + 10px); left: calc(5vw + 10px); display: flex; gap: 8px; }
     .detail-owner-actions .button { min-height: 36px; }
     .detail-owner-actions .delete-listing { color: var(--bad); border-color: rgba(202, 76, 67, .35); }
-    body.dark .detail-owner-actions { background: rgba(15, 25, 30, .94); }
-    #descriptionInput { min-height: min(52dvh, 430px); }
+    #descriptionInput { min-height: 0; }
     .draft-card { display: none; gap: 16px; }
     .draft-card.active { display: grid; }
     .confirm-window { grid-template-rows: auto auto; width: min(420px, 100%); }
@@ -1456,6 +1457,9 @@
       opacity: 1;
       pointer-events: auto;
     }
+    body.listing-active .nav { display: none; }
+    body.listing-active .app { padding-bottom: 0; }
+    .listing-exit { position: fixed; z-index: 32; top: max(12px, env(safe-area-inset-top)); right: 14px; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 50%; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); font-size: 24px; line-height: 1; }
     .detail-sheet {
       width: min(640px, calc(100vw - 24px));
       max-width: calc(100vw - 24px);
@@ -2237,6 +2241,7 @@
 
       <div id="list" class="view">
         <div class="listing-workflow">
+          <button id="listingExit" class="listing-exit" type="button" aria-label="Exit listing">×</button>
           <section id="captureStep" class="panel workflow-panel">
             <input id="listerInput" type="hidden" value="owner">
             <input id="verificationInput" type="hidden" value="">
@@ -2308,13 +2313,12 @@
                 <label>Listing title<input id="titleInput" value="Bright 4-room near Bishan MRT" maxlength="42"></label>
                 <label>Asking rent<span class="currency-field"><span>$</span><input id="rentInput" type="number" value="3750" min="500" step="100"></span></label>
               </div>
+              <div class="rent-slider-row"><span>Adjust rent</span><input id="rentSlider" type="range" min="500" max="10000" step="100" value="3800" aria-label="Adjust asking rent"></div>
               <aside class="rent-card">
                 <span class="eyebrow">Suggested asking rent</span>
                 <strong id="rentGuide">$3,650-$3,900</strong>
                 <div id="rentScatter" class="rent-scatter" aria-label="Comparable rental prices"></div>
-                <small>Comparable homes of a similar size</small>
               </aside>
-              <label class="rent-slider-label">Adjust asking rent<input id="rentSlider" type="range" min="500" max="10000" step="100" value="3800"></label>
               <div class="listing-actions"><button class="button secondary" type="button" data-listing-back>Back</button><button id="continueDescription" class="button coral" type="button">Continue</button></div>
             </section>
             <section class="draft-card description-card" data-draft-card="description">
@@ -2340,13 +2344,13 @@
 
   <section id="detailBackdrop" class="detail-backdrop" aria-hidden="true">
     <button id="detailClose" class="detail-close" type="button" aria-label="Close listing details">×</button>
+    <div id="detailOwnerActions" class="detail-owner-actions hidden"><button id="detailEdit" class="button secondary" type="button">Edit</button><button id="detailDelete" class="button secondary delete-listing" type="button">Delete</button></div>
     <article class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
       <div id="detailPhoto" class="detail-photo">
         <div id="detailCarousel"></div>
         <span id="detailRibbon" class="badge owner">Owner</span>
         <div id="detailPhotoDots"></div>
       </div>
-      <div id="detailOwnerActions" class="detail-owner-actions hidden"><button id="detailEdit" class="button secondary" type="button">Edit</button><button id="detailDelete" class="button secondary delete-listing" type="button">Delete</button></div>
       <div class="detail-body">
         <div class="detail-topline">
           <div>
@@ -3000,6 +3004,7 @@
     function setView(name, fromHistory = false) {
       closeFloatingLayersForTabSwitch();
       currentView = name;
+      document.body.classList.toggle("listing-active", name === "list");
       views.forEach((view) => view.classList.toggle("active", view.id === name));
       document.querySelectorAll(".nav button").forEach((button) => button.classList.toggle("active", button.dataset.view === name));
       if (name === "liked") renderLikedListings();
@@ -4343,7 +4348,7 @@
       target.innerHTML = userListings.map((item) => `
         <button class="owned-listing" type="button" data-open-owned-title="${escapeHtml(item.title)}">
           <img src="${escapeHtml(item.image || "./assets/listings/01-bishan-hdb-living.jpg")}" alt="">
-          <div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.mode)} · $${Number(item.price || 0).toLocaleString()}/mo · ${escapeHtml(item.verification ? "Verification follow-up" : "Published")}</small></div>
+          <div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.mode)} · $${Number(item.price || 0).toLocaleString()}/mo</small></div>
         </button>
       `).join("");
       target.querySelectorAll("[data-open-owned-title]").forEach((button) => {
@@ -5450,6 +5455,7 @@
       document.getElementById("rentInput").value = event.target.value;
       refreshListingPreview();
     });
+    document.getElementById("listingExit").addEventListener("click", () => setView("listed"));
     document.getElementById("descriptionInput").addEventListener("input", (event) => {
       const textarea = event.currentTarget;
       const nextValue = textarea.value.replace(/(^|\n)-\s/g, "$1• ");
@@ -5546,7 +5552,7 @@
     document.getElementById("detailEdit").addEventListener("click", () => {
       const item = userListings.find((listing) => listing.title === selectedListing?.title);
       if (!item) return;
-      closeListingDetail();
+      closeListingDetail(true);
       openListingWorkflow(item);
     });
     document.getElementById("detailDelete").addEventListener("click", () => {
